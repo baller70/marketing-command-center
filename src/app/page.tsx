@@ -184,6 +184,8 @@ export default function MarketingCommandCenter() {
 
   const sections = [
     { id: "overview", label: "Dashboard", icon: BarChart3 },
+    { id: "analytics", label: "Analytics", icon: TrendingUp },
+    { id: "funnels", label: "Funnels", icon: Target },
     { id: "inbox", label: "Inbox", icon: Mail },
     { id: "contacts", label: "Contacts", icon: Users },
     { id: "platforms", label: "Platforms", icon: Zap },
@@ -415,6 +417,373 @@ export default function MarketingCommandCenter() {
                     <p className="text-sm text-neutral-300">{handoff.action}</p>
                   </div>
                 ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ANALYTICS TAB */}
+        {activeSection === "analytics" && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-white">Campaign Analytics</h2>
+              <div className="flex gap-2">
+                <select className="px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-lg text-white text-sm">
+                  <option value="7d">Last 7 Days</option>
+                  <option value="30d">Last 30 Days</option>
+                  <option value="90d">Last 90 Days</option>
+                </select>
+                <button className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 flex items-center gap-2">
+                  <RefreshCw className="w-4 h-4" /> Refresh
+                </button>
+              </div>
+            </div>
+
+            {/* Platform Summary Cards */}
+            <div className="grid grid-cols-3 gap-6">
+              {/* SendFox Stats */}
+              <div className="p-6 bg-neutral-900 rounded-xl border border-blue-500/30">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                    <Mail className="w-5 h-5 text-blue-400" />
+                  </div>
+                  <h3 className="font-bold text-white">SendFox</h3>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-2xl font-bold text-white">4,113</p>
+                    <p className="text-xs text-neutral-500">Total Contacts</p>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-green-400">22.5%</p>
+                    <p className="text-xs text-neutral-500">Avg Open Rate</p>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-blue-400">3.2%</p>
+                    <p className="text-xs text-neutral-500">Avg Click Rate</p>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-white">10</p>
+                    <p className="text-xs text-neutral-500">Active Lists</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Acumbamail Stats */}
+              <div className="p-6 bg-neutral-900 rounded-xl border border-purple-500/30">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                    <Phone className="w-5 h-5 text-purple-400" />
+                  </div>
+                  <h3 className="font-bold text-white">Acumbamail</h3>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-2xl font-bold text-white">3,432</p>
+                    <p className="text-xs text-neutral-500">Subscribers</p>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-green-400">28.1%</p>
+                    <p className="text-xs text-neutral-500">Email Open Rate</p>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-purple-400">90%+</p>
+                    <p className="text-xs text-neutral-500">SMS Open Rate</p>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-white">12</p>
+                    <p className="text-xs text-neutral-500">Campaigns</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* ReachInbox Stats */}
+              <div className="p-6 bg-neutral-900 rounded-xl border border-orange-500/30">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-orange-500/20 rounded-lg flex items-center justify-center">
+                    <Target className="w-5 h-5 text-orange-400" />
+                  </div>
+                  <h3 className="font-bold text-white">ReachInbox</h3>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-2xl font-bold text-white">14</p>
+                    <p className="text-xs text-neutral-500">Campaigns</p>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-green-400">58%</p>
+                    <p className="text-xs text-neutral-500">Open Rate</p>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-orange-400">14%</p>
+                    <p className="text-xs text-neutral-500">Reply Rate</p>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-white">Tier4</p>
+                    <p className="text-xs text-neutral-500">Plan Level</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Campaign Performance Matrix */}
+            <div className="p-6 bg-neutral-900 rounded-xl border border-neutral-800">
+              <h3 className="font-bold text-white mb-4">Campaign Performance Matrix</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-left text-neutral-500 border-b border-neutral-800">
+                      <th className="pb-3 pr-4">Campaign</th>
+                      <th className="pb-3 pr-4">Platform</th>
+                      <th className="pb-3 pr-4">Sent</th>
+                      <th className="pb-3 pr-4">Opens</th>
+                      <th className="pb-3 pr-4">Open %</th>
+                      <th className="pb-3 pr-4">Clicks</th>
+                      <th className="pb-3 pr-4">Click %</th>
+                      <th className="pb-3 pr-4">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-neutral-300">
+                    <tr className="border-b border-neutral-800/50">
+                      <td className="py-3 pr-4 font-medium">2025 Spring Skills Programs</td>
+                      <td className="py-3 pr-4"><span className="px-2 py-0.5 bg-purple-500/20 text-purple-400 rounded text-xs">Acumbamail</span></td>
+                      <td className="py-3 pr-4">2,450</td>
+                      <td className="py-3 pr-4">756</td>
+                      <td className="py-3 pr-4 text-green-400">30.9%</td>
+                      <td className="py-3 pr-4">198</td>
+                      <td className="py-3 pr-4 text-blue-400">8.1%</td>
+                      <td className="py-3 pr-4"><span className="px-2 py-0.5 bg-green-500/20 text-green-400 rounded text-xs">Completed</span></td>
+                    </tr>
+                    <tr className="border-b border-neutral-800/50">
+                      <td className="py-3 pr-4 font-medium">Summer AAU Tryouts</td>
+                      <td className="py-3 pr-4"><span className="px-2 py-0.5 bg-purple-500/20 text-purple-400 rounded text-xs">Acumbamail</span></td>
+                      <td className="py-3 pr-4">1,890</td>
+                      <td className="py-3 pr-4">612</td>
+                      <td className="py-3 pr-4 text-green-400">32.4%</td>
+                      <td className="py-3 pr-4">145</td>
+                      <td className="py-3 pr-4 text-blue-400">7.7%</td>
+                      <td className="py-3 pr-4"><span className="px-2 py-0.5 bg-green-500/20 text-green-400 rounded text-xs">Completed</span></td>
+                    </tr>
+                    <tr className="border-b border-neutral-800/50">
+                      <td className="py-3 pr-4 font-medium">Sparta Youth Parents</td>
+                      <td className="py-3 pr-4"><span className="px-2 py-0.5 bg-orange-500/20 text-orange-400 rounded text-xs">ReachInbox</span></td>
+                      <td className="py-3 pr-4">250</td>
+                      <td className="py-3 pr-4">145</td>
+                      <td className="py-3 pr-4 text-green-400">58.0%</td>
+                      <td className="py-3 pr-4">89</td>
+                      <td className="py-3 pr-4 text-blue-400">35.6%</td>
+                      <td className="py-3 pr-4"><span className="px-2 py-0.5 bg-yellow-500/20 text-yellow-400 rounded text-xs">Active</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* PostHog Integration */}
+            <div className="p-6 bg-neutral-900 rounded-xl border border-neutral-800">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                    <BarChart3 className="w-5 h-5 text-blue-400" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-white">PostHog Analytics</h3>
+                    <p className="text-xs text-neutral-500">Website & App Tracking</p>
+                  </div>
+                </div>
+                <a href="https://us.posthog.com/project/297549" target="_blank" className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 text-sm">
+                  Open PostHog
+                </a>
+              </div>
+              <div className="grid grid-cols-4 gap-4">
+                <div className="p-4 bg-neutral-800 rounded-lg text-center">
+                  <p className="text-2xl font-bold text-white">297549</p>
+                  <p className="text-xs text-neutral-500">Project ID</p>
+                </div>
+                <div className="p-4 bg-neutral-800 rounded-lg text-center">
+                  <p className="text-2xl font-bold text-green-400">1M</p>
+                  <p className="text-xs text-neutral-500">Free Events/Mo</p>
+                </div>
+                <div className="p-4 bg-neutral-800 rounded-lg text-center">
+                  <p className="text-2xl font-bold text-blue-400">5K</p>
+                  <p className="text-xs text-neutral-500">Session Recordings</p>
+                </div>
+                <div className="p-4 bg-neutral-800 rounded-lg text-center">
+                  <p className="text-2xl font-bold text-purple-400">Active</p>
+                  <p className="text-xs text-neutral-500">Status</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* USER JOURNEY / FUNNELS TAB */}
+        {activeSection === "funnels" && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-white">User Journey & Funnels</h2>
+              <button className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 flex items-center gap-2">
+                <Plus className="w-4 h-4" /> Create Funnel
+              </button>
+            </div>
+
+            {/* Main Enrollment Funnel */}
+            <div className="p-6 bg-neutral-900 rounded-xl border border-neutral-800">
+              <h3 className="font-bold text-white mb-6">House of Sports Enrollment Funnel</h3>
+              
+              {/* Funnel Visualization */}
+              <div className="flex items-center justify-center gap-2 mb-8">
+                <div className="text-center">
+                  <div className="w-48 h-20 bg-gradient-to-b from-orange-500/30 to-orange-500/10 rounded-t-lg flex items-center justify-center border border-orange-500/30">
+                    <div>
+                      <p className="text-2xl font-bold text-white">7,500+</p>
+                      <p className="text-xs text-orange-400">AWARENESS</p>
+                    </div>
+                  </div>
+                </div>
+                <ArrowRight className="w-6 h-6 text-neutral-600" />
+                <div className="text-center">
+                  <div className="w-40 h-20 bg-gradient-to-b from-yellow-500/30 to-yellow-500/10 rounded-lg flex items-center justify-center border border-yellow-500/30">
+                    <div>
+                      <p className="text-2xl font-bold text-white">4,113</p>
+                      <p className="text-xs text-yellow-400">SUBSCRIBERS</p>
+                    </div>
+                  </div>
+                </div>
+                <ArrowRight className="w-6 h-6 text-neutral-600" />
+                <div className="text-center">
+                  <div className="w-32 h-20 bg-gradient-to-b from-blue-500/30 to-blue-500/10 rounded-lg flex items-center justify-center border border-blue-500/30">
+                    <div>
+                      <p className="text-2xl font-bold text-white">892</p>
+                      <p className="text-xs text-blue-400">ENGAGED</p>
+                    </div>
+                  </div>
+                </div>
+                <ArrowRight className="w-6 h-6 text-neutral-600" />
+                <div className="text-center">
+                  <div className="w-28 h-20 bg-gradient-to-b from-purple-500/30 to-purple-500/10 rounded-lg flex items-center justify-center border border-purple-500/30">
+                    <div>
+                      <p className="text-2xl font-bold text-white">156</p>
+                      <p className="text-xs text-purple-400">TRIALS</p>
+                    </div>
+                  </div>
+                </div>
+                <ArrowRight className="w-6 h-6 text-neutral-600" />
+                <div className="text-center">
+                  <div className="w-24 h-20 bg-gradient-to-b from-green-500/30 to-green-500/10 rounded-b-lg flex items-center justify-center border border-green-500/30">
+                    <div>
+                      <p className="text-2xl font-bold text-white">45</p>
+                      <p className="text-xs text-green-400">ENROLLED</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Conversion Rates */}
+              <div className="grid grid-cols-4 gap-4">
+                <div className="p-4 bg-neutral-800 rounded-lg text-center">
+                  <p className="text-xl font-bold text-orange-400">54.8%</p>
+                  <p className="text-xs text-neutral-500">Awareness → Subscriber</p>
+                </div>
+                <div className="p-4 bg-neutral-800 rounded-lg text-center">
+                  <p className="text-xl font-bold text-yellow-400">21.7%</p>
+                  <p className="text-xs text-neutral-500">Subscriber → Engaged</p>
+                </div>
+                <div className="p-4 bg-neutral-800 rounded-lg text-center">
+                  <p className="text-xl font-bold text-blue-400">17.5%</p>
+                  <p className="text-xs text-neutral-500">Engaged → Trial</p>
+                </div>
+                <div className="p-4 bg-neutral-800 rounded-lg text-center">
+                  <p className="text-xl font-bold text-green-400">28.8%</p>
+                  <p className="text-xs text-neutral-500">Trial → Enrolled</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Journey Stages */}
+            <div className="grid grid-cols-5 gap-4">
+              <div className="p-4 bg-neutral-900 rounded-xl border border-orange-500/20">
+                <div className="w-8 h-8 bg-orange-500/20 rounded-full flex items-center justify-center mb-3">
+                  <span className="text-orange-400 font-bold">1</span>
+                </div>
+                <h4 className="font-bold text-white mb-2">Awareness</h4>
+                <p className="text-xs text-neutral-400 mb-3">First touchpoint - social, ads, word of mouth</p>
+                <p className="text-xs text-neutral-500">Tools: ReachInbox, Social Media</p>
+              </div>
+              <div className="p-4 bg-neutral-900 rounded-xl border border-yellow-500/20">
+                <div className="w-8 h-8 bg-yellow-500/20 rounded-full flex items-center justify-center mb-3">
+                  <span className="text-yellow-400 font-bold">2</span>
+                </div>
+                <h4 className="font-bold text-white mb-2">Subscriber</h4>
+                <p className="text-xs text-neutral-400 mb-3">Joins email list - interested but not committed</p>
+                <p className="text-xs text-neutral-500">Tools: SendFox forms</p>
+              </div>
+              <div className="p-4 bg-neutral-900 rounded-xl border border-blue-500/20">
+                <div className="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center mb-3">
+                  <span className="text-blue-400 font-bold">3</span>
+                </div>
+                <h4 className="font-bold text-white mb-2">Engaged</h4>
+                <p className="text-xs text-neutral-400 mb-3">Opens emails, clicks links, visits site</p>
+                <p className="text-xs text-neutral-500">Tools: SendFox automation</p>
+              </div>
+              <div className="p-4 bg-neutral-900 rounded-xl border border-purple-500/20">
+                <div className="w-8 h-8 bg-purple-500/20 rounded-full flex items-center justify-center mb-3">
+                  <span className="text-purple-400 font-bold">4</span>
+                </div>
+                <h4 className="font-bold text-white mb-2">Trial</h4>
+                <p className="text-xs text-neutral-400 mb-3">Books free session, attends tryout</p>
+                <p className="text-xs text-neutral-500">Tools: Acumbamail SMS</p>
+              </div>
+              <div className="p-4 bg-neutral-900 rounded-xl border border-green-500/20">
+                <div className="w-8 h-8 bg-green-500/20 rounded-full flex items-center justify-center mb-3">
+                  <span className="text-green-400 font-bold">5</span>
+                </div>
+                <h4 className="font-bold text-white mb-2">Enrolled</h4>
+                <p className="text-xs text-neutral-400 mb-3">Pays for program - active customer</p>
+                <p className="text-xs text-neutral-500">Tools: All platforms</p>
+              </div>
+            </div>
+
+            {/* Automation Sequences */}
+            <div className="p-6 bg-neutral-900 rounded-xl border border-neutral-800">
+              <h3 className="font-bold text-white mb-4">Active Automation Sequences</h3>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-4 bg-neutral-800 rounded-lg">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                      <Mail className="w-5 h-5 text-blue-400" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-white">Welcome Sequence</p>
+                      <p className="text-xs text-neutral-400">4 emails over 7 days • SendFox</p>
+                    </div>
+                  </div>
+                  <span className="px-3 py-1 bg-yellow-500/20 text-yellow-400 rounded text-xs">Setup Required</span>
+                </div>
+                <div className="flex items-center justify-between p-4 bg-neutral-800 rounded-lg">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                      <Phone className="w-5 h-5 text-purple-400" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-white">Tryout Reminder Sequence</p>
+                      <p className="text-xs text-neutral-400">Email + 2 SMS • Acumbamail</p>
+                    </div>
+                  </div>
+                  <span className="px-3 py-1 bg-yellow-500/20 text-yellow-400 rounded text-xs">Setup Required</span>
+                </div>
+                <div className="flex items-center justify-between p-4 bg-neutral-800 rounded-lg">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 bg-orange-500/20 rounded-lg flex items-center justify-center">
+                      <Target className="w-5 h-5 text-orange-400" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-white">Cold → Warm Transition</p>
+                      <p className="text-xs text-neutral-400">Reply detected → Move to SendFox • ReachInbox</p>
+                    </div>
+                  </div>
+                  <span className="px-3 py-1 bg-yellow-500/20 text-yellow-400 rounded text-xs">Setup Required</span>
+                </div>
               </div>
             </div>
           </div>
