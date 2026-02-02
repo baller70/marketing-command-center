@@ -92,7 +92,8 @@ const BRAND_CONFIG = {
     borderColor: 'border-blue-500',
     iconName: 'target' as const,
     tagline: 'Elite Skills Training',
-    audience: 'Parents of youth players seeking skill development'
+    audience: 'Parents of youth players seeking skill development',
+    website: 'https://thebasketballfactoryinc.com'
   },
   ra1: { 
     id: 'ra1', 
@@ -104,7 +105,8 @@ const BRAND_CONFIG = {
     borderColor: 'border-red-500',
     iconName: 'trophy' as const,
     tagline: 'Competitive AAU Basketball',
-    audience: 'Families seeking competitive team basketball'
+    audience: 'Families seeking competitive team basketball',
+    website: 'https://riseasoneaau.com'
   },
   hos: { 
     id: 'hos', 
@@ -116,7 +118,8 @@ const BRAND_CONFIG = {
     borderColor: 'border-green-500',
     iconName: 'building' as const,
     tagline: 'Premier Sports Facility',
-    audience: 'Local community, event planners, birthday parties'
+    audience: 'Local community, event planners, birthday parties',
+    website: 'https://thehouseofsports.com'
   },
   shotiq: { 
     id: 'shotiq', 
@@ -128,7 +131,8 @@ const BRAND_CONFIG = {
     borderColor: 'border-orange-500',
     iconName: 'smartphone' as const,
     tagline: 'AI Shooting Analysis',
-    audience: 'Tech-savvy players and coaches'
+    audience: 'Tech-savvy players and coaches',
+    website: 'https://shotiqai.com'
   },
   kevin: { 
     id: 'kevin', 
@@ -140,7 +144,8 @@ const BRAND_CONFIG = {
     borderColor: 'border-yellow-500',
     iconName: 'user' as const,
     tagline: 'Basketball Thought Leader',
-    audience: 'Coaches, trainers, basketball community'
+    audience: 'Coaches, trainers, basketball community',
+    website: ''
   },
   bookmarkai: { 
     id: 'bookmarkai', 
@@ -152,7 +157,8 @@ const BRAND_CONFIG = {
     borderColor: 'border-purple-500',
     iconName: 'bookmark' as const,
     tagline: 'AI-Powered Productivity',
-    audience: 'Knowledge workers, researchers, developers'
+    audience: 'Knowledge workers, researchers, developers',
+    website: 'https://bookmarkaihub.com'
   },
   all: {
     id: 'all',
@@ -164,7 +170,8 @@ const BRAND_CONFIG = {
     borderColor: 'border-neutral-500',
     iconName: 'globe' as const,
     tagline: 'Cross-Brand Overview',
-    audience: 'All audiences'
+    audience: 'All audiences',
+    website: ''
   }
 } as const;
 
