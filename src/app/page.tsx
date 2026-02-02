@@ -65,6 +65,8 @@ import {
   Plus,
   Phone,
   AtSign,
+  Sparkles,
+  X,
 } from "lucide-react";
 
 interface LiveEmailData {
@@ -794,8 +796,8 @@ export default function MarketingCommandCenter() {
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-2xl font-bold text-white">Email Inbox</h2>
-                <p className="text-sm text-neutral-400">Real parent/user emails only • No marketing junk</p>
+                <h2 className="text-2xl font-bold text-white">Smart Email Inbox</h2>
+                <p className="text-sm text-neutral-400">AI learns from your actions • Marketing filtered out</p>
               </div>
               <div className="flex gap-2">
                 <select 
@@ -810,7 +812,7 @@ export default function MarketingCommandCenter() {
                   }}
                 >
                   <option value="real">Real People Only</option>
-                  <option value="all">Show All</option>
+                  <option value="all">Show All (incl. Marketing)</option>
                 </select>
                 <button
                   onClick={fetchInbox}
@@ -823,23 +825,31 @@ export default function MarketingCommandCenter() {
               </div>
             </div>
 
-            {/* Funnel Stage Quick Add Buttons */}
-            <div className="p-4 rounded-xl bg-neutral-900 border border-neutral-800">
-              <p className="text-xs text-neutral-500 mb-3">CLICK EMAIL → SELECT FUNNEL STAGE</p>
-              <div className="flex flex-wrap gap-2">
-                <span className="px-3 py-1.5 bg-green-500/20 text-green-400 rounded-lg text-xs border border-green-500/30">New Lead</span>
-                <span className="px-3 py-1.5 bg-blue-500/20 text-blue-400 rounded-lg text-xs border border-blue-500/30">Interested Parent</span>
-                <span className="px-3 py-1.5 bg-purple-500/20 text-purple-400 rounded-lg text-xs border border-purple-500/30">TBF Training</span>
-                <span className="px-3 py-1.5 bg-red-500/20 text-red-400 rounded-lg text-xs border border-red-500/30">RA1 AAU</span>
-                <span className="px-3 py-1.5 bg-yellow-500/20 text-yellow-400 rounded-lg text-xs border border-yellow-500/30">Newsletter</span>
+            {/* Learning Info Banner */}
+            <div className="p-4 rounded-xl bg-gradient-to-r from-purple-500/10 to-blue-500/10 border border-purple-500/20">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center shrink-0">
+                  <Sparkles className="w-4 h-4 text-purple-400" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-white">Smart Filter Learning</p>
+                  <p className="text-xs text-neutral-400">Click ✓ to trust a sender (always show), ✗ to block (never show). The filter learns from your choices.</p>
+                </div>
               </div>
+            </div>
+
+            {/* Action Legend */}
+            <div className="flex flex-wrap gap-3 text-xs">
+              <span className="flex items-center gap-1 text-green-400"><Plus className="w-3 h-3" /> Add to Funnel (+ trust sender)</span>
+              <span className="flex items-center gap-1 text-blue-400"><CheckCircle className="w-3 h-3" /> Trust Sender</span>
+              <span className="flex items-center gap-1 text-red-400"><X className="w-3 h-3" /> Block Sender</span>
             </div>
 
             {inboxEmails.length === 0 && !loadingInbox && (
               <div className="p-12 rounded-xl bg-neutral-900 border border-neutral-800 text-center">
                 <Mail className="w-12 h-12 text-neutral-600 mx-auto mb-4" />
                 <h3 className="text-lg font-semibold text-white mb-2">No Emails Loaded</h3>
-                <p className="text-sm text-neutral-400 mb-4">Click Refresh to load your inbox (filtered for real people)</p>
+                <p className="text-sm text-neutral-400 mb-4">Click Refresh to load your smart-filtered inbox</p>
                 <button
                   onClick={fetchInbox}
                   className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-sm"
@@ -855,21 +865,29 @@ export default function MarketingCommandCenter() {
                   <div
                     key={email.id}
                     className={`p-4 rounded-xl bg-neutral-900 border transition-colors ${
-                      email.category === 'parent' 
-                        ? 'border-green-500/30 bg-green-500/5' 
-                        : email.category === 'business'
-                          ? 'border-blue-500/30 bg-blue-500/5'
-                          : 'border-neutral-800 hover:border-neutral-700'
+                      email.category === 'trusted'
+                        ? 'border-purple-500/30 bg-purple-500/5'
+                        : email.category === 'parent' 
+                          ? 'border-green-500/30 bg-green-500/5' 
+                          : email.category === 'business'
+                            ? 'border-blue-500/30 bg-blue-500/5'
+                            : 'border-neutral-800 hover:border-neutral-700'
                     }`}
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
+                          {email.category === 'trusted' && (
+                            <span className="px-1.5 py-0.5 bg-purple-500/20 text-purple-400 rounded text-[10px]">⭐ TRUSTED</span>
+                          )}
                           {email.category === 'parent' && (
                             <span className="px-1.5 py-0.5 bg-green-500/20 text-green-400 rounded text-[10px]">PARENT</span>
                           )}
                           {email.category === 'business' && (
                             <span className="px-1.5 py-0.5 bg-blue-500/20 text-blue-400 rounded text-[10px]">BUSINESS</span>
+                          )}
+                          {email.category === 'marketing' && (
+                            <span className="px-1.5 py-0.5 bg-red-500/20 text-red-400 rounded text-[10px]">MARKETING</span>
                           )}
                           <span className="font-medium text-white truncate">
                             {email.fromName || email.from}
@@ -882,41 +900,89 @@ export default function MarketingCommandCenter() {
                         <p className="text-xs text-neutral-500 mt-1">{email.from}</p>
                       </div>
                       <div className="flex gap-1 shrink-0">
+                        {/* Add to Funnel (also trusts sender) */}
                         <button
                           onClick={async () => {
-                            const res = await fetch('/api/funnel', {
+                            // Add to funnel
+                            const funnelRes = await fetch('/api/funnel', {
                               method: 'POST',
                               headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({
-                                email: email.from,
-                                name: email.fromName,
-                                stage: 'new-lead'
-                              })
+                              body: JSON.stringify({ email: email.from, name: email.fromName, stage: 'new-lead' })
                             });
-                            const data = await res.json();
-                            if (data.success) alert(`Added ${email.from} to New Lead funnel!`);
-                            else alert(`Error: ${data.error}`);
+                            // Also trust the sender
+                            await fetch('/api/email-filter', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ action: 'trust-sender', email: email.from })
+                            });
+                            const data = await funnelRes.json();
+                            if (data.success) {
+                              alert(`✅ Added to funnel + sender trusted!`);
+                              fetchInbox();
+                            }
                           }}
                           className="px-2 py-1.5 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded text-xs"
-                          title="Add to New Lead"
+                          title="Add to Funnel + Trust"
                         >
                           <Plus className="w-3 h-3" />
                         </button>
+                        
+                        {/* Trust Sender */}
+                        {email.category !== 'trusted' && (
+                          <button
+                            onClick={async () => {
+                              await fetch('/api/email-filter', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ action: 'trust-sender', email: email.from })
+                              });
+                              alert(`✅ ${email.from} is now trusted`);
+                              fetchInbox();
+                            }}
+                            className="px-2 py-1.5 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded text-xs"
+                            title="Trust this sender"
+                          >
+                            <CheckCircle className="w-3 h-3" />
+                          </button>
+                        )}
+                        
+                        {/* Block Sender */}
+                        <button
+                          onClick={async () => {
+                            await fetch('/api/email-filter', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ action: 'block-sender', email: email.from })
+                            });
+                            alert(`🚫 ${email.from} is now blocked`);
+                            fetchInbox();
+                          }}
+                          className="px-2 py-1.5 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded text-xs"
+                          title="Block this sender"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                        
+                        {/* Funnel dropdown */}
                         <select
                           onChange={async (e) => {
                             if (!e.target.value) return;
                             const res = await fetch('/api/funnel', {
                               method: 'POST',
                               headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({
-                                email: email.from,
-                                name: email.fromName,
-                                stage: e.target.value
-                              })
+                              body: JSON.stringify({ email: email.from, name: email.fromName, stage: e.target.value })
+                            });
+                            // Trust the sender
+                            await fetch('/api/email-filter', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ action: 'trust-sender', email: email.from })
                             });
                             const data = await res.json();
-                            if (data.success) alert(`Added to ${data.added.stage}!`);
-                            else alert(`Error: ${data.error}`);
+                            if (data.success) {
+                              alert(`✅ Added to ${data.added.stage} + sender trusted!`);
+                              fetchInbox();
+                            }
                             e.target.value = '';
                           }}
                           className="px-2 py-1.5 bg-neutral-800 text-neutral-300 rounded text-xs border-0"
@@ -935,16 +1001,22 @@ export default function MarketingCommandCenter() {
             )}
 
             {/* Stats */}
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-5 gap-4">
               <div className="p-4 bg-neutral-900 rounded-xl border border-neutral-800 text-center">
                 <p className="text-2xl font-bold text-white">{inboxEmails.length}</p>
-                <p className="text-xs text-neutral-400">Emails Shown</p>
+                <p className="text-xs text-neutral-400">Shown</p>
+              </div>
+              <div className="p-4 bg-neutral-900 rounded-xl border border-purple-500/20 text-center">
+                <p className="text-2xl font-bold text-purple-400">
+                  {inboxEmails.filter((e: any) => e.category === 'trusted').length}
+                </p>
+                <p className="text-xs text-neutral-400">Trusted</p>
               </div>
               <div className="p-4 bg-neutral-900 rounded-xl border border-green-500/20 text-center">
                 <p className="text-2xl font-bold text-green-400">
                   {inboxEmails.filter((e: any) => e.category === 'parent').length}
                 </p>
-                <p className="text-xs text-neutral-400">Parent Inquiries</p>
+                <p className="text-xs text-neutral-400">Parents</p>
               </div>
               <div className="p-4 bg-neutral-900 rounded-xl border border-blue-500/20 text-center">
                 <p className="text-2xl font-bold text-blue-400">
