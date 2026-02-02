@@ -80,7 +80,7 @@ interface LiveEmailData {
   };
 }
 
-// Brand Configuration with full details
+// Brand Configuration with full details - Using Lucide icons (NO EMOJIS)
 const BRAND_CONFIG = {
   tbf: { 
     id: 'tbf', 
@@ -90,7 +90,7 @@ const BRAND_CONFIG = {
     bgColor: 'bg-blue-900',
     textColor: 'text-blue-400',
     borderColor: 'border-blue-500',
-    icon: '🏀',
+    iconName: 'target' as const,
     tagline: 'Elite Skills Training',
     audience: 'Parents of youth players seeking skill development'
   },
@@ -102,7 +102,7 @@ const BRAND_CONFIG = {
     bgColor: 'bg-red-900',
     textColor: 'text-red-400',
     borderColor: 'border-red-500',
-    icon: '🔴',
+    iconName: 'trophy' as const,
     tagline: 'Competitive AAU Basketball',
     audience: 'Families seeking competitive team basketball'
   },
@@ -114,7 +114,7 @@ const BRAND_CONFIG = {
     bgColor: 'bg-green-900',
     textColor: 'text-green-400',
     borderColor: 'border-green-500',
-    icon: '🏠',
+    iconName: 'building' as const,
     tagline: 'Premier Sports Facility',
     audience: 'Local community, event planners, birthday parties'
   },
@@ -126,7 +126,7 @@ const BRAND_CONFIG = {
     bgColor: 'bg-orange-900',
     textColor: 'text-orange-400',
     borderColor: 'border-orange-500',
-    icon: '📱',
+    iconName: 'smartphone' as const,
     tagline: 'AI Shooting Analysis',
     audience: 'Tech-savvy players and coaches'
   },
@@ -138,7 +138,7 @@ const BRAND_CONFIG = {
     bgColor: 'bg-yellow-900',
     textColor: 'text-yellow-400',
     borderColor: 'border-yellow-500',
-    icon: '👤',
+    iconName: 'user' as const,
     tagline: 'Basketball Thought Leader',
     audience: 'Coaches, trainers, basketball community'
   },
@@ -150,7 +150,7 @@ const BRAND_CONFIG = {
     bgColor: 'bg-purple-900',
     textColor: 'text-purple-400',
     borderColor: 'border-purple-500',
-    icon: '📚',
+    iconName: 'bookmark' as const,
     tagline: 'AI-Powered Productivity',
     audience: 'Knowledge workers, researchers, developers'
   },
@@ -162,11 +162,25 @@ const BRAND_CONFIG = {
     bgColor: 'bg-neutral-800',
     textColor: 'text-neutral-300',
     borderColor: 'border-neutral-500',
-    icon: '🌐',
+    iconName: 'globe' as const,
     tagline: 'Cross-Brand Overview',
     audience: 'All audiences'
   }
 } as const;
+
+// Icon mapping for brands
+const BrandIcon = ({ iconName, className, style }: { iconName: string; className?: string; style?: React.CSSProperties }) => {
+  const icons: Record<string, React.ReactNode> = {
+    target: <Target className={className} style={style} />,
+    trophy: <Trophy className={className} style={style} />,
+    building: <Building className={className} style={style} />,
+    smartphone: <Zap className={className} style={style} />,
+    user: <Users className={className} style={style} />,
+    bookmark: <FileText className={className} style={style} />,
+    globe: <PieChart className={className} style={style} />,
+  };
+  return <>{icons[iconName] || <Target className={className} style={style} />}</>;
+};
 
 type BrandId = keyof typeof BRAND_CONFIG;
 
@@ -447,7 +461,7 @@ export default function MarketingCommandCenter() {
                   borderBottomColor: brand.color 
                 } : {}}
               >
-                <span className="text-lg">{brand.icon}</span>
+                <BrandIcon iconName={brand.iconName} className="w-5 h-5" style={{ color: brand.color }} />
                 <span className="text-sm font-medium">{brand.shortName}</span>
               </button>
             ))}
@@ -467,7 +481,7 @@ export default function MarketingCommandCenter() {
                 className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl"
                 style={{ backgroundColor: `${currentBrand.color}30` }}
               >
-                {currentBrand.icon}
+                <BrandIcon iconName={currentBrand.iconName} className="w-6 h-6" style={{ color: currentBrand.color }} />
               </div>
               <div>
                 <h1 className="text-xl font-bold text-white" style={{ fontFamily: 'Russo One, sans-serif' }}>
@@ -567,7 +581,7 @@ export default function MarketingCommandCenter() {
                         className="p-4 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-neutral-600 transition-all text-left group"
                       >
                         <div className="flex items-center gap-2 mb-3">
-                          <span className="text-2xl">{brand.icon}</span>
+                          <BrandIcon iconName={brand.iconName} className="w-6 h-6" style={{ color: brand.color }} />
                           <span className="text-sm font-bold text-white">{brand.shortName}</span>
                         </div>
                         <div className="space-y-2">
@@ -673,7 +687,7 @@ export default function MarketingCommandCenter() {
                   <div className="flex items-start justify-between">
                     <div>
                       <div className="flex items-center gap-3 mb-2">
-                        <span className="text-4xl">{currentBrand.icon}</span>
+                        <BrandIcon iconName={currentBrand.iconName} className="w-10 h-10" style={{ color: currentBrand.color }} />
                         <div>
                           <h2 className="text-2xl font-bold text-white" style={{ fontFamily: 'Russo One, sans-serif' }}>
                             {currentBrand.name}
