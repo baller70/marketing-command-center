@@ -93,7 +93,15 @@ const BRAND_CONFIG = {
     iconName: 'target' as const,
     tagline: 'Elite Skills Training',
     audience: 'Parents of youth players seeking skill development',
-    website: 'https://thebasketballfactoryinc.com'
+    website: 'https://thebasketballfactoryinc.com',
+    social: {
+      instagram: 'thebasketballfactorynj',
+      tiktok: 'thebasketballfactorynj',
+      facebook: 'thebasketballfactorynj',
+      twitter: 'tbabornnj',
+      youtube: '@thebasketballfactorynj',
+      linkedin: ''
+    }
   },
   ra1: { 
     id: 'ra1', 
@@ -106,7 +114,15 @@ const BRAND_CONFIG = {
     iconName: 'trophy' as const,
     tagline: 'Competitive AAU Basketball',
     audience: 'Families seeking competitive team basketball',
-    website: 'https://riseasoneaau.com'
+    website: 'https://riseasoneaau.com',
+    social: {
+      instagram: 'riseasone_aau',
+      tiktok: 'riseasone_aau',
+      facebook: 'riseasoneaau',
+      twitter: 'riseasone_aau',
+      youtube: '',
+      linkedin: ''
+    }
   },
   hos: { 
     id: 'hos', 
@@ -119,7 +135,15 @@ const BRAND_CONFIG = {
     iconName: 'building' as const,
     tagline: 'Premier Sports Facility',
     audience: 'Local community, event planners, birthday parties',
-    website: 'https://thehouseofsports.com'
+    website: 'https://thehouseofsports.com',
+    social: {
+      instagram: 'houseofsportsnj',
+      tiktok: '',
+      facebook: 'houseofsportsnj',
+      twitter: '',
+      youtube: '',
+      linkedin: ''
+    }
   },
   shotiq: { 
     id: 'shotiq', 
@@ -132,7 +156,15 @@ const BRAND_CONFIG = {
     iconName: 'smartphone' as const,
     tagline: 'AI Shooting Analysis',
     audience: 'Tech-savvy players and coaches',
-    website: 'https://shotiqai.com'
+    website: 'https://shotiqai.com',
+    social: {
+      instagram: 'shotiqai',
+      tiktok: 'shotiqai',
+      facebook: '',
+      twitter: 'shotiqai',
+      youtube: '',
+      linkedin: ''
+    }
   },
   kevin: { 
     id: 'kevin', 
@@ -145,7 +177,15 @@ const BRAND_CONFIG = {
     iconName: 'user' as const,
     tagline: 'Basketball Thought Leader',
     audience: 'Coaches, trainers, basketball community',
-    website: ''
+    website: '',
+    social: {
+      instagram: 'kevinhouston_hoops',
+      tiktok: 'kevinhouston_hoops',
+      facebook: '',
+      twitter: 'kevinhouston',
+      youtube: '',
+      linkedin: 'kevinhouston'
+    }
   },
   bookmarkai: { 
     id: 'bookmarkai', 
@@ -158,7 +198,15 @@ const BRAND_CONFIG = {
     iconName: 'bookmark' as const,
     tagline: 'AI-Powered Productivity',
     audience: 'Knowledge workers, researchers, developers',
-    website: 'https://bookmarkaihub.com'
+    website: 'https://bookmarkaihub.com',
+    social: {
+      instagram: '',
+      tiktok: '',
+      facebook: '',
+      twitter: 'bookmarkaihub',
+      youtube: '',
+      linkedin: ''
+    }
   },
   all: {
     id: 'all',
@@ -171,7 +219,15 @@ const BRAND_CONFIG = {
     iconName: 'globe' as const,
     tagline: 'Cross-Brand Overview',
     audience: 'All audiences',
-    website: ''
+    website: '',
+    social: {
+      instagram: '',
+      tiktok: '',
+      facebook: '',
+      twitter: '',
+      youtube: '',
+      linkedin: ''
+    }
   }
 } as const;
 
