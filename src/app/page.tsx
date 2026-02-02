@@ -795,23 +795,51 @@ export default function MarketingCommandCenter() {
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-2xl font-bold text-white">Email Inbox</h2>
-                <p className="text-sm text-neutral-400">khouston@thebasketballfactorynj.com</p>
+                <p className="text-sm text-neutral-400">Real parent/user emails only • No marketing junk</p>
               </div>
-              <button
-                onClick={fetchInbox}
-                disabled={loadingInbox}
-                className="px-4 py-2 bg-orange-500 hover:bg-orange-600 disabled:bg-neutral-700 text-white rounded-lg flex items-center gap-2 text-sm"
-              >
-                <RefreshCw className={`w-4 h-4 ${loadingInbox ? 'animate-spin' : ''}`} />
-                {loadingInbox ? 'Loading...' : 'Refresh Inbox'}
-              </button>
+              <div className="flex gap-2">
+                <select 
+                  className="px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-lg text-white text-sm"
+                  onChange={(e) => {
+                    const filter = e.target.value;
+                    fetch(`/api/gmail?filter=${filter}&limit=30`)
+                      .then(r => r.json())
+                      .then(data => {
+                        if (data.success) setInboxEmails(data.emails);
+                      });
+                  }}
+                >
+                  <option value="real">Real People Only</option>
+                  <option value="all">Show All</option>
+                </select>
+                <button
+                  onClick={fetchInbox}
+                  disabled={loadingInbox}
+                  className="px-4 py-2 bg-orange-500 hover:bg-orange-600 disabled:bg-neutral-700 text-white rounded-lg flex items-center gap-2 text-sm"
+                >
+                  <RefreshCw className={`w-4 h-4 ${loadingInbox ? 'animate-spin' : ''}`} />
+                  {loadingInbox ? 'Loading...' : 'Refresh'}
+                </button>
+              </div>
+            </div>
+
+            {/* Funnel Stage Quick Add Buttons */}
+            <div className="p-4 rounded-xl bg-neutral-900 border border-neutral-800">
+              <p className="text-xs text-neutral-500 mb-3">CLICK EMAIL → SELECT FUNNEL STAGE</p>
+              <div className="flex flex-wrap gap-2">
+                <span className="px-3 py-1.5 bg-green-500/20 text-green-400 rounded-lg text-xs border border-green-500/30">New Lead</span>
+                <span className="px-3 py-1.5 bg-blue-500/20 text-blue-400 rounded-lg text-xs border border-blue-500/30">Interested Parent</span>
+                <span className="px-3 py-1.5 bg-purple-500/20 text-purple-400 rounded-lg text-xs border border-purple-500/30">TBF Training</span>
+                <span className="px-3 py-1.5 bg-red-500/20 text-red-400 rounded-lg text-xs border border-red-500/30">RA1 AAU</span>
+                <span className="px-3 py-1.5 bg-yellow-500/20 text-yellow-400 rounded-lg text-xs border border-yellow-500/30">Newsletter</span>
+              </div>
             </div>
 
             {inboxEmails.length === 0 && !loadingInbox && (
               <div className="p-12 rounded-xl bg-neutral-900 border border-neutral-800 text-center">
                 <Mail className="w-12 h-12 text-neutral-600 mx-auto mb-4" />
                 <h3 className="text-lg font-semibold text-white mb-2">No Emails Loaded</h3>
-                <p className="text-sm text-neutral-400 mb-4">Click Refresh to load your inbox</p>
+                <p className="text-sm text-neutral-400 mb-4">Click Refresh to load your inbox (filtered for real people)</p>
                 <button
                   onClick={fetchInbox}
                   className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-sm"
@@ -826,11 +854,23 @@ export default function MarketingCommandCenter() {
                 {inboxEmails.map((email: any) => (
                   <div
                     key={email.id}
-                    className="p-4 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-neutral-700 transition-colors"
+                    className={`p-4 rounded-xl bg-neutral-900 border transition-colors ${
+                      email.category === 'parent' 
+                        ? 'border-green-500/30 bg-green-500/5' 
+                        : email.category === 'business'
+                          ? 'border-blue-500/30 bg-blue-500/5'
+                          : 'border-neutral-800 hover:border-neutral-700'
+                    }`}
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
+                          {email.category === 'parent' && (
+                            <span className="px-1.5 py-0.5 bg-green-500/20 text-green-400 rounded text-[10px]">PARENT</span>
+                          )}
+                          {email.category === 'business' && (
+                            <span className="px-1.5 py-0.5 bg-blue-500/20 text-blue-400 rounded text-[10px]">BUSINESS</span>
+                          )}
                           <span className="font-medium text-white truncate">
                             {email.fromName || email.from}
                           </span>
@@ -841,14 +881,52 @@ export default function MarketingCommandCenter() {
                         <p className="text-sm text-neutral-400 truncate">{email.subject}</p>
                         <p className="text-xs text-neutral-500 mt-1">{email.from}</p>
                       </div>
-                      <div className="flex gap-2 shrink-0">
+                      <div className="flex gap-1 shrink-0">
                         <button
-                          onClick={() => addToFunnel(email)}
-                          className="px-3 py-1.5 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded text-xs flex items-center gap-1"
+                          onClick={async () => {
+                            const res = await fetch('/api/funnel', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({
+                                email: email.from,
+                                name: email.fromName,
+                                stage: 'new-lead'
+                              })
+                            });
+                            const data = await res.json();
+                            if (data.success) alert(`Added ${email.from} to New Lead funnel!`);
+                            else alert(`Error: ${data.error}`);
+                          }}
+                          className="px-2 py-1.5 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded text-xs"
+                          title="Add to New Lead"
                         >
                           <Plus className="w-3 h-3" />
-                          Add to Funnel
                         </button>
+                        <select
+                          onChange={async (e) => {
+                            if (!e.target.value) return;
+                            const res = await fetch('/api/funnel', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({
+                                email: email.from,
+                                name: email.fromName,
+                                stage: e.target.value
+                              })
+                            });
+                            const data = await res.json();
+                            if (data.success) alert(`Added to ${data.added.stage}!`);
+                            else alert(`Error: ${data.error}`);
+                            e.target.value = '';
+                          }}
+                          className="px-2 py-1.5 bg-neutral-800 text-neutral-300 rounded text-xs border-0"
+                        >
+                          <option value="">Add to...</option>
+                          <option value="new-lead">New Lead</option>
+                          <option value="interested">Interested Parent</option>
+                          <option value="tbf-training">TBF Training</option>
+                          <option value="ra1-aau">RA1 AAU Interest</option>
+                        </select>
                       </div>
                     </div>
                   </div>
@@ -856,31 +934,29 @@ export default function MarketingCommandCenter() {
               </div>
             )}
 
-            {/* Quick Add Form */}
-            <div className="p-6 rounded-xl bg-neutral-900 border border-neutral-800">
-              <h3 className="font-semibold text-white mb-4">Quick Add to Funnel</h3>
-              <p className="text-sm text-neutral-400 mb-4">
-                See an interesting inquiry? Click "Add to Funnel" to add them to your SendFox nurture sequence.
-              </p>
-              <div className="grid grid-cols-3 gap-4 text-center">
-                <div className="p-4 bg-neutral-800 rounded-lg">
-                  <p className="text-2xl font-bold text-white">{inboxEmails.length}</p>
-                  <p className="text-xs text-neutral-400">Emails Loaded</p>
-                </div>
-                <div className="p-4 bg-neutral-800 rounded-lg">
-                  <p className="text-2xl font-bold text-green-400">
-                    {inboxEmails.filter((e: any) => 
-                      e.subject?.toLowerCase().includes('basketball') ||
-                      e.subject?.toLowerCase().includes('training') ||
-                      e.subject?.toLowerCase().includes('tryout')
-                    ).length}
-                  </p>
-                  <p className="text-xs text-neutral-400">Potential Leads</p>
-                </div>
-                <div className="p-4 bg-neutral-800 rounded-lg">
-                  <p className="text-2xl font-bold text-blue-400">534537</p>
-                  <p className="text-xs text-neutral-400">Target List ID</p>
-                </div>
+            {/* Stats */}
+            <div className="grid grid-cols-4 gap-4">
+              <div className="p-4 bg-neutral-900 rounded-xl border border-neutral-800 text-center">
+                <p className="text-2xl font-bold text-white">{inboxEmails.length}</p>
+                <p className="text-xs text-neutral-400">Emails Shown</p>
+              </div>
+              <div className="p-4 bg-neutral-900 rounded-xl border border-green-500/20 text-center">
+                <p className="text-2xl font-bold text-green-400">
+                  {inboxEmails.filter((e: any) => e.category === 'parent').length}
+                </p>
+                <p className="text-xs text-neutral-400">Parent Inquiries</p>
+              </div>
+              <div className="p-4 bg-neutral-900 rounded-xl border border-blue-500/20 text-center">
+                <p className="text-2xl font-bold text-blue-400">
+                  {inboxEmails.filter((e: any) => e.category === 'business').length}
+                </p>
+                <p className="text-xs text-neutral-400">Business</p>
+              </div>
+              <div className="p-4 bg-neutral-900 rounded-xl border border-neutral-800 text-center">
+                <p className="text-2xl font-bold text-neutral-400">
+                  {inboxEmails.filter((e: any) => e.category === 'unknown').length}
+                </p>
+                <p className="text-xs text-neutral-400">Other</p>
               </div>
             </div>
           </div>
