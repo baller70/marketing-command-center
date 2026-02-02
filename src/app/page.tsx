@@ -156,9 +156,36 @@ export default function MarketingCommandCenter() {
     fetchEmailData();
   }, []);
 
+  // Contacts state
+  const [contacts, setContacts] = useState<any[]>([]);
+  const [contactsLoading, setContactsLoading] = useState(false);
+  const [contactFilter, setContactFilter] = useState('real');
+  const [contactSearch, setContactSearch] = useState('');
+  const [contactStats, setContactStats] = useState<any>(null);
+
+  // Fetch unified contacts
+  const fetchContacts = async (filter = 'real', search = '') => {
+    setContactsLoading(true);
+    try {
+      const params = new URLSearchParams({ filter, limit: '100' });
+      if (search) params.append('search', search);
+      const res = await fetch(`/api/contacts?${params}`);
+      const data = await res.json();
+      if (data.success) {
+        setContacts(data.contacts);
+        setContactStats(data.stats);
+      }
+    } catch (error) {
+      console.error('Failed to fetch contacts:', error);
+    } finally {
+      setContactsLoading(false);
+    }
+  };
+
   const sections = [
     { id: "overview", label: "Dashboard", icon: BarChart3 },
     { id: "inbox", label: "Inbox", icon: Mail },
+    { id: "contacts", label: "Contacts", icon: Users },
     { id: "territory", label: "Territory", icon: Map },
     { id: "competitors", label: "Intel", icon: Eye },
     { id: "schools", label: "Schools", icon: SchoolIcon },
@@ -484,6 +511,200 @@ export default function MarketingCommandCenter() {
                 </div>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* UNIFIED CONTACTS */}
+        {activeSection === "contacts" && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-white">Unified Contacts</h2>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => { setContactFilter('real'); fetchContacts('real', contactSearch); }}
+                  className={`px-3 py-1.5 rounded-lg text-sm ${contactFilter === 'real' ? 'bg-orange-500 text-white' : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700'}`}
+                >
+                  Real People
+                </button>
+                <button
+                  onClick={() => { setContactFilter('engaged'); fetchContacts('engaged', contactSearch); }}
+                  className={`px-3 py-1.5 rounded-lg text-sm ${contactFilter === 'engaged' ? 'bg-orange-500 text-white' : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700'}`}
+                >
+                  Engaged
+                </button>
+                <button
+                  onClick={() => { setContactFilter('all'); fetchContacts('all', contactSearch); }}
+                  className={`px-3 py-1.5 rounded-lg text-sm ${contactFilter === 'all' ? 'bg-orange-500 text-white' : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700'}`}
+                >
+                  All
+                </button>
+                <button
+                  onClick={() => fetchContacts(contactFilter, contactSearch)}
+                  className="p-2 bg-neutral-800 rounded-lg hover:bg-neutral-700"
+                >
+                  <RefreshCw className={`w-4 h-4 ${contactsLoading ? 'animate-spin' : ''}`} />
+                </button>
+              </div>
+            </div>
+
+            {/* Search */}
+            <div className="flex gap-4">
+              <input
+                type="text"
+                placeholder="Search by email, name, or note..."
+                value={contactSearch}
+                onChange={(e) => setContactSearch(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && fetchContacts(contactFilter, contactSearch)}
+                className="flex-1 px-4 py-2 bg-neutral-900 border border-neutral-700 rounded-lg text-white placeholder-neutral-500"
+              />
+              <button
+                onClick={() => fetchContacts(contactFilter, contactSearch)}
+                className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
+              >
+                Search
+              </button>
+            </div>
+
+            {/* Stats Cards */}
+            {contactStats && (
+              <div className="grid grid-cols-6 gap-4">
+                <div className="p-4 bg-neutral-900 rounded-xl border border-neutral-800">
+                  <p className="text-3xl font-bold text-white">{contactStats.total}</p>
+                  <p className="text-xs text-neutral-400">Total Shown</p>
+                </div>
+                <div className="p-4 bg-neutral-900 rounded-xl border border-neutral-800">
+                  <p className="text-3xl font-bold text-blue-400">{contactStats.fromSendFox}</p>
+                  <p className="text-xs text-neutral-400">From SendFox</p>
+                </div>
+                <div className="p-4 bg-neutral-900 rounded-xl border border-neutral-800">
+                  <p className="text-3xl font-bold text-purple-400">{contactStats.fromAcumbamail}</p>
+                  <p className="text-xs text-neutral-400">From Acumbamail</p>
+                </div>
+                <div className="p-4 bg-neutral-900 rounded-xl border border-neutral-800">
+                  <p className="text-3xl font-bold text-green-400">{contactStats.inBothPlatforms}</p>
+                  <p className="text-xs text-neutral-400">In Both</p>
+                </div>
+                <div className="p-4 bg-neutral-900 rounded-xl border border-neutral-800">
+                  <p className="text-3xl font-bold text-yellow-400">{contactStats.engaged}</p>
+                  <p className="text-xs text-neutral-400">Engaged</p>
+                </div>
+                <div className="p-4 bg-neutral-900 rounded-xl border border-neutral-800">
+                  <p className="text-3xl font-bold text-emerald-400">{contactStats.confirmed}</p>
+                  <p className="text-xs text-neutral-400">Confirmed</p>
+                </div>
+              </div>
+            )}
+
+            {/* Initial Load Button */}
+            {contacts.length === 0 && !contactsLoading && (
+              <div className="p-8 bg-neutral-900 rounded-xl border border-neutral-800 text-center">
+                <Users className="w-12 h-12 text-neutral-600 mx-auto mb-4" />
+                <p className="text-neutral-400 mb-4">Click to load contacts from SendFox & Acumbamail</p>
+                <button
+                  onClick={() => fetchContacts('real')}
+                  className="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
+                >
+                  Load Unified Contacts
+                </button>
+              </div>
+            )}
+
+            {/* Loading State */}
+            {contactsLoading && (
+              <div className="p-8 text-center">
+                <RefreshCw className="w-8 h-8 text-orange-500 animate-spin mx-auto mb-4" />
+                <p className="text-neutral-400">Loading contacts from all platforms...</p>
+              </div>
+            )}
+
+            {/* Contacts List */}
+            {contacts.length > 0 && !contactsLoading && (
+              <div className="space-y-2">
+                {contacts.map((contact) => (
+                  <div
+                    key={contact.id}
+                    className="p-4 bg-neutral-900 rounded-xl border border-neutral-800 hover:border-neutral-700 transition-colors"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-medium text-white">
+                            {contact.fullName || contact.email.split('@')[0]}
+                          </span>
+                          {contact.engagement.confirmed && (
+                            <CheckCircle className="w-4 h-4 text-green-400" />
+                          )}
+                          {contact.sources.map((src: string) => (
+                            <span
+                              key={src}
+                              className={`text-xs px-2 py-0.5 rounded ${
+                                src === 'SendFox' 
+                                  ? 'bg-blue-500/20 text-blue-400' 
+                                  : 'bg-purple-500/20 text-purple-400'
+                              }`}
+                            >
+                              {src}
+                            </span>
+                          ))}
+                        </div>
+                        <p className="text-sm text-neutral-400">{contact.email}</p>
+                        {contact.note && (
+                          <p className="text-sm text-neutral-500 mt-2 italic">"{contact.note}"</p>
+                        )}
+                        <div className="flex items-center gap-4 mt-2 text-xs text-neutral-500">
+                          {contact.engagement.lastOpened && (
+                            <span>Opened: {new Date(contact.engagement.lastOpened).toLocaleDateString()}</span>
+                          )}
+                          {contact.engagement.lastClicked && (
+                            <span>Clicked: {new Date(contact.engagement.lastClicked).toLocaleDateString()}</span>
+                          )}
+                          {contact.lists.length > 0 && (
+                            <span>Lists: {contact.lists.join(', ')}</span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => window.open(`mailto:${contact.email}`, '_blank')}
+                          className="p-2 bg-neutral-800 rounded-lg hover:bg-neutral-700 text-neutral-400 hover:text-white"
+                          title="Send Email"
+                        >
+                          <Mail className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(contact.email);
+                            alert('Email copied!');
+                          }}
+                          className="p-2 bg-neutral-800 rounded-lg hover:bg-neutral-700 text-neutral-400 hover:text-white"
+                          title="Copy Email"
+                        >
+                          <AtSign className="w-4 h-4" />
+                        </button>
+                        {contact.note?.includes('call') && (
+                          <button
+                            className="p-2 bg-green-500/20 rounded-lg hover:bg-green-500/30 text-green-400"
+                            title="Requested Call"
+                          >
+                            <Phone className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Summary */}
+            {contacts.length > 0 && (
+              <div className="p-4 bg-neutral-900 rounded-xl border border-neutral-800">
+                <p className="text-sm text-neutral-400">
+                  Showing {contacts.length} contacts. Data merged from SendFox and Acumbamail, deduplicated by email address.
+                  Use filters to find engaged subscribers or search for specific contacts.
+                </p>
+              </div>
+            )}
           </div>
         )}
 
