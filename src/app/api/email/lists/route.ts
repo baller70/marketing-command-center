@@ -8,7 +8,7 @@ const REACHINBOX_KEY = process.env.REACHINBOX_KEY || '631dc547-fa3e-45bf-bd7c-f0
 interface EmailList {
   id: string;
   name: string;
-  platform: 'sendfox' | 'acumbamail' | 'reachinbox';
+  platform: 'sendfox' | 'acumbamail' | 'reachinbox' | 'sendmails';
   subscribers: number;
   createdAt?: string;
 }
@@ -68,22 +68,46 @@ async function getReachInboxCampaigns(): Promise<{ campaigns: number; account: a
   }
 }
 
+// SendMails.io
+const SENDMAILS_TOKEN = 'EthjAGruw7tRrxHxykz3dZl0egdtq2KEkinxwqDNsPCyS8auXKHd0ltztg7k';
+
+async function getSendMailsLists(): Promise<EmailList[]> {
+  try {
+    const res = await fetch(`https://app.sendmails.io/api/v1/lists?api_token=${SENDMAILS_TOKEN}&per_page=50`, {
+      cache: 'no-store'
+    });
+    const data = await res.json();
+    return (data || []).map((list: any) => ({
+      id: `sendmails-${list.id}`,
+      name: list.name,
+      platform: 'sendmails' as const,
+      subscribers: parseInt(list.subscribers) || 0,
+      createdAt: list.created_at
+    }));
+  } catch (error) {
+    console.error('SendMails error:', error);
+    return [];
+  }
+}
+
 export async function GET() {
-  const [sendfoxLists, acumbamailLists, reachinboxData] = await Promise.all([
+  const [sendfoxLists, acumbamailLists, reachinboxData, sendmailsLists] = await Promise.all([
     getSendFoxLists(),
     getAcumbamailLists(),
-    getReachInboxCampaigns()
+    getReachInboxCampaigns(),
+    getSendMailsLists()
   ]);
 
   const totalSubscribers = 
     sendfoxLists.reduce((sum, l) => sum + l.subscribers, 0) +
-    acumbamailLists.reduce((sum, l) => sum + l.subscribers, 0);
+    acumbamailLists.reduce((sum, l) => sum + l.subscribers, 0) +
+    sendmailsLists.reduce((sum, l) => sum + l.subscribers, 0);
 
   return NextResponse.json({
     success: true,
     timestamp: new Date().toISOString(),
     summary: {
-      totalLists: sendfoxLists.length + acumbamailLists.length,
+      totalLists: sendfoxLists.length + acumbamailLists.length + sendmailsLists.length,
       totalSubscribers,
       reachinboxCampaigns: reachinboxData.campaigns
     },
@@ -97,6 +121,11 @@ export async function GET() {
         connected: true,
         lists: acumbamailLists,
         totalSubscribers: acumbamailLists.reduce((sum, l) => sum + l.subscribers, 0)
+      },
+      sendmails: {
+        connected: true,
+        lists: sendmailsLists,
+        totalSubscribers: sendmailsLists.reduce((sum, l) => sum + l.subscribers, 0)
       },
       reachinbox: {
         connected: true,
