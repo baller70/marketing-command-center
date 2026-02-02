@@ -86,53 +86,131 @@ export const brands = [
 ];
 
 // ============================================================
-// EMAIL LISTS
+// EMAIL LISTS - Brand Separated with [BRAND] Prefix
 // ============================================================
 
 export const emailLists: EmailList[] = [
+  // TBF LISTS
   {
-    id: 'tbf-parents',
-    name: 'TBF Parents Newsletter',
+    id: '624381',
+    name: '[TBF] Parents Newsletter',
     platform: 'sendfox',
     subscribers: 0,
     brandId: 'tbf',
-    purpose: 'Training updates, tips, enrollment info',
+    purpose: 'Main newsletter for TBF parents',
     lastUpdated: '2026-02-02'
   },
   {
-    id: 'ra1-team-parents',
-    name: 'RA1 Team Parents',
+    id: '624382',
+    name: '[TBF] Training Signups',
+    platform: 'sendfox',
+    subscribers: 0,
+    brandId: 'tbf',
+    purpose: 'Training program registrations',
+    lastUpdated: '2026-02-02'
+  },
+  {
+    id: '1240486',
+    name: '[TBF] Parents Newsletter',
+    platform: 'acumbamail',
+    subscribers: 0,
+    brandId: 'tbf',
+    purpose: 'SMS reminders for TBF',
+    lastUpdated: '2026-02-02'
+  },
+  // RA1 LISTS
+  {
+    id: '624383',
+    name: '[RA1] Team Parents',
     platform: 'sendfox',
     subscribers: 0,
     brandId: 'ra1',
-    purpose: 'Tournament updates, schedules, team news',
+    purpose: 'Current team parents communications',
     lastUpdated: '2026-02-02'
   },
   {
-    id: 'hos-community',
-    name: 'HOS Community',
+    id: '624384',
+    name: '[RA1] Tryout Interest',
+    platform: 'sendfox',
+    subscribers: 0,
+    brandId: 'ra1',
+    purpose: 'Tryout registrations and interest',
+    lastUpdated: '2026-02-02'
+  },
+  {
+    id: '1240487',
+    name: '[RA1] Team Parents',
+    platform: 'acumbamail',
+    subscribers: 0,
+    brandId: 'ra1',
+    purpose: 'SMS reminders for RA1',
+    lastUpdated: '2026-02-02'
+  },
+  // HOS LISTS
+  {
+    id: '624385',
+    name: '[HOS] Community',
+    platform: 'sendfox',
+    subscribers: 0,
+    brandId: 'hos',
+    purpose: 'Local community updates',
+    lastUpdated: '2026-02-02'
+  },
+  {
+    id: '624386',
+    name: '[HOS] Birthday Parties',
+    platform: 'sendfox',
+    subscribers: 0,
+    brandId: 'hos',
+    purpose: 'Birthday party inquiries',
+    lastUpdated: '2026-02-02'
+  },
+  {
+    id: '1240488',
+    name: '[HOS] Community',
     platform: 'acumbamail',
     subscribers: 0,
     brandId: 'hos',
-    purpose: 'Facility events, rentals, community news',
+    purpose: 'SMS for facility events',
     lastUpdated: '2026-02-02'
   },
+  // SHOTIQ LISTS
   {
-    id: 'shotiq-waitlist',
-    name: 'ShotIQ Waitlist',
+    id: '624387',
+    name: '[SHOTIQ] Waitlist',
     platform: 'sendfox',
     subscribers: 0,
     brandId: 'shotiq',
-    purpose: 'App updates, beta access, launch news',
+    purpose: 'App waitlist and beta interest',
     lastUpdated: '2026-02-02'
   },
   {
-    id: 'cold-outreach',
-    name: 'Cold Outreach Prospects',
-    platform: 'reachinbox',
+    id: '1240489',
+    name: '[SHOTIQ] Waitlist',
+    platform: 'acumbamail',
     subscribers: 0,
-    brandId: 'tbf',
-    purpose: 'New parent lead outreach (from Acquisition)',
+    brandId: 'shotiq',
+    purpose: 'SMS for app updates',
+    lastUpdated: '2026-02-02'
+  },
+  // KEVIN LISTS
+  {
+    id: '624388',
+    name: '[KEVIN] Personal Network',
+    platform: 'sendfox',
+    subscribers: 0,
+    brandId: 'kevin',
+    purpose: 'Kevin personal brand audience',
+    lastUpdated: '2026-02-02'
+  },
+  // BOOKMARKAI LISTS
+  {
+    id: '624389',
+    name: '[AI] Product Updates',
+    platform: 'sendfox',
+    subscribers: 0,
+    brandId: 'bookmarkai',
+    purpose: 'BookmarkAI product updates',
     lastUpdated: '2026-02-02'
   },
 ];
