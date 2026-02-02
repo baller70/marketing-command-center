@@ -2,9 +2,9 @@ import { NextResponse } from 'next/server';
 
 // PostHog configuration - needs to be set up
 // Sign up at https://posthog.com (free tier: 1M events/month)
-const POSTHOG_API_KEY = process.env.POSTHOG_API_KEY || '';
-const POSTHOG_HOST = process.env.POSTHOG_HOST || 'https://app.posthog.com';
-const POSTHOG_PROJECT_ID = process.env.POSTHOG_PROJECT_ID || '';
+const POSTHOG_API_KEY = process.env.POSTHOG_API_KEY || 'phc_a9YPRbIEB1n636t4w60EswD8Yw3ms0hmfJPp62wcg1m';
+const POSTHOG_HOST = process.env.POSTHOG_HOST || 'https://us.i.posthog.com';
+const POSTHOG_PROJECT_ID = process.env.POSTHOG_PROJECT_ID || '297549';
 
 interface AnalyticsEvent {
   event: string;
