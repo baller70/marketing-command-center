@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   brands,
   emailLists,
@@ -67,11 +67,47 @@ import {
   AtSign,
 } from "lucide-react";
 
+interface LiveEmailData {
+  totalLists: number;
+  totalSubscribers: number;
+  reachinboxCampaigns: number;
+  platforms: {
+    sendfox: { connected: boolean; lists: any[]; totalSubscribers: number };
+    acumbamail: { connected: boolean; lists: any[]; totalSubscribers: number };
+    reachinbox: { connected: boolean; account: any; campaigns: number };
+  };
+}
+
 export default function MarketingCommandCenter() {
   const [activeSection, setActiveSection] = useState("overview");
   const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
   const [expandedCampaign, setExpandedCampaign] = useState<string | null>(null);
   const [selectedCounty, setSelectedCounty] = useState<string | null>(null);
+  const [liveEmailData, setLiveEmailData] = useState<LiveEmailData | null>(null);
+  const [loadingEmail, setLoadingEmail] = useState(true);
+
+  // Fetch live email data
+  useEffect(() => {
+    async function fetchEmailData() {
+      try {
+        const res = await fetch('/api/email/lists');
+        const data = await res.json();
+        if (data.success) {
+          setLiveEmailData({
+            totalLists: data.summary.totalLists,
+            totalSubscribers: data.summary.totalSubscribers,
+            reachinboxCampaigns: data.summary.reachinboxCampaigns,
+            platforms: data.platforms
+          });
+        }
+      } catch (error) {
+        console.error('Failed to fetch email data:', error);
+      } finally {
+        setLoadingEmail(false);
+      }
+    }
+    fetchEmailData();
+  }, []);
 
   const sections = [
     { id: "overview", label: "Dashboard", icon: BarChart3 },
@@ -171,16 +207,24 @@ export default function MarketingCommandCenter() {
             </div>
             <div className="flex items-center gap-6">
               <div className="text-right">
-                <p className="text-xs text-neutral-500">Current Students</p>
-                <p className="text-xl font-bold text-white">{totalStudents}</p>
+                <p className="text-xs text-neutral-500">Email Subscribers</p>
+                <p className="text-xl font-bold text-green-400">
+                  {loadingEmail ? '...' : (liveEmailData?.totalSubscribers.toLocaleString() || '0')}
+                </p>
               </div>
               <div className="text-right">
                 <p className="text-xs text-neutral-500">Territories</p>
-                <p className="text-xl font-bold text-green-400">{dominatedTerritories}/{territories.length}</p>
+                <p className="text-xl font-bold text-blue-400">{dominatedTerritories}/{territories.length}</p>
               </div>
               <div className="text-right">
                 <p className="text-xs text-neutral-500">Schools</p>
-                <p className="text-xl font-bold text-blue-400">{totalSchools}</p>
+                <p className="text-xl font-bold text-purple-400">{totalSchools}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-xs text-neutral-500">Campaigns</p>
+                <p className="text-xl font-bold text-orange-400">
+                  {loadingEmail ? '...' : (liveEmailData?.reachinboxCampaigns || '0')}
+                </p>
               </div>
             </div>
           </div>
