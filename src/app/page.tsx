@@ -80,6 +80,36 @@ interface LiveEmailData {
   };
 }
 
+// Inbox Badge Component
+function InboxBadge({ 
+  name, 
+  email, 
+  color, 
+  isActive,
+  onClick 
+}: { 
+  name: string; 
+  email: string; 
+  color: string; 
+  isActive: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`px-3 py-2 rounded-lg border text-left transition-all ${
+        isActive 
+          ? 'border-white/30 bg-white/5' 
+          : 'border-neutral-700 hover:border-neutral-600'
+      }`}
+      style={{ borderLeftColor: color, borderLeftWidth: '3px' }}
+    >
+      <p className="text-sm font-medium text-white">{name}</p>
+      <p className="text-xs text-neutral-400 truncate max-w-[200px]">{email}</p>
+    </button>
+  );
+}
+
 export default function MarketingCommandCenter() {
   const [activeSection, setActiveSection] = useState("overview");
   const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
@@ -90,6 +120,21 @@ export default function MarketingCommandCenter() {
   const [inboxEmails, setInboxEmails] = useState<any[]>([]);
   const [loadingInbox, setLoadingInbox] = useState(false);
   const [selectedEmail, setSelectedEmail] = useState<string | null>(null);
+  const [connectedInboxes, setConnectedInboxes] = useState<any[]>([]);
+  const [selectedInbox, setSelectedInbox] = useState<string | null>(null);
+
+  // Fetch connected inboxes
+  const fetchInboxes = async () => {
+    try {
+      const res = await fetch('/api/inboxes');
+      const data = await res.json();
+      if (data.success) {
+        setConnectedInboxes(data.inboxes);
+      }
+    } catch (error) {
+      console.error('Failed to fetch inboxes:', error);
+    }
+  };
 
   // Fetch inbox emails
   const fetchInbox = async () => {
@@ -156,6 +201,7 @@ export default function MarketingCommandCenter() {
       }
     }
     fetchEmailData();
+    fetchInboxes();
   }, []);
 
   // Contacts state
@@ -823,6 +869,78 @@ export default function MarketingCommandCenter() {
                   {loadingInbox ? 'Loading...' : 'Refresh'}
                 </button>
               </div>
+            </div>
+
+            {/* Connected Inboxes Section */}
+            <div className="p-4 rounded-xl bg-neutral-900 border border-neutral-800">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-medium text-white flex items-center gap-2">
+                  <Mail className="w-4 h-4" /> Connected Inboxes
+                </h3>
+                <button
+                  onClick={() => {
+                    const name = prompt('Inbox name (e.g., "RA1 Inbox"):');
+                    const email = prompt('Email address:');
+                    const brand = prompt('Brand (tbf/ra1/hos/shotiq/kevin/bookmarkai):');
+                    if (name && email) {
+                      fetch('/api/inboxes', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                          action: 'add', 
+                          name, 
+                          email, 
+                          brand,
+                          color: brand === 'tbf' ? '#1E3A8A' : brand === 'ra1' ? '#CE1126' : brand === 'hos' ? '#16A34A' : '#6B7280'
+                        })
+                      }).then(() => {
+                        alert('Inbox added! Refresh page to see changes.');
+                        window.location.reload();
+                      });
+                    }
+                  }}
+                  className="px-3 py-1.5 bg-green-500/20 text-green-400 rounded-lg text-xs hover:bg-green-500/30 flex items-center gap-1"
+                >
+                  <Plus className="w-3 h-3" /> Add Inbox
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {connectedInboxes.length === 0 ? (
+                  <InboxBadge 
+                    name="TBF Main" 
+                    email="khouston@thebasketballfactorynj.com" 
+                    color="#1E3A8A" 
+                    isActive={selectedInbox === null || selectedInbox === 'main'}
+                    onClick={() => setSelectedInbox(null)}
+                  />
+                ) : (
+                  <>
+                    <button
+                      onClick={() => setSelectedInbox(null)}
+                      className={`px-3 py-2 rounded-lg border text-sm ${
+                        selectedInbox === null 
+                          ? 'border-orange-500 bg-orange-500/10 text-orange-400' 
+                          : 'border-neutral-700 text-neutral-400 hover:border-neutral-600'
+                      }`}
+                    >
+                      All Inboxes
+                    </button>
+                    {connectedInboxes.map((inbox: any) => (
+                      <InboxBadge 
+                        key={inbox.id}
+                        name={inbox.name} 
+                        email={inbox.email} 
+                        color={inbox.color} 
+                        isActive={selectedInbox === inbox.id}
+                        onClick={() => setSelectedInbox(inbox.id)}
+                      />
+                    ))}
+                  </>
+                )}
+              </div>
+              <p className="text-xs text-neutral-500 mt-3">
+                Click "Add Inbox" to connect more email accounts. Each inbox can be associated with a brand for filtering.
+              </p>
             </div>
 
             {/* Learning Info Banner */}
