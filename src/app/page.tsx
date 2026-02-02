@@ -95,13 +95,18 @@ const BRAND_CONFIG = {
     audience: 'Parents of youth players seeking skill development',
     website: 'https://thebasketballfactoryinc.com',
     social: {
-      instagram: 'thebasketballfactorynj',
-      tiktok: 'thebasketballfactorynj',
-      facebook: 'thebasketballfactorynj',
-      twitter: 'tbabornnj',
-      youtube: '@thebasketballfactorynj',
-      linkedin: ''
-    }
+      instagram: 'thebasketballfactory',
+      tiktok: 'thebasketballfactoryinc',
+      facebook: 'thebasketballfactoryinc',
+      twitter: '',
+      youtube: 'thebasketballfactoryinc',
+      linkedin: 'houstonkevin',
+      bluesky: 'bballfactoryinc.bsky.social',
+      threads: 'thebasketballfactory',
+      pinterest: 'houston0583',
+      reddit: 'AggressiveExit5324'
+    },
+    lateProfileId: '68f68556d5654b446d61d7dc'
   },
   ra1: { 
     id: 'ra1', 
@@ -116,13 +121,18 @@ const BRAND_CONFIG = {
     audience: 'Families seeking competitive team basketball',
     website: 'https://riseasoneaau.com',
     social: {
-      instagram: 'riseasone_aau',
-      tiktok: 'riseasone_aau',
-      facebook: 'riseasoneaau',
-      twitter: 'riseasone_aau',
-      youtube: '',
-      linkedin: ''
-    }
+      instagram: 'rise.as.one.aau',
+      tiktok: 'rise_as_one_aau',
+      facebook: 'TeamRA1',
+      twitter: '',
+      youtube: 'riseasoneaaubasketball1027',
+      linkedin: 'houstonkevin',
+      bluesky: 'riseasoneaau.bsky.social',
+      threads: 'rise.as.one.aau',
+      pinterest: 'khouston721',
+      reddit: 'SmoothInfluence2863'
+    },
+    lateProfileId: '68f68213a24dabbd5b9da3fe'
   },
   hos: { 
     id: 'hos', 
@@ -137,13 +147,18 @@ const BRAND_CONFIG = {
     audience: 'Local community, event planners, birthday parties',
     website: 'https://thehouseofsports.com',
     social: {
-      instagram: 'houseofsportsnj',
+      instagram: '',
       tiktok: '',
       facebook: 'houseofsportsnj',
       twitter: '',
       youtube: '',
-      linkedin: ''
-    }
+      linkedin: '',
+      bluesky: '',
+      threads: '',
+      pinterest: '',
+      reddit: ''
+    },
+    lateProfileId: ''
   },
   shotiq: { 
     id: 'shotiq', 
@@ -158,13 +173,18 @@ const BRAND_CONFIG = {
     audience: 'Tech-savvy players and coaches',
     website: 'https://shotiqai.com',
     social: {
-      instagram: 'shotiqai',
-      tiktok: 'shotiqai',
-      facebook: '',
-      twitter: 'shotiqai',
-      youtube: '',
-      linkedin: ''
-    }
+      instagram: 'shotiqbasketball',
+      tiktok: 'shotiqbasketball',
+      facebook: 'shotiqbasketball',
+      twitter: '',
+      youtube: 'shotiq-basketball',
+      linkedin: 'shotiq-basketaball',
+      bluesky: 'shotiqbasketball.bsky.social',
+      threads: 'shotiqbasketball',
+      pinterest: 'shotiqbasketball',
+      reddit: 'SmoothInfluence2863'
+    },
+    lateProfileId: '69712523103945f11a260dc5'
   },
   kevin: { 
     id: 'kevin', 
@@ -179,13 +199,18 @@ const BRAND_CONFIG = {
     audience: 'Coaches, trainers, basketball community',
     website: '',
     social: {
-      instagram: 'kevinhouston_hoops',
-      tiktok: 'kevinhouston_hoops',
+      instagram: '',
+      tiktok: '',
       facebook: '',
-      twitter: 'kevinhouston',
+      twitter: '',
       youtube: '',
-      linkedin: 'kevinhouston'
-    }
+      linkedin: 'houstonkevin',
+      bluesky: '',
+      threads: '',
+      pinterest: '',
+      reddit: ''
+    },
+    lateProfileId: ''
   },
   bookmarkai: { 
     id: 'bookmarkai', 
@@ -200,13 +225,18 @@ const BRAND_CONFIG = {
     audience: 'Knowledge workers, researchers, developers',
     website: 'https://bookmarkaihub.com',
     social: {
-      instagram: '',
-      tiktok: '',
-      facebook: '',
-      twitter: 'bookmarkaihub',
-      youtube: '',
-      linkedin: ''
-    }
+      instagram: 'bookmarkaihub',
+      tiktok: 'bookmarkaihub',
+      facebook: 'bookmarkaihub',
+      twitter: '',
+      youtube: 'bookmarkaihub',
+      linkedin: 'bookmarkaihub',
+      bluesky: 'bookmarkaihub.bsky.social',
+      threads: 'bookmarkaihub',
+      pinterest: 'bookmarkaihub',
+      reddit: 'SmoothInfluence2863'
+    },
+    lateProfileId: '69711714efaa38ac000f737d'
   },
   all: {
     id: 'all',
@@ -226,8 +256,13 @@ const BRAND_CONFIG = {
       facebook: '',
       twitter: '',
       youtube: '',
-      linkedin: ''
-    }
+      linkedin: '',
+      bluesky: '',
+      threads: '',
+      pinterest: '',
+      reddit: ''
+    },
+    lateProfileId: ''
   }
 } as const;
 
@@ -731,6 +766,27 @@ export default function MarketingCommandCenter() {
                     <CalendarDays className="w-5 h-5 text-purple-400 mb-2" />
                     <p className="text-2xl font-bold text-white">{localEvents.length}</p>
                     <p className="text-xs text-neutral-400">Upcoming Events</p>
+                  </div>
+                </div>
+
+                {/* Agent Handoff Points */}
+                <div className="p-6 rounded-xl bg-neutral-900 border border-neutral-800">
+                  <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+                    <RefreshCw className="w-5 h-5 text-orange-400" />
+                    Agent Handoff Points
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {handoffPoints.map((handoff, idx) => (
+                      <div key={idx} className="p-4 bg-neutral-800 rounded-lg">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-sm text-blue-400">{handoff.from}</span>
+                          <ArrowRight className="w-4 h-4 text-neutral-500" />
+                          <span className="text-sm text-green-400">{handoff.to}</span>
+                        </div>
+                        <p className="text-xs text-neutral-400 mb-1">Trigger: {handoff.trigger}</p>
+                        <p className="text-sm text-neutral-300">{handoff.action}</p>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </>
