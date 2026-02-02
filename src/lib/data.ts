@@ -857,3 +857,237 @@ export const expansionPhases = [
     ]
   },
 ];
+
+// ============================================================
+// PODCAST & NEWSLETTER CONFIGURATION
+// ============================================================
+
+export interface PodcastShow {
+  id: string;
+  name: string;
+  description: string;
+  brandId: string;
+  status: 'planned' | 'active' | 'paused';
+  frequency: string;
+  platforms: string[];
+  rssUrl?: string;
+  episodes?: number;
+}
+
+export interface Newsletter {
+  id: string;
+  name: string;
+  description: string;
+  brandId: string;
+  platform: 'sendfox' | 'acumbamail';
+  listId: string;
+  subscribers: number;
+  frequency: string;
+  status: 'planned' | 'active' | 'paused';
+  openRate?: number;
+  lastSent?: string;
+}
+
+export const podcasts: PodcastShow[] = [
+  {
+    id: 'kevin-hoops-talk',
+    name: 'Kevin Houston Hoops Talk',
+    description: 'Basketball insights, training tips, player development, and interviews with coaches',
+    brandId: 'kevin',
+    status: 'planned',
+    frequency: 'Weekly (Thursdays)',
+    platforms: ['Spotify', 'Apple Podcasts', 'YouTube', 'HubHopper'],
+    episodes: 0
+  },
+  {
+    id: 'hos-athlete-journey',
+    name: 'The Athlete Journey',
+    description: 'Stories of youth athletes and their development path',
+    brandId: 'hos',
+    status: 'planned', 
+    frequency: 'Bi-weekly',
+    platforms: ['Spotify', 'Apple Podcasts'],
+    episodes: 0
+  }
+];
+
+export const newsletters: Newsletter[] = [
+  {
+    id: 'kevin-weekly',
+    name: 'Kevin Houston Weekly',
+    description: 'Personal newsletter with basketball tips, stories, and behind-the-scenes',
+    brandId: 'kevin',
+    platform: 'sendfox',
+    listId: 'new-list-needed',
+    subscribers: 0,
+    frequency: 'Weekly (Sunday evening)',
+    status: 'planned'
+  },
+  {
+    id: 'tbf-training-tips',
+    name: 'TBF Training Tips',
+    description: 'Weekly training tips and program updates for parents',
+    brandId: 'tbf',
+    platform: 'sendfox',
+    listId: '522601',
+    subscribers: 3922,
+    frequency: 'Weekly',
+    status: 'planned',
+    openRate: 0
+  },
+  {
+    id: 'ra1-team-updates',
+    name: 'RA1 Team Updates',
+    description: 'Game schedules, tournament info, team news',
+    brandId: 'ra1',
+    platform: 'acumbamail',
+    listId: '1132987',
+    subscribers: 0,
+    frequency: 'Weekly during season',
+    status: 'planned'
+  }
+];
+
+// ============================================================
+// MARKETING PLATFORM INTEGRATIONS
+// ============================================================
+
+export interface PlatformIntegration {
+  id: string;
+  name: string;
+  category: 'newsletter' | 'cold-email' | 'sms' | 'analytics';
+  status: 'connected' | 'not-connected';
+  uniqueFeatures: string[];
+  bestFor: string;
+  apiEndpoint: string;
+  docPath: string;
+  contacts?: number;
+  campaigns?: number;
+}
+
+export const platformIntegrations: PlatformIntegration[] = [
+  {
+    id: 'sendfox',
+    name: 'SendFox',
+    category: 'newsletter',
+    status: 'connected',
+    uniqueFeatures: [
+      'Welcome sequences',
+      'Drip campaigns',
+      'Delay automation',
+      'Segmentation triggers',
+      'Personalization tags',
+      'Resend to non-opens'
+    ],
+    bestFor: 'Newsletter, nurture sequences, existing subscribers',
+    apiEndpoint: 'https://api.sendfox.com',
+    docPath: '~/clawd-agents/marketing/tool-knowledge/sendfox.md',
+    contacts: 4113,
+    campaigns: 0
+  },
+  {
+    id: 'acumbamail',
+    name: 'Acumbamail',
+    category: 'sms',
+    status: 'connected',
+    uniqueFeatures: [
+      'SMS marketing',
+      'Email + SMS combo',
+      'Heatmaps',
+      'Geolocation analytics',
+      'Click maps',
+      'A/B testing'
+    ],
+    bestFor: 'SMS reminders, urgent notifications, multi-channel',
+    apiEndpoint: 'https://acumbamail.com/api/1',
+    docPath: '~/clawd-agents/marketing/tool-knowledge/acumbamail.md',
+    contacts: 3432,
+    campaigns: 12
+  },
+  {
+    id: 'reachinbox',
+    name: 'ReachInbox',
+    category: 'cold-email',
+    status: 'connected',
+    uniqueFeatures: [
+      'Unified Inbox (Onebox)',
+      'Auto-categorization',
+      'Reply tracking',
+      'A/Z testing',
+      'Email warmup',
+      'Provider matching',
+      'AI email writer'
+    ],
+    bestFor: 'Cold outreach, new prospect acquisition',
+    apiEndpoint: 'https://api.reachinbox.ai',
+    docPath: '~/clawd-agents/marketing/tool-knowledge/reachinbox.md',
+    contacts: 0,
+    campaigns: 14
+  }
+];
+
+// ============================================================
+// AUTOMATION WORKFLOWS
+// ============================================================
+
+export interface AutomationWorkflow {
+  id: string;
+  name: string;
+  trigger: string;
+  platform: string;
+  steps: string[];
+  status: 'active' | 'draft' | 'paused';
+}
+
+export const automationWorkflows: AutomationWorkflow[] = [
+  {
+    id: 'new-subscriber-welcome',
+    name: 'New Subscriber Welcome',
+    trigger: 'Contact added to list',
+    platform: 'sendfox',
+    steps: [
+      'Day 0: Welcome email with intro',
+      'Day 2: Value email (training tips)',
+      'Day 5: Social proof (testimonials)',
+      'Day 7: Soft CTA (free trial offer)'
+    ],
+    status: 'draft'
+  },
+  {
+    id: 'tryout-reminder-sequence',
+    name: 'Tryout Reminder Sequence',
+    trigger: 'Tryout registration',
+    platform: 'acumbamail',
+    steps: [
+      'Day -3: Email with full details',
+      'Day -1: SMS reminder',
+      'Day 0: SMS morning of "See you at 6pm!"'
+    ],
+    status: 'draft'
+  },
+  {
+    id: 'cold-to-warm-transition',
+    name: 'Cold Lead → Warm Lead',
+    trigger: 'Reply received in ReachInbox',
+    platform: 'reachinbox → sendfox',
+    steps: [
+      'Detect positive reply in Onebox',
+      'Categorize as "interested"',
+      'Export to SendFox list',
+      'Trigger SendFox welcome sequence'
+    ],
+    status: 'draft'
+  },
+  {
+    id: 'payment-reminder',
+    name: 'Payment Reminder',
+    trigger: 'Payment due date approaching',
+    platform: 'acumbamail',
+    steps: [
+      'Day -3: Email reminder with payment link',
+      'Day -1: SMS reminder',
+      'Day +1: Past due SMS'
+    ],
+    status: 'draft'
+  }
+];

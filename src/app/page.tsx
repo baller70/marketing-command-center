@@ -186,6 +186,9 @@ export default function MarketingCommandCenter() {
     { id: "overview", label: "Dashboard", icon: BarChart3 },
     { id: "inbox", label: "Inbox", icon: Mail },
     { id: "contacts", label: "Contacts", icon: Users },
+    { id: "platforms", label: "Platforms", icon: Zap },
+    { id: "newsletter", label: "Newsletter", icon: FileText },
+    { id: "podcast", label: "Podcast", icon: Podcast },
     { id: "territory", label: "Territory", icon: Map },
     { id: "competitors", label: "Intel", icon: Eye },
     { id: "schools", label: "Schools", icon: SchoolIcon },
@@ -705,6 +708,364 @@ export default function MarketingCommandCenter() {
                 </p>
               </div>
             )}
+          </div>
+        )}
+
+        {/* MARKETING PLATFORMS */}
+        {activeSection === "platforms" && (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-white">Marketing Platforms</h2>
+            <p className="text-neutral-400">Your 3-platform marketing engine. Each platform serves a specific purpose - together they create a complete system.</p>
+            
+            {/* Platform Cards */}
+            <div className="grid grid-cols-3 gap-6">
+              {/* SendFox */}
+              <div className="p-6 bg-neutral-900 rounded-xl border border-blue-500/30">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                    <Mail className="w-5 h-5 text-blue-400" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-white">SendFox</h3>
+                    <span className="text-xs text-green-400">Connected</span>
+                  </div>
+                </div>
+                <p className="text-sm text-neutral-400 mb-4">Newsletter & Nurture Sequences</p>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between"><span className="text-neutral-500">Contacts:</span><span className="text-white">4,113</span></div>
+                  <div className="flex justify-between"><span className="text-neutral-500">Lists:</span><span className="text-white">10</span></div>
+                </div>
+                <div className="mt-4 pt-4 border-t border-neutral-800">
+                  <p className="text-xs text-neutral-500 font-medium mb-2">UNIQUE FEATURES:</p>
+                  <ul className="text-xs text-neutral-400 space-y-1">
+                    <li>• Welcome sequences</li>
+                    <li>• Drip campaigns</li>
+                    <li>• Delay automation</li>
+                    <li>• Segmentation triggers</li>
+                    <li>• Resend to non-opens</li>
+                  </ul>
+                </div>
+                <a href="https://sendfox.com/dashboard" target="_blank" className="mt-4 block text-center py-2 bg-blue-500/20 text-blue-400 rounded-lg text-sm hover:bg-blue-500/30">
+                  Open Dashboard
+                </a>
+              </div>
+
+              {/* Acumbamail */}
+              <div className="p-6 bg-neutral-900 rounded-xl border border-purple-500/30">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                    <Phone className="w-5 h-5 text-purple-400" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-white">Acumbamail</h3>
+                    <span className="text-xs text-green-400">Connected</span>
+                  </div>
+                </div>
+                <p className="text-sm text-neutral-400 mb-4">Email + SMS Marketing</p>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between"><span className="text-neutral-500">Subscribers:</span><span className="text-white">3,432</span></div>
+                  <div className="flex justify-between"><span className="text-neutral-500">Campaigns:</span><span className="text-white">12</span></div>
+                </div>
+                <div className="mt-4 pt-4 border-t border-neutral-800">
+                  <p className="text-xs text-neutral-500 font-medium mb-2">UNIQUE FEATURES:</p>
+                  <ul className="text-xs text-neutral-400 space-y-1">
+                    <li>• SMS marketing built-in</li>
+                    <li>• Email + SMS combo</li>
+                    <li>• Click heatmaps</li>
+                    <li>• Geolocation analytics</li>
+                    <li>• A/B testing</li>
+                  </ul>
+                </div>
+                <a href="https://acumbamail.com/dashboard" target="_blank" className="mt-4 block text-center py-2 bg-purple-500/20 text-purple-400 rounded-lg text-sm hover:bg-purple-500/30">
+                  Open Dashboard
+                </a>
+              </div>
+
+              {/* ReachInbox */}
+              <div className="p-6 bg-neutral-900 rounded-xl border border-orange-500/30">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-orange-500/20 rounded-lg flex items-center justify-center">
+                    <Target className="w-5 h-5 text-orange-400" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-white">ReachInbox</h3>
+                    <span className="text-xs text-green-400">Connected (Tier4)</span>
+                  </div>
+                </div>
+                <p className="text-sm text-neutral-400 mb-4">Cold Email Outreach</p>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between"><span className="text-neutral-500">Campaigns:</span><span className="text-white">14</span></div>
+                  <div className="flex justify-between"><span className="text-neutral-500">Plan Expires:</span><span className="text-white">2027</span></div>
+                </div>
+                <div className="mt-4 pt-4 border-t border-neutral-800">
+                  <p className="text-xs text-neutral-500 font-medium mb-2">UNIQUE FEATURES:</p>
+                  <ul className="text-xs text-neutral-400 space-y-1">
+                    <li>• Unified Inbox (Onebox)</li>
+                    <li>• Auto-categorization</li>
+                    <li>• A/Z testing</li>
+                    <li>• Email warmup</li>
+                    <li>• Provider matching</li>
+                  </ul>
+                </div>
+                <a href="https://app.reachinbox.ai" target="_blank" className="mt-4 block text-center py-2 bg-orange-500/20 text-orange-400 rounded-lg text-sm hover:bg-orange-500/30">
+                  Open Dashboard
+                </a>
+              </div>
+            </div>
+
+            {/* Integration Flow */}
+            <div className="p-6 bg-neutral-900 rounded-xl border border-neutral-800">
+              <h3 className="font-bold text-white mb-4">The Marketing Flow</h3>
+              <div className="flex items-center justify-center gap-4 text-sm">
+                <div className="text-center p-4 bg-orange-500/10 rounded-lg border border-orange-500/20">
+                  <Target className="w-8 h-8 text-orange-400 mx-auto mb-2" />
+                  <p className="text-white font-medium">ReachInbox</p>
+                  <p className="text-xs text-neutral-500">Cold Prospects</p>
+                </div>
+                <ArrowRight className="w-6 h-6 text-neutral-600" />
+                <div className="text-center p-4 bg-blue-500/10 rounded-lg border border-blue-500/20">
+                  <Mail className="w-8 h-8 text-blue-400 mx-auto mb-2" />
+                  <p className="text-white font-medium">SendFox</p>
+                  <p className="text-xs text-neutral-500">Nurture & Newsletter</p>
+                </div>
+                <ArrowRight className="w-6 h-6 text-neutral-600" />
+                <div className="text-center p-4 bg-purple-500/10 rounded-lg border border-purple-500/20">
+                  <Phone className="w-8 h-8 text-purple-400 mx-auto mb-2" />
+                  <p className="text-white font-medium">Acumbamail</p>
+                  <p className="text-xs text-neutral-500">SMS & Reminders</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* NEWSLETTER */}
+        {activeSection === "newsletter" && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-white">Newsletter</h2>
+              <button className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 flex items-center gap-2">
+                <Plus className="w-4 h-4" /> Create Newsletter
+              </button>
+            </div>
+
+            {/* Kevin Houston Weekly */}
+            <div className="p-6 bg-neutral-900 rounded-xl border border-green-500/30">
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <span className="text-xs bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded mb-2 inline-block">PLANNED</span>
+                  <h3 className="text-xl font-bold text-white">Kevin Houston Weekly</h3>
+                  <p className="text-neutral-400">Personal newsletter with basketball tips, stories, and behind-the-scenes</p>
+                </div>
+                <span className="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded">Kevin Brand</span>
+              </div>
+              <div className="grid grid-cols-4 gap-4 mb-4">
+                <div className="text-center p-3 bg-neutral-800 rounded-lg">
+                  <p className="text-2xl font-bold text-white">0</p>
+                  <p className="text-xs text-neutral-500">Subscribers</p>
+                </div>
+                <div className="text-center p-3 bg-neutral-800 rounded-lg">
+                  <p className="text-2xl font-bold text-white">Weekly</p>
+                  <p className="text-xs text-neutral-500">Frequency</p>
+                </div>
+                <div className="text-center p-3 bg-neutral-800 rounded-lg">
+                  <p className="text-2xl font-bold text-blue-400">SendFox</p>
+                  <p className="text-xs text-neutral-500">Platform</p>
+                </div>
+                <div className="text-center p-3 bg-neutral-800 rounded-lg">
+                  <p className="text-2xl font-bold text-white">Sunday PM</p>
+                  <p className="text-xs text-neutral-500">Send Time</p>
+                </div>
+              </div>
+              <div className="border-t border-neutral-800 pt-4">
+                <h4 className="text-sm font-medium text-neutral-400 mb-2">CONTENT PILLARS:</h4>
+                <div className="flex gap-2 flex-wrap">
+                  <span className="px-3 py-1 bg-neutral-800 text-neutral-300 rounded-full text-sm">Training Tips</span>
+                  <span className="px-3 py-1 bg-neutral-800 text-neutral-300 rounded-full text-sm">Behind the Scenes</span>
+                  <span className="px-3 py-1 bg-neutral-800 text-neutral-300 rounded-full text-sm">Player Stories</span>
+                  <span className="px-3 py-1 bg-neutral-800 text-neutral-300 rounded-full text-sm">Q&A</span>
+                </div>
+              </div>
+            </div>
+
+            {/* TBF Training Tips */}
+            <div className="p-6 bg-neutral-900 rounded-xl border border-blue-500/30">
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <span className="text-xs bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded mb-2 inline-block">PLANNED</span>
+                  <h3 className="text-xl font-bold text-white">TBF Training Tips</h3>
+                  <p className="text-neutral-400">Weekly training tips and program updates for parents</p>
+                </div>
+                <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded">TBF Brand</span>
+              </div>
+              <div className="grid grid-cols-4 gap-4 mb-4">
+                <div className="text-center p-3 bg-neutral-800 rounded-lg">
+                  <p className="text-2xl font-bold text-white">3,922</p>
+                  <p className="text-xs text-neutral-500">Existing List</p>
+                </div>
+                <div className="text-center p-3 bg-neutral-800 rounded-lg">
+                  <p className="text-2xl font-bold text-white">Weekly</p>
+                  <p className="text-xs text-neutral-500">Frequency</p>
+                </div>
+                <div className="text-center p-3 bg-neutral-800 rounded-lg">
+                  <p className="text-2xl font-bold text-blue-400">SendFox</p>
+                  <p className="text-xs text-neutral-500">Platform</p>
+                </div>
+                <div className="text-center p-3 bg-neutral-800 rounded-lg">
+                  <p className="text-2xl font-bold text-white">522601</p>
+                  <p className="text-xs text-neutral-500">List ID</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Plan */}
+            <div className="p-6 bg-gradient-to-r from-orange-500/10 to-yellow-500/10 rounded-xl border border-orange-500/20">
+              <h3 className="font-bold text-white mb-4">Launch Plan: Kevin Houston Weekly</h3>
+              <div className="grid grid-cols-4 gap-4">
+                <div className="p-4 bg-neutral-900/50 rounded-lg">
+                  <p className="text-xs text-orange-400 font-medium">STEP 1</p>
+                  <p className="text-white font-medium">Create SendFox List</p>
+                  <p className="text-xs text-neutral-400">"Kevin Houston Newsletter"</p>
+                </div>
+                <div className="p-4 bg-neutral-900/50 rounded-lg">
+                  <p className="text-xs text-orange-400 font-medium">STEP 2</p>
+                  <p className="text-white font-medium">Welcome Automation</p>
+                  <p className="text-xs text-neutral-400">4-email welcome sequence</p>
+                </div>
+                <div className="p-4 bg-neutral-900/50 rounded-lg">
+                  <p className="text-xs text-orange-400 font-medium">STEP 3</p>
+                  <p className="text-white font-medium">Create Sign-up Form</p>
+                  <p className="text-xs text-neutral-400">Embed on websites</p>
+                </div>
+                <div className="p-4 bg-neutral-900/50 rounded-lg">
+                  <p className="text-xs text-orange-400 font-medium">STEP 4</p>
+                  <p className="text-white font-medium">First Newsletter</p>
+                  <p className="text-xs text-neutral-400">Send Sunday evening</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* PODCAST */}
+        {activeSection === "podcast" && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-white">Podcast</h2>
+              <button className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 flex items-center gap-2">
+                <Plus className="w-4 h-4" /> Plan New Show
+              </button>
+            </div>
+
+            {/* Kevin Houston Hoops Talk */}
+            <div className="p-6 bg-neutral-900 rounded-xl border border-green-500/30">
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <span className="text-xs bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded mb-2 inline-block">PLANNED</span>
+                  <h3 className="text-xl font-bold text-white">Kevin Houston Hoops Talk</h3>
+                  <p className="text-neutral-400">Basketball insights, training tips, player development, and interviews with coaches</p>
+                </div>
+                <span className="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded">Kevin Brand</span>
+              </div>
+              <div className="grid grid-cols-5 gap-4 mb-4">
+                <div className="text-center p-3 bg-neutral-800 rounded-lg">
+                  <p className="text-2xl font-bold text-white">0</p>
+                  <p className="text-xs text-neutral-500">Episodes</p>
+                </div>
+                <div className="text-center p-3 bg-neutral-800 rounded-lg">
+                  <p className="text-2xl font-bold text-white">Weekly</p>
+                  <p className="text-xs text-neutral-500">Frequency</p>
+                </div>
+                <div className="text-center p-3 bg-neutral-800 rounded-lg">
+                  <p className="text-2xl font-bold text-white">Thursday</p>
+                  <p className="text-xs text-neutral-500">Release Day</p>
+                </div>
+                <div className="text-center p-3 bg-neutral-800 rounded-lg">
+                  <p className="text-2xl font-bold text-purple-400">20-30 min</p>
+                  <p className="text-xs text-neutral-500">Target Length</p>
+                </div>
+                <div className="text-center p-3 bg-neutral-800 rounded-lg">
+                  <p className="text-2xl font-bold text-green-400">Audio</p>
+                  <p className="text-xs text-neutral-500">Format</p>
+                </div>
+              </div>
+
+              {/* Distribution */}
+              <div className="border-t border-neutral-800 pt-4 mb-4">
+                <h4 className="text-sm font-medium text-neutral-400 mb-2">DISTRIBUTION PLATFORMS:</h4>
+                <div className="flex gap-2 flex-wrap">
+                  <span className="px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-sm">Spotify</span>
+                  <span className="px-3 py-1 bg-purple-500/20 text-purple-400 rounded-full text-sm">Apple Podcasts</span>
+                  <span className="px-3 py-1 bg-red-500/20 text-red-400 rounded-full text-sm">YouTube</span>
+                  <span className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-sm">HubHopper</span>
+                </div>
+              </div>
+
+              {/* Content Ideas */}
+              <div className="border-t border-neutral-800 pt-4">
+                <h4 className="text-sm font-medium text-neutral-400 mb-2">EPISODE IDEAS:</h4>
+                <ul className="text-sm text-neutral-300 space-y-2">
+                  <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-neutral-600" /> Why Most Youth Basketball Training Is Wrong</li>
+                  <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-neutral-600" /> The 3 Drills Every Player Should Do Daily</li>
+                  <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-neutral-600" /> Interview: What College Coaches Look For</li>
+                  <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-neutral-600" /> Parent Q&A: How to Support Your Young Athlete</li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Launch Plan */}
+            <div className="p-6 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-xl border border-purple-500/20">
+              <h3 className="font-bold text-white mb-4">Launch Plan: Kevin Houston Hoops Talk</h3>
+              <div className="grid grid-cols-5 gap-4">
+                <div className="p-4 bg-neutral-900/50 rounded-lg">
+                  <p className="text-xs text-purple-400 font-medium">STEP 1</p>
+                  <p className="text-white font-medium">Setup</p>
+                  <p className="text-xs text-neutral-400">HubHopper or Anchor</p>
+                </div>
+                <div className="p-4 bg-neutral-900/50 rounded-lg">
+                  <p className="text-xs text-purple-400 font-medium">STEP 2</p>
+                  <p className="text-white font-medium">Record 3 Eps</p>
+                  <p className="text-xs text-neutral-400">Bank episodes first</p>
+                </div>
+                <div className="p-4 bg-neutral-900/50 rounded-lg">
+                  <p className="text-xs text-purple-400 font-medium">STEP 3</p>
+                  <p className="text-white font-medium">Submit RSS</p>
+                  <p className="text-xs text-neutral-400">Spotify, Apple, etc.</p>
+                </div>
+                <div className="p-4 bg-neutral-900/50 rounded-lg">
+                  <p className="text-xs text-purple-400 font-medium">STEP 4</p>
+                  <p className="text-white font-medium">Launch Week</p>
+                  <p className="text-xs text-neutral-400">3 episodes at once</p>
+                </div>
+                <div className="p-4 bg-neutral-900/50 rounded-lg">
+                  <p className="text-xs text-purple-400 font-medium">STEP 5</p>
+                  <p className="text-white font-medium">Promote</p>
+                  <p className="text-xs text-neutral-400">Newsletter + social</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Tools */}
+            <div className="p-6 bg-neutral-900 rounded-xl border border-neutral-800">
+              <h3 className="font-bold text-white mb-4">Podcast Tools Available</h3>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="p-4 bg-neutral-800 rounded-lg">
+                  <p className="font-medium text-white">HubHopper</p>
+                  <p className="text-xs text-neutral-400">Free podcast hosting, distribution to all platforms</p>
+                  <p className="text-xs text-green-400 mt-2">Skill Available</p>
+                </div>
+                <div className="p-4 bg-neutral-800 rounded-lg">
+                  <p className="font-medium text-white">PodOps</p>
+                  <p className="text-xs text-neutral-400">Podcast creation and management</p>
+                  <p className="text-xs text-green-400 mt-2">Skill Available</p>
+                </div>
+                <div className="p-4 bg-neutral-800 rounded-lg">
+                  <p className="font-medium text-white">Taja.ai</p>
+                  <p className="text-xs text-neutral-400">AI-powered clips, titles, descriptions</p>
+                  <p className="text-xs text-green-400 mt-2">Tool Available</p>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
