@@ -80,6 +80,96 @@ interface LiveEmailData {
   };
 }
 
+// Brand Configuration with full details
+const BRAND_CONFIG = {
+  tbf: { 
+    id: 'tbf', 
+    name: 'The Basketball Factory', 
+    shortName: 'TBF', 
+    color: '#1E3A8A',
+    bgColor: 'bg-blue-900',
+    textColor: 'text-blue-400',
+    borderColor: 'border-blue-500',
+    icon: '🏀',
+    tagline: 'Elite Skills Training',
+    audience: 'Parents of youth players seeking skill development'
+  },
+  ra1: { 
+    id: 'ra1', 
+    name: 'Rise As One AAU', 
+    shortName: 'RA1', 
+    color: '#CE1126',
+    bgColor: 'bg-red-900',
+    textColor: 'text-red-400',
+    borderColor: 'border-red-500',
+    icon: '🔴',
+    tagline: 'Competitive AAU Basketball',
+    audience: 'Families seeking competitive team basketball'
+  },
+  hos: { 
+    id: 'hos', 
+    name: 'House of Sports', 
+    shortName: 'HOS', 
+    color: '#16A34A',
+    bgColor: 'bg-green-900',
+    textColor: 'text-green-400',
+    borderColor: 'border-green-500',
+    icon: '🏠',
+    tagline: 'Premier Sports Facility',
+    audience: 'Local community, event planners, birthday parties'
+  },
+  shotiq: { 
+    id: 'shotiq', 
+    name: 'ShotIQ', 
+    shortName: 'SHOTIQ', 
+    color: '#F97316',
+    bgColor: 'bg-orange-900',
+    textColor: 'text-orange-400',
+    borderColor: 'border-orange-500',
+    icon: '📱',
+    tagline: 'AI Shooting Analysis',
+    audience: 'Tech-savvy players and coaches'
+  },
+  kevin: { 
+    id: 'kevin', 
+    name: 'Kevin Houston', 
+    shortName: 'KEVIN', 
+    color: '#EAB308',
+    bgColor: 'bg-yellow-900',
+    textColor: 'text-yellow-400',
+    borderColor: 'border-yellow-500',
+    icon: '👤',
+    tagline: 'Basketball Thought Leader',
+    audience: 'Coaches, trainers, basketball community'
+  },
+  bookmarkai: { 
+    id: 'bookmarkai', 
+    name: 'BookmarkAI Hub', 
+    shortName: 'AI', 
+    color: '#8B5CF6',
+    bgColor: 'bg-purple-900',
+    textColor: 'text-purple-400',
+    borderColor: 'border-purple-500',
+    icon: '📚',
+    tagline: 'AI-Powered Productivity',
+    audience: 'Knowledge workers, researchers, developers'
+  },
+  all: {
+    id: 'all',
+    name: 'All Brands',
+    shortName: 'ALL',
+    color: '#6B7280',
+    bgColor: 'bg-neutral-800',
+    textColor: 'text-neutral-300',
+    borderColor: 'border-neutral-500',
+    icon: '🌐',
+    tagline: 'Cross-Brand Overview',
+    audience: 'All audiences'
+  }
+} as const;
+
+type BrandId = keyof typeof BRAND_CONFIG;
+
 // Inbox Badge Component
 function InboxBadge({ 
   name, 
@@ -111,8 +201,9 @@ function InboxBadge({
 }
 
 export default function MarketingCommandCenter() {
-  const [activeSection, setActiveSection] = useState("overview");
-  const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
+  // BRAND-FIRST STATE
+  const [activeBrand, setActiveBrand] = useState<BrandId>('all');
+  const [activeSection, setActiveSection] = useState("dashboard");
   const [expandedCampaign, setExpandedCampaign] = useState<string | null>(null);
   const [selectedCounty, setSelectedCounty] = useState<string | null>(null);
   const [liveEmailData, setLiveEmailData] = useState<LiveEmailData | null>(null);
@@ -122,6 +213,26 @@ export default function MarketingCommandCenter() {
   const [selectedEmail, setSelectedEmail] = useState<string | null>(null);
   const [connectedInboxes, setConnectedInboxes] = useState<any[]>([]);
   const [selectedInbox, setSelectedInbox] = useState<string | null>(null);
+  
+  // Get current brand config
+  const currentBrand = BRAND_CONFIG[activeBrand];
+  
+  // Filter data by brand
+  const filteredCampaigns = activeBrand === 'all' 
+    ? campaigns 
+    : campaigns.filter(c => c.brandId === activeBrand);
+  
+  const filteredLists = activeBrand === 'all'
+    ? emailLists
+    : emailLists.filter(l => l.brandId === activeBrand);
+  
+  const filteredEmails = activeBrand === 'all'
+    ? inboxEmails
+    : inboxEmails.filter((e: any) => {
+        // Filter by inbox brand association if available
+        const inbox = connectedInboxes.find(i => i.email === e.to);
+        return inbox?.brand === activeBrand || !inbox;
+      });
 
   // Fetch connected inboxes
   const fetchInboxes = async () => {
@@ -318,42 +429,95 @@ export default function MarketingCommandCenter() {
 
   return (
     <div className="min-h-screen bg-neutral-950 text-white">
-      {/* Header */}
-      <header className="border-b border-neutral-800 bg-neutral-900/50 backdrop-blur sticky top-0 z-40">
+      {/* BRAND SWITCHER - Top Bar */}
+      <div className="border-b border-neutral-800 bg-neutral-900">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex items-center gap-1 py-2 overflow-x-auto">
+            {Object.values(BRAND_CONFIG).map((brand) => (
+              <button
+                key={brand.id}
+                onClick={() => setActiveBrand(brand.id as BrandId)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all whitespace-nowrap ${
+                  activeBrand === brand.id
+                    ? `text-white border-b-2`
+                    : 'text-neutral-500 hover:text-neutral-300 hover:bg-neutral-800'
+                }`}
+                style={activeBrand === brand.id ? { 
+                  backgroundColor: `${brand.color}20`,
+                  borderBottomColor: brand.color 
+                } : {}}
+              >
+                <span className="text-lg">{brand.icon}</span>
+                <span className="text-sm font-medium">{brand.shortName}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Header - Brand Specific */}
+      <header 
+        className="border-b border-neutral-800 backdrop-blur sticky top-0 z-40"
+        style={{ backgroundColor: activeBrand !== 'all' ? `${currentBrand.color}15` : 'rgba(23,23,23,0.8)' }}
+      >
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-orange-600 flex items-center justify-center">
-                <Target className="w-5 h-5 text-white" />
+              <div 
+                className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl"
+                style={{ backgroundColor: `${currentBrand.color}30` }}
+              >
+                {currentBrand.icon}
               </div>
               <div>
                 <h1 className="text-xl font-bold text-white" style={{ fontFamily: 'Russo One, sans-serif' }}>
-                  Market Domination Center
+                  {activeBrand === 'all' ? 'Market Domination Center' : currentBrand.name}
                 </h1>
-                <p className="text-xs text-neutral-400">Northern NJ → NJ → USA</p>
+                <p className="text-xs text-neutral-400">
+                  {activeBrand === 'all' ? 'All Brands • Northern NJ → NJ → USA' : currentBrand.tagline}
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-6">
-              <div className="text-right">
-                <p className="text-xs text-neutral-500">Email Subscribers</p>
-                <p className="text-xl font-bold text-green-400">
-                  {loadingEmail ? '...' : (liveEmailData?.totalSubscribers.toLocaleString() || '0')}
-                </p>
-              </div>
-              <div className="text-right">
-                <p className="text-xs text-neutral-500">Territories</p>
-                <p className="text-xl font-bold text-blue-400">{dominatedTerritories}/{territories.length}</p>
-              </div>
-              <div className="text-right">
-                <p className="text-xs text-neutral-500">Schools</p>
-                <p className="text-xl font-bold text-purple-400">{totalSchools}</p>
-              </div>
-              <div className="text-right">
-                <p className="text-xs text-neutral-500">Campaigns</p>
-                <p className="text-xl font-bold text-orange-400">
-                  {loadingEmail ? '...' : (liveEmailData?.reachinboxCampaigns || '0')}
-                </p>
-              </div>
+              {activeBrand === 'all' ? (
+                <>
+                  <div className="text-right">
+                    <p className="text-xs text-neutral-500">Total Subscribers</p>
+                    <p className="text-xl font-bold text-green-400">
+                      {loadingEmail ? '...' : (liveEmailData?.totalSubscribers.toLocaleString() || '0')}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-neutral-500">Brands Active</p>
+                    <p className="text-xl font-bold text-blue-400">6</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-neutral-500">Campaigns</p>
+                    <p className="text-xl font-bold text-orange-400">{campaigns.length}</p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="text-right">
+                    <p className="text-xs text-neutral-500">Subscribers</p>
+                    <p className="text-xl font-bold" style={{ color: currentBrand.color }}>
+                      {filteredLists.reduce((sum, l) => sum + l.subscribers, 0).toLocaleString()}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-neutral-500">Campaigns</p>
+                    <p className="text-xl font-bold" style={{ color: currentBrand.color }}>
+                      {filteredCampaigns.length}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-neutral-500">Lists</p>
+                    <p className="text-xl font-bold" style={{ color: currentBrand.color }}>
+                      {filteredLists.length}
+                    </p>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -370,9 +534,12 @@ export default function MarketingCommandCenter() {
                 onClick={() => setActiveSection(section.id)}
                 className={`flex items-center gap-1.5 px-3 py-2 rounded-lg transition-colors whitespace-nowrap text-sm ${
                   activeSection === section.id
-                    ? "bg-orange-500 text-white"
+                    ? "text-white"
                     : "bg-neutral-800 text-neutral-400 hover:bg-neutral-700"
                 }`}
+                style={activeSection === section.id ? { 
+                  backgroundColor: activeBrand !== 'all' ? currentBrand.color : '#f97316'
+                } : {}}
               >
                 <Icon className="w-4 h-4" />
                 {section.label}
@@ -384,89 +551,264 @@ export default function MarketingCommandCenter() {
         {/* OVERVIEW / DASHBOARD */}
         {activeSection === "overview" && (
           <div className="space-y-6">
-            {/* Expansion Phases */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {expansionPhases.map((phase) => (
-                <div 
-                  key={phase.phase}
-                  className={`p-5 rounded-xl border ${
-                    phase.status === 'active' 
-                      ? 'bg-gradient-to-br from-orange-900/30 to-red-900/20 border-orange-500/30' 
-                      : 'bg-neutral-900 border-neutral-800'
-                  }`}
-                >
-                  <div className="flex items-center gap-2 mb-3">
-                    <Rocket className={`w-5 h-5 ${phase.status === 'active' ? 'text-orange-400' : 'text-neutral-500'}`} />
-                    <span className={`text-xs px-2 py-0.5 rounded ${
-                      phase.status === 'active' ? 'bg-orange-500/20 text-orange-400' : 'bg-neutral-700 text-neutral-400'
-                    }`}>
-                      Phase {phase.phase}
-                    </span>
-                  </div>
-                  <h3 className="font-bold text-white mb-1">{phase.name}</h3>
-                  <p className="text-xs text-neutral-400 mb-3">Target: {phase.targetDate}</p>
-                  <div className="space-y-1">
-                    {phase.milestones.slice(0, 3).map((m, idx) => (
-                      <div key={idx} className="flex items-center gap-2 text-xs">
-                        {m.completed ? (
-                          <CheckCircle className="w-3 h-3 text-green-400" />
-                        ) : (
-                          <div className="w-3 h-3 rounded-full border border-neutral-600" />
-                        )}
-                        <span className={m.completed ? 'text-neutral-400 line-through' : 'text-neutral-300'}>
-                          {m.name}
+            {/* ALL BRANDS VIEW */}
+            {activeBrand === 'all' && (
+              <>
+                {/* Cross-Brand Comparison Grid */}
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                  {Object.values(BRAND_CONFIG).filter(b => b.id !== 'all').map((brand) => {
+                    const brandCampaigns = campaigns.filter(c => c.brandId === brand.id);
+                    const brandLists = emailLists.filter(l => l.brandId === brand.id);
+                    const brandSubs = brandLists.reduce((sum, l) => sum + l.subscribers, 0);
+                    return (
+                      <button
+                        key={brand.id}
+                        onClick={() => setActiveBrand(brand.id as BrandId)}
+                        className="p-4 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-neutral-600 transition-all text-left group"
+                      >
+                        <div className="flex items-center gap-2 mb-3">
+                          <span className="text-2xl">{brand.icon}</span>
+                          <span className="text-sm font-bold text-white">{brand.shortName}</span>
+                        </div>
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-xs">
+                            <span className="text-neutral-500">Campaigns</span>
+                            <span className="font-bold" style={{ color: brand.color }}>{brandCampaigns.length}</span>
+                          </div>
+                          <div className="flex justify-between text-xs">
+                            <span className="text-neutral-500">Lists</span>
+                            <span className="font-bold" style={{ color: brand.color }}>{brandLists.length}</span>
+                          </div>
+                          <div className="flex justify-between text-xs">
+                            <span className="text-neutral-500">Subscribers</span>
+                            <span className="font-bold" style={{ color: brand.color }}>{brandSubs.toLocaleString()}</span>
+                          </div>
+                        </div>
+                        <div className="mt-3 pt-3 border-t border-neutral-800">
+                          <p className="text-xs text-neutral-400 group-hover:text-white transition-colors">
+                            Click to view →
+                          </p>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Expansion Phases */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {expansionPhases.map((phase) => (
+                    <div 
+                      key={phase.phase}
+                      className={`p-5 rounded-xl border ${
+                        phase.status === 'active' 
+                          ? 'bg-gradient-to-br from-orange-900/30 to-red-900/20 border-orange-500/30' 
+                          : 'bg-neutral-900 border-neutral-800'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 mb-3">
+                        <Rocket className={`w-5 h-5 ${phase.status === 'active' ? 'text-orange-400' : 'text-neutral-500'}`} />
+                        <span className={`text-xs px-2 py-0.5 rounded ${
+                          phase.status === 'active' ? 'bg-orange-500/20 text-orange-400' : 'bg-neutral-700 text-neutral-400'
+                        }`}>
+                          Phase {phase.phase}
                         </span>
                       </div>
-                    ))}
+                      <h3 className="font-bold text-white mb-1">{phase.name}</h3>
+                      <p className="text-xs text-neutral-400 mb-3">Target: {phase.targetDate}</p>
+                      <div className="space-y-1">
+                        {phase.milestones.slice(0, 3).map((m, idx) => (
+                          <div key={idx} className="flex items-center gap-2 text-xs">
+                            {m.completed ? (
+                              <CheckCircle className="w-3 h-3 text-green-400" />
+                            ) : (
+                              <div className="w-3 h-3 rounded-full border border-neutral-600" />
+                            )}
+                            <span className={m.completed ? 'text-neutral-400 line-through' : 'text-neutral-300'}>
+                              {m.name}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* All Brands Quick Stats */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="p-4 rounded-xl bg-neutral-900 border border-neutral-800">
+                    <Map className="w-5 h-5 text-blue-400 mb-2" />
+                    <p className="text-2xl font-bold text-white">{territories.length}</p>
+                    <p className="text-xs text-neutral-400">Target Territories</p>
+                  </div>
+                  <div className="p-4 rounded-xl bg-neutral-900 border border-neutral-800">
+                    <Eye className="w-5 h-5 text-red-400 mb-2" />
+                    <p className="text-2xl font-bold text-white">{competitors.length}</p>
+                    <p className="text-xs text-neutral-400">Tracked Competitors</p>
+                  </div>
+                  <div className="p-4 rounded-xl bg-neutral-900 border border-neutral-800">
+                    <SchoolIcon className="w-5 h-5 text-green-400 mb-2" />
+                    <p className="text-2xl font-bold text-white">{schools.length}</p>
+                    <p className="text-xs text-neutral-400">Schools in Database</p>
+                  </div>
+                  <div className="p-4 rounded-xl bg-neutral-900 border border-neutral-800">
+                    <CalendarDays className="w-5 h-5 text-purple-400 mb-2" />
+                    <p className="text-2xl font-bold text-white">{localEvents.length}</p>
+                    <p className="text-xs text-neutral-400">Upcoming Events</p>
                   </div>
                 </div>
-              ))}
-            </div>
+              </>
+            )}
 
-            {/* Quick Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="p-4 rounded-xl bg-neutral-900 border border-neutral-800">
-                <Map className="w-5 h-5 text-blue-400 mb-2" />
-                <p className="text-2xl font-bold text-white">{territories.length}</p>
-                <p className="text-xs text-neutral-400">Target Territories</p>
-              </div>
-              <div className="p-4 rounded-xl bg-neutral-900 border border-neutral-800">
-                <Eye className="w-5 h-5 text-red-400 mb-2" />
-                <p className="text-2xl font-bold text-white">{competitors.length}</p>
-                <p className="text-xs text-neutral-400">Tracked Competitors</p>
-              </div>
-              <div className="p-4 rounded-xl bg-neutral-900 border border-neutral-800">
-                <SchoolIcon className="w-5 h-5 text-green-400 mb-2" />
-                <p className="text-2xl font-bold text-white">{schools.length}</p>
-                <p className="text-xs text-neutral-400">Schools in Database</p>
-              </div>
-              <div className="p-4 rounded-xl bg-neutral-900 border border-neutral-800">
-                <CalendarDays className="w-5 h-5 text-purple-400 mb-2" />
-                <p className="text-2xl font-bold text-white">{localEvents.length}</p>
-                <p className="text-xs text-neutral-400">Upcoming Events</p>
-              </div>
-            </div>
-
-            {/* Agent Handoff Points */}
-            <div className="p-6 rounded-xl bg-neutral-900 border border-neutral-800">
-              <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
-                <RefreshCw className="w-5 h-5 text-orange-400" />
-                Agent Handoff Points
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {handoffPoints.map((handoff, idx) => (
-                  <div key={idx} className="p-4 bg-neutral-800 rounded-lg">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-sm text-blue-400">{handoff.from}</span>
-                      <ArrowRight className="w-4 h-4 text-neutral-500" />
-                      <span className="text-sm text-green-400">{handoff.to}</span>
+            {/* SINGLE BRAND VIEW */}
+            {activeBrand !== 'all' && (
+              <>
+                {/* Brand Header Card */}
+                <div 
+                  className="p-6 rounded-xl border"
+                  style={{ 
+                    backgroundColor: `${currentBrand.color}10`,
+                    borderColor: `${currentBrand.color}40`
+                  }}
+                >
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <div className="flex items-center gap-3 mb-2">
+                        <span className="text-4xl">{currentBrand.icon}</span>
+                        <div>
+                          <h2 className="text-2xl font-bold text-white" style={{ fontFamily: 'Russo One, sans-serif' }}>
+                            {currentBrand.name}
+                          </h2>
+                          <p className="text-sm text-neutral-400">{currentBrand.tagline}</p>
+                        </div>
+                      </div>
+                      <p className="text-sm text-neutral-300 mt-3">
+                        <span className="text-neutral-500">Target Audience:</span> {currentBrand.audience}
+                      </p>
                     </div>
-                    <p className="text-xs text-neutral-400 mb-1">Trigger: {handoff.trigger}</p>
-                    <p className="text-sm text-neutral-300">{handoff.action}</p>
+                    <button
+                      onClick={() => setActiveBrand('all')}
+                      className="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 rounded-lg text-sm text-neutral-300"
+                    >
+                      ← All Brands
+                    </button>
                   </div>
-                ))}
-              </div>
-            </div>
+                </div>
+
+                {/* Brand Stats Grid */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div 
+                    className="p-4 rounded-xl border"
+                    style={{ backgroundColor: `${currentBrand.color}10`, borderColor: `${currentBrand.color}30` }}
+                  >
+                    <Megaphone className="w-5 h-5 mb-2" style={{ color: currentBrand.color }} />
+                    <p className="text-2xl font-bold text-white">{filteredCampaigns.length}</p>
+                    <p className="text-xs text-neutral-400">Campaigns</p>
+                  </div>
+                  <div 
+                    className="p-4 rounded-xl border"
+                    style={{ backgroundColor: `${currentBrand.color}10`, borderColor: `${currentBrand.color}30` }}
+                  >
+                    <Mail className="w-5 h-5 mb-2" style={{ color: currentBrand.color }} />
+                    <p className="text-2xl font-bold text-white">{filteredLists.length}</p>
+                    <p className="text-xs text-neutral-400">Email Lists</p>
+                  </div>
+                  <div 
+                    className="p-4 rounded-xl border"
+                    style={{ backgroundColor: `${currentBrand.color}10`, borderColor: `${currentBrand.color}30` }}
+                  >
+                    <Users className="w-5 h-5 mb-2" style={{ color: currentBrand.color }} />
+                    <p className="text-2xl font-bold text-white">
+                      {filteredLists.reduce((sum, l) => sum + l.subscribers, 0).toLocaleString()}
+                    </p>
+                    <p className="text-xs text-neutral-400">Subscribers</p>
+                  </div>
+                  <div 
+                    className="p-4 rounded-xl border"
+                    style={{ backgroundColor: `${currentBrand.color}10`, borderColor: `${currentBrand.color}30` }}
+                  >
+                    <TrendingUp className="w-5 h-5 mb-2" style={{ color: currentBrand.color }} />
+                    <p className="text-2xl font-bold text-white">
+                      {filteredCampaigns.filter(c => c.status === 'active').length}
+                    </p>
+                    <p className="text-xs text-neutral-400">Active Campaigns</p>
+                  </div>
+                </div>
+
+                {/* Brand Campaigns */}
+                <div className="p-6 rounded-xl bg-neutral-900 border border-neutral-800">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-semibold text-white flex items-center gap-2">
+                      <Megaphone className="w-5 h-5" style={{ color: currentBrand.color }} />
+                      {currentBrand.shortName} Campaigns
+                    </h3>
+                    <button 
+                      className="px-3 py-1.5 rounded-lg text-sm flex items-center gap-1"
+                      style={{ backgroundColor: `${currentBrand.color}20`, color: currentBrand.color }}
+                    >
+                      <Plus className="w-3 h-3" /> New Campaign
+                    </button>
+                  </div>
+                  {filteredCampaigns.length === 0 ? (
+                    <p className="text-neutral-500 text-center py-8">No campaigns for this brand yet</p>
+                  ) : (
+                    <div className="space-y-3">
+                      {filteredCampaigns.map((campaign) => (
+                        <div 
+                          key={campaign.id}
+                          className="p-4 rounded-lg bg-neutral-800 flex items-center justify-between"
+                        >
+                          <div>
+                            <p className="font-medium text-white">{campaign.name}</p>
+                            <p className="text-xs text-neutral-400">{campaign.description}</p>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <span className={`px-2 py-1 rounded text-xs ${
+                              campaign.status === 'active' ? 'bg-green-500/20 text-green-400' :
+                              campaign.status === 'draft' ? 'bg-yellow-500/20 text-yellow-400' :
+                              'bg-neutral-700 text-neutral-400'
+                            }`}>
+                              {campaign.status}
+                            </span>
+                            <span className="text-xs text-neutral-500">{campaign.schedule}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Brand Email Lists */}
+                <div className="p-6 rounded-xl bg-neutral-900 border border-neutral-800">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-semibold text-white flex items-center gap-2">
+                      <Mail className="w-5 h-5" style={{ color: currentBrand.color }} />
+                      {currentBrand.shortName} Email Lists
+                    </h3>
+                  </div>
+                  {filteredLists.length === 0 ? (
+                    <p className="text-neutral-500 text-center py-8">No email lists for this brand yet</p>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {filteredLists.map((list) => (
+                        <div 
+                          key={list.id}
+                          className="p-4 rounded-lg bg-neutral-800"
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <p className="font-medium text-white">{list.name}</p>
+                            <span className="text-xs text-neutral-500">{list.platform}</span>
+                          </div>
+                          <p className="text-xs text-neutral-400 mb-2">{list.purpose}</p>
+                          <p className="text-lg font-bold" style={{ color: currentBrand.color }}>
+                            {list.subscribers.toLocaleString()} <span className="text-xs text-neutral-500">subscribers</span>
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
           </div>
         )}
 
@@ -2280,22 +2622,46 @@ export default function MarketingCommandCenter() {
         {activeSection === "campaigns" && (
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-white">Campaigns</h2>
-              <button className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg flex items-center gap-2 text-sm">
+              <div>
+                <h2 className="text-2xl font-bold text-white">
+                  {activeBrand === 'all' ? 'All Campaigns' : `${currentBrand.shortName} Campaigns`}
+                </h2>
+                <p className="text-sm text-neutral-400">
+                  {filteredCampaigns.length} campaign{filteredCampaigns.length !== 1 ? 's' : ''}
+                  {activeBrand !== 'all' && ` for ${currentBrand.name}`}
+                </p>
+              </div>
+              <button 
+                className="px-4 py-2 text-white rounded-lg flex items-center gap-2 text-sm"
+                style={{ backgroundColor: activeBrand !== 'all' ? currentBrand.color : '#f97316' }}
+              >
                 <Plus className="w-4 h-4" />
                 New Campaign
               </button>
             </div>
 
             <div className="space-y-3">
-              {campaigns.map((campaign) => {
+              {filteredCampaigns.map((campaign) => {
                 const brand = brands.find(b => b.id === campaign.brandId);
                 return (
-                  <div key={campaign.id} className="p-4 rounded-xl bg-neutral-900 border border-neutral-800">
+                  <div 
+                    key={campaign.id} 
+                    className="p-4 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-neutral-700 transition-colors"
+                  >
                     <div className="flex items-center gap-4">
                       <div className="w-2 h-10 rounded-full" style={{ backgroundColor: brand?.color }} />
                       <div className="flex-1">
-                        <h3 className="font-medium text-white">{campaign.name}</h3>
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-medium text-white">{campaign.name}</h3>
+                          {activeBrand === 'all' && (
+                            <span 
+                              className="text-xs px-2 py-0.5 rounded"
+                              style={{ backgroundColor: `${brand?.color}20`, color: brand?.color }}
+                            >
+                              {brand?.shortName}
+                            </span>
+                          )}
+                        </div>
                         <p className="text-sm text-neutral-400">{campaign.description}</p>
                       </div>
                       <span className={`text-xs px-2 py-1 rounded ${campaignStatusColors[campaign.status]}`}>
@@ -2305,33 +2671,64 @@ export default function MarketingCommandCenter() {
                   </div>
                 );
               })}
+              {filteredCampaigns.length === 0 && (
+                <div className="p-12 text-center text-neutral-500">
+                  No campaigns found{activeBrand !== 'all' && ` for ${currentBrand.name}`}
+                </div>
+              )}
             </div>
           </div>
         )}
 
-        {/* EMAIL LISTS - Original section */}
+        {/* EMAIL LISTS */}
         {activeSection === "lists" && (
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-white">Email Lists</h2>
-              <button className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg flex items-center gap-2 text-sm">
+              <div>
+                <h2 className="text-2xl font-bold text-white">
+                  {activeBrand === 'all' ? 'All Email Lists' : `${currentBrand.shortName} Email Lists`}
+                </h2>
+                <p className="text-sm text-neutral-400">
+                  {filteredLists.length} list{filteredLists.length !== 1 ? 's' : ''} • 
+                  {' '}{filteredLists.reduce((sum, l) => sum + l.subscribers, 0).toLocaleString()} total subscribers
+                </p>
+              </div>
+              <button 
+                className="px-4 py-2 text-white rounded-lg flex items-center gap-2 text-sm"
+                style={{ backgroundColor: activeBrand !== 'all' ? currentBrand.color : '#f97316' }}
+              >
                 <Plus className="w-4 h-4" />
                 New List
               </button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {emailLists.map((list) => {
+              {filteredLists.map((list) => {
                 const brand = brands.find(b => b.id === list.brandId);
                 return (
-                  <div key={list.id} className="p-5 rounded-xl bg-neutral-900 border border-neutral-800">
+                  <div 
+                    key={list.id} 
+                    className="p-5 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-neutral-700 transition-colors"
+                  >
                     <div className="flex items-start gap-3">
                       <div className="w-2 h-full min-h-[50px] rounded-full" style={{ backgroundColor: brand?.color }} />
                       <div className="flex-1">
-                        <h3 className="font-medium text-white">{list.name}</h3>
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-medium text-white">{list.name}</h3>
+                          {activeBrand === 'all' && (
+                            <span 
+                              className="text-xs px-2 py-0.5 rounded"
+                              style={{ backgroundColor: `${brand?.color}20`, color: brand?.color }}
+                            >
+                              {brand?.shortName}
+                            </span>
+                          )}
+                        </div>
                         <p className="text-sm text-neutral-400">{list.purpose}</p>
                         <div className="flex items-center justify-between mt-3">
-                          <p className="text-2xl font-bold text-white">{list.subscribers}</p>
+                          <p className="text-2xl font-bold" style={{ color: brand?.color }}>
+                            {list.subscribers.toLocaleString()}
+                          </p>
                           <span className="text-xs text-neutral-500">{list.platform}</span>
                         </div>
                       </div>
@@ -2339,6 +2736,11 @@ export default function MarketingCommandCenter() {
                   </div>
                 );
               })}
+              {filteredLists.length === 0 && (
+                <div className="col-span-2 p-12 text-center text-neutral-500">
+                  No email lists found{activeBrand !== 'all' && ` for ${currentBrand.name}`}
+                </div>
+              )}
             </div>
           </div>
         )}
