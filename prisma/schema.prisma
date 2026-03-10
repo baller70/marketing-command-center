@@ -1,0 +1,332 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =====================================================
+// STAGE 1: Market Intelligence + Audience Research
+// =====================================================
+model IntelligenceEntry {
+  id                String   @id @default(cuid())
+  dateCaptured      DateTime @default(now())
+  brand             String   // TBF, RA1, ShotIQ, HoS, Bookmark, all
+  category          String   // audience, competitor, platform, local_market, industry, pricing, seasonal
+  source            String
+  insight           String   @db.Text
+  actionable        Boolean  @default(false)
+  actionRecommended String?  @db.Text
+  priority          String   @default("medium") // high, medium, low
+  status            String   @default("new") // new, actioned, archived
+  connectedCampaign String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+// =====================================================
+// STAGE 2: Campaign Strategy Engine (Brand Pods)
+// =====================================================
+model BrandPod {
+  id              String   @id @default(cuid())
+  brand           String   @unique // TBF, RA1, ShotIQ, HoS, Bookmark
+  name            String
+  audience        String   @db.Text
+  coreOffer       String   @db.Text
+  coreMessage     String   @db.Text
+  channelMix      Json     @default("{}") // channel -> budget % allocation
+  kpiTargets      Json     @default("{}") // target metrics
+  status          String   @default("active")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  campaigns       Campaign[]
+  messagingLanes  MessagingLane[]
+}
+
+model MessagingLane {
+  id          String   @id @default(cuid())
+  brandPodId  String
+  brandPod    BrandPod @relation(fields: [brandPodId], references: [id])
+  lane        String   // e.g., "Fundamentals", "Transformation", "Free Trial"
+  message     String   @db.Text
+  contentTypes String  @db.Text // comma-separated
+  target      String
+  status      String   @default("active")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Campaign {
+  id              String   @id @default(cuid())
+  brandPodId      String
+  brandPod        BrandPod @relation(fields: [brandPodId], references: [id])
+  name            String
+  messagingLane   String
+  goal            String   // awareness, lead_gen, enrollment, sign_up, retention, event_promotion
+  targetAudience  String   @db.Text
+  offer           String?  @db.Text
+  channels        Json     @default("[]") // array of channel names
+  budget          Float    @default(0)
+  budgetSpent     Float    @default(0)
+  horizon         String   @default("H2") // H1 (locked), H2 (flexible), H3 (strategic)
+  status          String   @default("draft") // draft, assembling, quality_gate, approved, live, paused, completed, killed
+  startDate       DateTime?
+  endDate         DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  assemblies      CampaignAssembly[]
+  qualityReviews  QualityGateReview[]
+  deployments     ChannelDeployment[]
+  performance     PerformanceMetric[]
+}
+
+// =====================================================
+// STAGE 2.5: Creative Briefs (Marketing → Content)
+// =====================================================
+model CreativeBrief {
+  id                 String   @id @default(cuid())
+  brand              String
+  campaignName       String
+  campaignGoal       String
+  targetAudience     String   @db.Text
+  messagingLane      String
+  keyMessage         String   @db.Text
+  cta                String
+  assetsNeeded       Json     @default("[]") // array of {type, quantity, platform, requirements}
+  styleReference     String?
+  deadline           DateTime?
+  budgetNotes        String?
+  priority           String   @default("standard") // urgent, standard, backlog
+  status             String   @default("submitted") // submitted, acknowledged, in_production, delivered, cancelled
+  contentResponse    String?  @db.Text
+  deliveredAssets    Json     @default("[]")
+  submittedAt        DateTime @default(now())
+  acknowledgedAt     DateTime?
+  deliveredAt        DateTime?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+// =====================================================
+// STAGE 3: Campaign Assembly Line
+// =====================================================
+model CampaignAssembly {
+  id            String   @id @default(cuid())
+  campaignId    String
+  campaign      Campaign @relation(fields: [campaignId], references: [id])
+  step          Int      // 1-7 (brief, copy, funnel, ad assembly, email, social, quality gate)
+  stepName      String
+  status        String   @default("pending") // pending, in_progress, completed, blocked
+  copyText      Json?    @default("{}") // ad copy, email copy, landing page copy
+  funnelConfig  Json?    @default("{}") // landing page, forms, automation
+  adConfig      Json?    @default("{}") // ad sets, targeting, budget, A/B tests
+  emailConfig   Json?    @default("{}") // sequences, triggers
+  socialConfig  Json?    @default("{}") // posting schedule, boost config
+  notes         String?  @db.Text
+  completedAt   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// =====================================================
+// STAGE 4: Quality Gate + Brand Compliance
+// =====================================================
+model QualityGateReview {
+  id             String   @id @default(cuid())
+  campaignId     String
+  campaign       Campaign @relation(fields: [campaignId], references: [id])
+  reviewType     String   @default("pre_launch") // pre_launch, mid_campaign, post_campaign
+  brandCompliance Json    @default("{}") // checklist results
+  messagingCheck  Json    @default("{}") // accuracy checks
+  funnelCheck     Json    @default("{}") // technical checks
+  adCompliance    Json    @default("{}") // platform compliance
+  decision        String  @default("pending") // pending, pass, revise, reject
+  revisionNotes   String? @db.Text
+  escalatedToJane Boolean @default(false)
+  escalationReason String?
+  reviewedAt      DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// =====================================================
+// STAGE 5: Channel Deployment + Distribution
+// =====================================================
+model ChannelDeployment {
+  id            String   @id @default(cuid())
+  campaignId    String
+  campaign      Campaign @relation(fields: [campaignId], references: [id])
+  channel       String   // instagram, tiktok, facebook, youtube, email, google_ads, sms, twitter, linkedin
+  platform      String?  // organic, paid, boosted
+  contentAssets Json     @default("[]") // asset IDs used
+  adCreative    Json?    @default("{}") // ad-specific config
+  schedule      Json?    @default("{}") // posting/ad schedule
+  budget        Float    @default(0)
+  budgetSpent   Float    @default(0)
+  status        String   @default("scheduled") // scheduled, live, paused, completed
+  launchedAt    DateTime?
+  completedAt   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// =====================================================
+// STAGE 6: Performance Tracking + Revenue Attribution
+// =====================================================
+model PerformanceMetric {
+  id                  String   @id @default(cuid())
+  campaignId          String
+  campaign            Campaign @relation(fields: [campaignId], references: [id])
+  brand               String
+  channel             String
+  dateRange           String
+  // Awareness
+  impressions         Int      @default(0)
+  reach               Int      @default(0)
+  frequency           Float    @default(0)
+  videoViews          Int      @default(0)
+  brandSearchLift     Float    @default(0)
+  // Engagement
+  clicks              Int      @default(0)
+  ctr                 Float    @default(0)
+  engagementRate      Float    @default(0)
+  landingPageVisits   Int      @default(0)
+  // Conversion
+  leadsGenerated      Int      @default(0)
+  leadConversionRate  Float    @default(0)
+  costPerLead         Float    @default(0)
+  enrollments         Int      @default(0)
+  enrollmentRate      Float    @default(0)
+  costPerEnrollment   Float    @default(0)
+  revenueGenerated    Float    @default(0)
+  // Efficiency
+  roas                Float    @default(0)
+  cpa                 Float    @default(0)
+  ltvToCpaRatio       Float    @default(0)
+  budgetSpent         Float    @default(0)
+  // Email
+  openRate            Float    @default(0)
+  clickRate           Float    @default(0)
+  unsubscribeRate     Float    @default(0)
+  // Attribution
+  attributionModel    String   @default("last_touch") // first_touch, last_touch, multi_touch
+  touchpoints         Json     @default("[]")
+  recordedAt          DateTime @default(now())
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+// =====================================================
+// STAGE 7: Learning Engine
+// =====================================================
+model LearningRule {
+  id            String   @id @default(cuid())
+  brand         String
+  dataSource    String   @db.Text // which campaigns generated this
+  rule          String   @db.Text
+  confidence    String   @default("medium") // high, medium, low
+  appliesTo     String   // pipeline stage(s)
+  loopType      String   // campaign_pattern, funnel_optimization, content_feedback, seasonal, competitive
+  status        String   @default("active") // active, testing, deprecated
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model FunnelAnalysis {
+  id            String   @id @default(cuid())
+  brand         String
+  funnelName    String   // e.g., "TBF Free Trial", "ShotIQ SaaS Adoption"
+  stages        Json     @default("[]") // array of {stage, conversionRate, dropOffReason, fix}
+  weakestLink   String?
+  improvement   String?  @db.Text
+  analysisDate  DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model ContentFeedback {
+  id              String   @id @default(cuid())
+  brand           String
+  period          String
+  topPerforming   Json     @default("[]") // asset performance data
+  worstPerforming Json     @default("[]")
+  contentGaps     Json     @default("[]")
+  formatInsights  Json     @default("[]")
+  sentToContent   Boolean  @default(false)
+  sentAt          DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model SeasonalPattern {
+  id          String   @id @default(cuid())
+  brand       String
+  observation String   @db.Text
+  action      String   @db.Text
+  months      Json     @default("[]") // affected months
+  status      String   @default("active")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// =====================================================
+// TV Show Marketing
+// =====================================================
+model TVShowMarketing {
+  id            String   @id @default(cuid())
+  brand         String
+  showName      String
+  format        String   // e.g., "10-12 min deep dive"
+  cadence       String   // e.g., "1x/week"
+  marketingRole String   @db.Text
+  episodes      Int      @default(0)
+  avgWatchDuration Float @default(0)
+  leadsPerEpisode  Float @default(0)
+  status        String   @default("active") // active, keep, optimize, cancelled
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// =====================================================
+// MyMemo Curation System
+// =====================================================
+model MyMemo {
+  id            String   @id @default(cuid())
+  brand         String   // TBF, RA1, ShotIQ, HoS, Bookmark, multiple
+  messagingLane String?
+  formatIdea    String   // clip_idea, tweet_swipe, design_reference, ad_concept, email_concept, funnel_idea
+  content       String   @db.Text // the link, note, screenshot ref
+  whySaved      String   @db.Text
+  priority      String   @default("bank_for_later") // use_this_week, use_soon, bank_for_later
+  status        String   @default("new") // new, briefed, produced, archived
+  linkedBriefId String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// =====================================================
+// Content Delivery Hub Assets (received from Content Division)
+// =====================================================
+model ContentAsset {
+  id                    String   @id @default(cuid())
+  assetId               String   @unique // external asset ID from Content Division
+  brand                 String
+  messagingLane         String?
+  skillPillar           String?
+  format                String   // short_video, mid_video, long_video, carousel, etc.
+  platformOptimized     String   // tiktok, ig_reels, youtube_shorts, etc.
+  dimensions            String?  // 9:16, 1:1, 4:5, 16:9
+  duration              Int?     // seconds
+  campaignId            String?  // if produced for specific campaign
+  tvShow                String?
+  captionText           String?  @db.Text
+  hashtags              String?
+  ctaText               String?
+  performancePrediction Float?
+  status                String   @default("new") // new, assigned_to_campaign, deployed, archived
+  deliveredAt           DateTime @default(now())
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}

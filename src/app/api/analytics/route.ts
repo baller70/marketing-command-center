@@ -1,117 +1,50 @@
 import { NextResponse } from 'next/server';
+import { umami } from '@/lib/integrations/umami';
 
-// PostHog configuration - needs to be set up
-// Sign up at https://posthog.com (free tier: 1M events/month)
-const POSTHOG_API_KEY = process.env.POSTHOG_API_KEY || 'phc_a9YPRbIEB1n636t4w60EswD8Yw3ms0hmfJPp62wcg1m';
-const POSTHOG_HOST = process.env.POSTHOG_HOST || 'https://us.i.posthog.com';
-const POSTHOG_PROJECT_ID = process.env.POSTHOG_PROJECT_ID || '297549';
+const WEBSITES: Record<string, string> = {
+  tbf: '733a8665-962c-452d-8a94-bbc17b5babb9',
+  ra1: 'ad0446a5-830a-4b6b-a2c4-d3f354aa7eea',
+  hos: 'c201600f-6a4a-4fb0-892d-21b1aa3ec8ae',
+  shotiq: 'f060591a-a9f6-43cb-b777-5ddedf7b0261',
+  bookmarkai: '53f605cc-38c9-4d43-83e8-abae2e765134',
+};
 
-interface AnalyticsEvent {
-  event: string;
-  distinct_id: string;
-  properties?: Record<string, any>;
-  timestamp?: string;
-}
-
-// Check if PostHog is configured
 export async function GET() {
-  const isConfigured = !!POSTHOG_API_KEY && !!POSTHOG_PROJECT_ID;
-
-  if (!isConfigured) {
+  const token = process.env.UMAMI_API_TOKEN;
+  if (!token) {
     return NextResponse.json({
       success: false,
       configured: false,
-      message: 'PostHog not configured',
-      setupSteps: [
-        '1. Go to https://posthog.com and create free account',
-        '2. Create a new project',
-        '3. Get your Project API Key from Project Settings',
-        '4. Add to .env.local:',
-        '   POSTHOG_API_KEY=phc_xxxxx',
-        '   POSTHOG_PROJECT_ID=12345',
-        '5. Restart the app'
-      ],
-      freeTier: {
-        events: '1M/month',
-        sessionRecordings: '5K/month',
-        creditCard: 'Not required'
-      }
+      message: 'Umami not configured — set UMAMI_API_TOKEN in .env',
     });
-  }
-
-  // Test connection
-  try {
-    const res = await fetch(`${POSTHOG_HOST}/api/projects/${POSTHOG_PROJECT_ID}/`, {
-      headers: {
-        'Authorization': `Bearer ${POSTHOG_API_KEY}`
-      }
-    });
-    
-    if (res.ok) {
-      const data = await res.json();
-      return NextResponse.json({
-        success: true,
-        configured: true,
-        project: {
-          id: data.id,
-          name: data.name,
-          created_at: data.created_at
-        }
-      });
-    }
-  } catch (error) {
-    console.error('PostHog error:', error);
-  }
-
-  return NextResponse.json({
-    success: false,
-    configured: true,
-    error: 'Could not connect to PostHog'
-  });
-}
-
-// Send event to PostHog
-export async function POST(request: Request) {
-  if (!POSTHOG_API_KEY) {
-    return NextResponse.json({ 
-      success: false, 
-      error: 'PostHog not configured' 
-    }, { status: 400 });
   }
 
   try {
-    const body = await request.json();
-    const { event, distinct_id, properties } = body as AnalyticsEvent;
+    const results: Record<string, unknown> = {};
+    const now = Date.now();
+    const yesterday = now - 24 * 60 * 60 * 1000;
 
-    const res = await fetch(`${POSTHOG_HOST}/capture/`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        api_key: POSTHOG_API_KEY,
-        event,
-        distinct_id,
-        properties: {
-          ...properties,
-          $lib: 'marketing-command-center'
-        }
-      })
-    });
-
-    if (res.ok) {
-      return NextResponse.json({ success: true, event });
+    for (const [brand, websiteId] of Object.entries(WEBSITES)) {
+      try {
+        const stats = await umami.getWebsiteStats(websiteId, yesterday, now);
+        results[brand] = stats;
+      } catch {
+        results[brand] = { error: 'unreachable' };
+      }
     }
 
-    return NextResponse.json({ 
-      success: false, 
-      error: 'Failed to send event' 
-    }, { status: 500 });
+    return NextResponse.json({
+      success: true,
+      configured: true,
+      source: 'umami',
+      websites: Object.keys(WEBSITES).length,
+      analytics: results,
+    });
   } catch (error) {
-    console.error('Analytics error:', error);
-    return NextResponse.json({ 
-      success: false, 
-      error: String(error) 
+    return NextResponse.json({
+      success: false,
+      configured: true,
+      error: String(error),
     }, { status: 500 });
   }
 }
