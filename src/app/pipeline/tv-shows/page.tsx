@@ -58,7 +58,7 @@ function ShowCard({ show, onClick }: { show: TVShow; onClick: () => void }) {
   const platforms: string[] = (show as any).platforms || []
 
   return (
-    <button onClick={onClick} className="group relative rounded-xl border border-slate-200 bg-white overflow-hidden transition-all hover:border-slate-300 hover:shadow-lg hover:-translate-y-0.5 text-left w-full">
+    <button onClick={onClick} className="group relative rounded-xl border border-[var(--border)] bg-[var(--bg-primary)] overflow-hidden transition-all hover:border-[var(--border)] hover:shadow-lg hover:-translate-y-0.5 text-left w-full">
       <div className="h-32 relative overflow-hidden" style={{ background: `linear-gradient(135deg, ${accentColor}40, ${accentColor}15)` }}>
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
         <div className="absolute top-2.5 left-2.5">
@@ -68,7 +68,7 @@ function ShowCard({ show, onClick }: { show: TVShow; onClick: () => void }) {
         </div>
         {show.status === "active" && (
           <div className="absolute top-2.5 right-2.5">
-            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-green-500/90 text-white">
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-[var(--bg-card)]0/90 text-white">
               <Radio className="w-2.5 h-2.5 animate-pulse" /> Live
             </span>
           </div>
@@ -82,19 +82,19 @@ function ShowCard({ show, onClick }: { show: TVShow; onClick: () => void }) {
       <div className="p-3 space-y-2">
         <div className="flex items-center justify-between">
           <span className="text-[10px] font-medium uppercase tracking-wider" style={{ color: BRAND_COLORS[show.brand] || "#64748b" }}>{show.brand}</span>
-          <span className="text-[10px] text-slate-400">{show.cadence}</span>
+          <span className="text-[10px] text-[var(--text-muted)]">{show.cadence}</span>
         </div>
-        <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">{show.format}</p>
+        <p className="text-xs text-[var(--text-secondary)] line-clamp-2 leading-relaxed">{show.format}</p>
         {((show as any).scheduleDay || (show as any).scheduleTime) && (
           <div className="flex items-center gap-1.5">
-            <Calendar className="w-3 h-3 text-slate-400" />
-            <span className="text-[10px] text-slate-400">{(show as any).scheduleDay || "TBD"} @ {(show as any).scheduleTime || "TBD"}</span>
+            <Calendar className="w-3 h-3 text-[var(--text-muted)]" />
+            <span className="text-[10px] text-[var(--text-muted)]">{(show as any).scheduleDay || "TBD"} @ {(show as any).scheduleTime || "TBD"}</span>
           </div>
         )}
         {platforms.length > 0 && (
           <div className="flex gap-1">
             {platforms.map((p: string) => (
-              <span key={p} className="px-1.5 py-0.5 rounded text-[9px] font-medium bg-slate-100 text-slate-500 capitalize">{p}</span>
+              <span key={p} className="px-1.5 py-0.5 rounded text-[9px] font-medium bg-[var(--bg-secondary)] text-[var(--text-secondary)] capitalize">{p}</span>
             ))}
           </div>
         )}
@@ -124,28 +124,28 @@ function ScheduleGrid({ shows }: { shows: TVShow[] }) {
   }
 
   return (
-    <div className="border border-slate-200 rounded-xl overflow-hidden bg-white">
+    <div className="border border-[var(--border)] rounded-xl overflow-hidden bg-[var(--bg-primary)]">
       <div className="grid" style={{ gridTemplateColumns: "80px repeat(7, 1fr)" }}>
-        <div className="bg-slate-50 border-b border-r border-slate-200 p-2 text-center">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Time</span>
+        <div className="bg-[var(--bg-secondary)] border-b border-r border-[var(--border)] p-2 text-center">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Time</span>
         </div>
         {DAYS.map(day => (
-          <div key={day} className="bg-slate-50 border-b border-r last:border-r-0 border-slate-200 p-2 text-center">
-            <span className="text-xs font-bold text-slate-600">{day}</span>
+          <div key={day} className="bg-[var(--bg-secondary)] border-b border-r last:border-r-0 border-[var(--border)] p-2 text-center">
+            <span className="text-xs font-bold text-[var(--text-secondary)]">{day}</span>
           </div>
         ))}
       </div>
 
       <div className="relative grid" style={{ gridTemplateColumns: "80px repeat(7, 1fr)", gridTemplateRows: `repeat(${hours.length}, 48px)` }}>
         {hours.map((hour, i) => (
-          <div key={hour} className="border-b border-r border-slate-100 px-2 py-1 flex items-start" style={{ gridRow: i + 1, gridColumn: 1 }}>
-            <span className="text-[10px] text-slate-400 font-mono">{hour}</span>
+          <div key={hour} className="border-b border-r border-[var(--border)] px-2 py-1 flex items-start" style={{ gridRow: i + 1, gridColumn: 1 }}>
+            <span className="text-[10px] text-[var(--text-muted)] font-mono">{hour}</span>
           </div>
         ))}
 
         {DAYS.map((_, colIdx) => (
           hours.map((_, rowIdx) => (
-            <div key={`${colIdx}-${rowIdx}`} className="border-b border-r last:border-r-0 border-slate-100" style={{ gridRow: rowIdx + 1, gridColumn: colIdx + 2 }} />
+            <div key={`${colIdx}-${rowIdx}`} className="border-b border-r last:border-r-0 border-[var(--border)]" style={{ gridRow: rowIdx + 1, gridColumn: colIdx + 2 }} />
           ))
         ))}
 
@@ -186,27 +186,27 @@ function PerformanceView({ shows }: { shows: TVShow[] }) {
   function getDecision(show: TVShow): { label: string; color: string; bg: string } {
     const goodWatch = show.avgWatchDuration >= 40
     const goodLeads = show.leadsPerEpisode >= 2
-    if (goodWatch && goodLeads) return { label: "RENEW", color: "text-emerald-600", bg: "bg-green-50 border-green-200" }
-    if (goodWatch && !goodLeads) return { label: "KEEP — Fix CTAs", color: "text-blue-600", bg: "bg-blue-50 border-blue-200" }
-    if (!goodWatch && goodLeads) return { label: "OPTIMIZE", color: "text-amber-600", bg: "bg-amber-50 border-amber-200" }
-    return { label: "REVIEW", color: "text-red-600", bg: "bg-red-50 border-red-200" }
+    if (goodWatch && goodLeads) return { label: "RENEW", color: "text-[var(--text-primary)]", bg: "bg-[var(--bg-card)] border-[var(--border)]" }
+    if (goodWatch && !goodLeads) return { label: "KEEP — Fix CTAs", color: "text-[var(--text-primary)]", bg: "bg-[var(--bg-card)] border-[var(--border)]" }
+    if (!goodWatch && goodLeads) return { label: "OPTIMIZE", color: "text-[var(--text-primary)]", bg: "bg-amber-50 border-amber-200" }
+    return { label: "REVIEW", color: "text-[var(--text-primary)]", bg: "bg-[var(--bg-card)] border-[var(--border)]" }
   }
 
   return (
     <div className="space-y-4">
-      <div className="rounded-xl bg-white border border-slate-200 p-4">
-        <p className="text-xs font-semibold text-slate-500 mb-3">Renewal Decision Matrix (after 4+ episodes)</p>
+      <div className="rounded-xl bg-[var(--bg-primary)] border border-[var(--border)] p-4">
+        <p className="text-xs font-semibold text-[var(--text-secondary)] mb-3">Renewal Decision Matrix (after 4+ episodes)</p>
         <div className="grid grid-cols-4 gap-3 text-xs">
-          <div className="p-2.5 rounded-lg bg-green-50 border border-green-200 text-emerald-700 font-medium">
+          <div className="p-2.5 rounded-lg bg-[var(--bg-card)] border border-[var(--border)] text-[var(--text-primary)] font-medium">
             <Eye className="w-3.5 h-3.5 mb-1" /> Watch ↑ + Leads ↑ = <b>RENEW</b>
           </div>
-          <div className="p-2.5 rounded-lg bg-blue-50 border border-blue-200 text-blue-700 font-medium">
+          <div className="p-2.5 rounded-lg bg-[var(--bg-card)] border border-[var(--border)] text-[var(--text-primary)] font-medium">
             <Eye className="w-3.5 h-3.5 mb-1" /> Watch ↑ + Leads ↓ = <b>KEEP</b>
           </div>
           <div className="p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-700 font-medium">
             <TrendingUp className="w-3.5 h-3.5 mb-1" /> Watch ↓ + Leads ↑ = <b>OPTIMIZE</b>
           </div>
-          <div className="p-2.5 rounded-lg bg-red-50 border border-red-200 text-red-700 font-medium">
+          <div className="p-2.5 rounded-lg bg-[var(--bg-card)] border border-[var(--border)] text-[var(--text-primary)] font-medium">
             <XCircle className="w-3.5 h-3.5 mb-1" /> Watch ↓ + Leads ↓ = <b>CANCEL</b>
           </div>
         </div>
@@ -218,32 +218,32 @@ function PerformanceView({ shows }: { shows: TVShow[] }) {
           const accentColor = getAccentColor(s)
 
           return (
-            <div key={s.id} className="rounded-xl bg-white border border-slate-200 overflow-hidden hover:border-slate-300 transition-all">
+            <div key={s.id} className="rounded-xl bg-[var(--bg-primary)] border border-[var(--border)] overflow-hidden hover:border-[var(--border)] transition-all">
               <div className="flex">
                 <div className="w-1.5 shrink-0" style={{ backgroundColor: accentColor }} />
                 <div className="flex-1 p-4">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1.5">
-                        <span className="text-sm font-bold text-slate-900">{s.showName}</span>
+                        <span className="text-sm font-bold text-[var(--text-primary)]">{s.showName}</span>
                         <span className="px-2 py-0.5 rounded-full text-[10px] font-medium" style={{ backgroundColor: accentColor + "18", color: accentColor }}>{s.brand}</span>
-                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${s.status === "active" ? "bg-green-50 text-emerald-600" : s.status === "cancelled" ? "bg-red-50 text-red-600" : "bg-slate-50 text-slate-500"}`}>{s.status}</span>
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${s.status === "active" ? "bg-[var(--bg-card)] text-[var(--text-primary)]" : s.status === "cancelled" ? "bg-[var(--bg-card)] text-[var(--text-primary)]" : "bg-[var(--bg-secondary)] text-[var(--text-secondary)]"}`}>{s.status}</span>
                       </div>
-                      <p className="text-xs text-slate-500">{s.format}</p>
-                      <p className="text-[11px] text-slate-400 mt-1">{s.marketingRole}</p>
+                      <p className="text-xs text-[var(--text-secondary)]">{s.format}</p>
+                      <p className="text-[11px] text-[var(--text-muted)] mt-1">{s.marketingRole}</p>
 
                       <div className="flex items-center gap-6 mt-3">
                         <div className="text-center">
-                          <p className="text-lg font-bold text-slate-900">{s.episodes}</p>
-                          <p className="text-[10px] text-slate-400">Episodes</p>
+                          <p className="text-lg font-bold text-[var(--text-primary)]">{s.episodes}</p>
+                          <p className="text-[10px] text-[var(--text-muted)]">Episodes</p>
                         </div>
                         <div className="text-center">
-                          <p className={`text-lg font-bold ${s.avgWatchDuration >= 40 ? "text-emerald-600" : "text-red-500"}`}>{s.avgWatchDuration}%</p>
-                          <p className="text-[10px] text-slate-400">Avg Watch</p>
+                          <p className={`text-lg font-bold ${s.avgWatchDuration >= 40 ? "text-[var(--text-primary)]" : "text-[var(--text-secondary)]"}`}>{s.avgWatchDuration}%</p>
+                          <p className="text-[10px] text-[var(--text-muted)]">Avg Watch</p>
                         </div>
                         <div className="text-center">
-                          <p className={`text-lg font-bold ${s.leadsPerEpisode >= 2 ? "text-emerald-600" : "text-red-500"}`}>{s.leadsPerEpisode}</p>
-                          <p className="text-[10px] text-slate-400">Leads/Ep</p>
+                          <p className={`text-lg font-bold ${s.leadsPerEpisode >= 2 ? "text-[var(--text-primary)]" : "text-[var(--text-secondary)]"}`}>{s.leadsPerEpisode}</p>
+                          <p className="text-[10px] text-[var(--text-muted)]">Leads/Ep</p>
                         </div>
                         {decision && (
                           <div className={`ml-4 px-3 py-1.5 rounded-lg border text-xs font-bold ${decision.bg} ${decision.color}`}>
@@ -255,12 +255,12 @@ function PerformanceView({ shows }: { shows: TVShow[] }) {
 
                     <div className="flex gap-1 ml-4">
                       {s.status !== "cancelled" && (
-                        <button className="p-1.5 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-600 transition-colors" title="Cancel Show">
+                        <button className="p-1.5 rounded-lg hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors" title="Cancel Show">
                           <XCircle className="w-4 h-4" />
                         </button>
                       )}
                       {s.status === "cancelled" && (
-                        <button className="p-1.5 rounded-lg hover:bg-green-50 text-slate-400 hover:text-emerald-600 transition-colors" title="Reactivate">
+                        <button className="p-1.5 rounded-lg hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors" title="Reactivate">
                           <Play className="w-4 h-4" />
                         </button>
                       )}
@@ -316,20 +316,20 @@ export default function TVShowsPage() {
   return (
     <div className="flex h-[calc(100vh-4rem)] flex-col overflow-hidden">
       {/* Row 1: Title bar */}
-      <div className="border-b border-slate-200 bg-white px-6 py-2.5 shrink-0">
+      <div className="border-b border-[var(--border)] bg-[var(--bg-primary)] px-6 py-2.5 shrink-0">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Tv className="w-5 h-5 text-indigo-600" />
-            <h1 className="text-lg font-bold text-slate-900">TV Guide</h1>
+            <h1 className="text-lg font-bold text-[var(--text-primary)]">TV Guide</h1>
             {activeShows > 0 && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border border-green-200 text-green-600">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border border-[var(--border)] text-green-600">
                 <Radio className="w-2.5 h-2.5 animate-pulse" /> {activeShows} Active
               </span>
             )}
           </div>
 
           <div className="flex items-center gap-2">
-            <button onClick={load} className={`p-2 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-50 transition-colors`}>
+            <button onClick={load} className={`p-2 rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card)] transition-colors`}>
               <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
             </button>
           </div>
@@ -337,8 +337,8 @@ export default function TVShowsPage() {
       </div>
 
       {/* Row 2: Tabs + Filters + Stats */}
-      <div className="border-b border-slate-200 bg-slate-50/60 px-6 py-1.5 shrink-0 flex items-center justify-between">
-        <div className="flex bg-slate-100 rounded-lg p-0.5">
+      <div className="border-b border-[var(--border)] bg-[var(--bg-secondary)]/60 px-6 py-1.5 shrink-0 flex items-center justify-between">
+        <div className="flex bg-[var(--bg-secondary)] rounded-lg p-0.5">
           {([
             { key: "shows" as TabView, label: "Shows", icon: Clapperboard },
             { key: "schedule" as TabView, label: "Schedule", icon: Calendar },
@@ -349,8 +349,8 @@ export default function TVShowsPage() {
               onClick={() => setTab(t.key)}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
                 tab === t.key
-                  ? "bg-white text-slate-900 shadow-sm"
-                  : "text-slate-500 hover:text-slate-700"
+                  ? "bg-[var(--bg-primary)] text-[var(--text-primary)] shadow-sm"
+                  : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
               }`}
             >
               <t.icon className="w-3 h-3" /> {t.label}
@@ -362,7 +362,7 @@ export default function TVShowsPage() {
           <select
             value={brandFilter}
             onChange={e => setBrandFilter(e.target.value)}
-            className="bg-white border border-dashed border-slate-300 rounded-lg px-3 py-1 text-xs text-slate-600 outline-none"
+            className="bg-[var(--bg-primary)] border border-dashed border-[var(--border)] rounded-lg px-3 py-1 text-xs text-[var(--text-secondary)] outline-none"
           >
             <option value="__all__">All Brands</option>
             {ALL_BRANDS.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
@@ -370,10 +370,10 @@ export default function TVShowsPage() {
 
           <div className="h-4 w-px bg-slate-200" />
 
-          <div className="flex items-center gap-3 text-[11px] text-slate-400">
-            <span><strong className="text-slate-700">{shows.length}</strong> shows</span>
-            <span><strong className="text-slate-700">{totalEps}</strong> episodes</span>
-            <span><strong className="text-slate-700">{activeShows}</strong> active</span>
+          <div className="flex items-center gap-3 text-[11px] text-[var(--text-muted)]">
+            <span><strong className="text-[var(--text-primary)]">{shows.length}</strong> shows</span>
+            <span><strong className="text-[var(--text-primary)]">{totalEps}</strong> episodes</span>
+            <span><strong className="text-[var(--text-primary)]">{activeShows}</strong> active</span>
           </div>
         </div>
       </div>
@@ -381,13 +381,13 @@ export default function TVShowsPage() {
       {/* Main content */}
       <div className="flex-1 overflow-auto p-5">
         {loading ? (
-          <div className="flex items-center justify-center h-64 text-slate-400">
+          <div className="flex items-center justify-center h-64 text-[var(--text-muted)]">
             <RefreshCw className="w-6 h-6 animate-spin mr-2" /> Loading programming...
           </div>
         ) : shows.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-24 text-slate-400">
+          <div className="flex flex-col items-center justify-center py-24 text-[var(--text-muted)]">
             <Tv className="w-12 h-12 mb-4 opacity-30" />
-            <p className="text-lg font-medium text-slate-500">No shows yet</p>
+            <p className="text-lg font-medium text-[var(--text-secondary)]">No shows yet</p>
             <p className="text-sm mt-1">Seed the 9 shows to start programming your content marketing</p>
           </div>
         ) : (
@@ -398,8 +398,8 @@ export default function TVShowsPage() {
                   <div key={brand}>
                     <div className="flex items-center gap-2 mb-3 px-1">
                       <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: BRAND_COLORS[brand] || "#64748b" }} />
-                      <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500">{brand}</h3>
-                      <span className="text-[10px] text-slate-400">{brandShows.length} shows</span>
+                      <h3 className="text-sm font-bold uppercase tracking-wider text-[var(--text-secondary)]">{brand}</h3>
+                      <span className="text-[10px] text-[var(--text-muted)]">{brandShows.length} shows</span>
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                       {brandShows.map(show => (
@@ -419,7 +419,7 @@ export default function TVShowsPage() {
 
       {/* Show detail slide-out */}
       {selectedShow && (
-        <div className="absolute top-0 right-0 bottom-0 w-80 bg-white border-l border-slate-200 shadow-xl z-50 flex flex-col">
+        <div className="absolute top-0 right-0 bottom-0 w-80 bg-[var(--bg-primary)] border-l border-[var(--border)] shadow-xl z-50 flex flex-col">
           {(() => {
             const accentColor = getAccentColor(selectedShow)
             const platforms: string[] = (selectedShow as any).platforms || []
@@ -438,43 +438,43 @@ export default function TVShowsPage() {
 
                 <div className="flex-1 overflow-y-auto p-4 space-y-4">
                   <div className="flex items-center gap-2">
-                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${selectedShow.status === "active" ? "bg-green-50 text-emerald-600" : "bg-slate-100 text-slate-500"}`}>{selectedShow.status}</span>
-                    <span className="text-[10px] text-slate-400">{selectedShow.cadence}</span>
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${selectedShow.status === "active" ? "bg-[var(--bg-card)] text-[var(--text-primary)]" : "bg-[var(--bg-secondary)] text-[var(--text-secondary)]"}`}>{selectedShow.status}</span>
+                    <span className="text-[10px] text-[var(--text-muted)]">{selectedShow.cadence}</span>
                   </div>
 
                   <div className="space-y-2.5">
-                    <div className="flex justify-between text-xs"><span className="text-slate-400">Format</span><span className="font-medium text-slate-700 text-right max-w-[60%]">{selectedShow.format}</span></div>
+                    <div className="flex justify-between text-xs"><span className="text-[var(--text-muted)]">Format</span><span className="font-medium text-[var(--text-primary)] text-right max-w-[60%]">{selectedShow.format}</span></div>
                     {((selectedShow as any).scheduleDay || (selectedShow as any).scheduleTime) && (
-                      <div className="flex justify-between text-xs"><span className="text-slate-400">Schedule</span><span className="font-medium text-slate-700">{(selectedShow as any).scheduleDay || "TBD"} @ {(selectedShow as any).scheduleTime || "TBD"}</span></div>
+                      <div className="flex justify-between text-xs"><span className="text-[var(--text-muted)]">Schedule</span><span className="font-medium text-[var(--text-primary)]">{(selectedShow as any).scheduleDay || "TBD"} @ {(selectedShow as any).scheduleTime || "TBD"}</span></div>
                     )}
-                    <div className="flex justify-between text-xs"><span className="text-slate-400">Episodes</span><span className="font-medium text-slate-700">{selectedShow.episodes}</span></div>
-                    <div className="flex justify-between text-xs"><span className="text-slate-400">Avg Watch</span><span className={`font-medium ${selectedShow.avgWatchDuration >= 40 ? "text-emerald-600" : "text-red-500"}`}>{selectedShow.avgWatchDuration}%</span></div>
-                    <div className="flex justify-between text-xs"><span className="text-slate-400">Leads/Episode</span><span className={`font-medium ${selectedShow.leadsPerEpisode >= 2 ? "text-emerald-600" : "text-red-500"}`}>{selectedShow.leadsPerEpisode}</span></div>
+                    <div className="flex justify-between text-xs"><span className="text-[var(--text-muted)]">Episodes</span><span className="font-medium text-[var(--text-primary)]">{selectedShow.episodes}</span></div>
+                    <div className="flex justify-between text-xs"><span className="text-[var(--text-muted)]">Avg Watch</span><span className={`font-medium ${selectedShow.avgWatchDuration >= 40 ? "text-[var(--text-primary)]" : "text-[var(--text-secondary)]"}`}>{selectedShow.avgWatchDuration}%</span></div>
+                    <div className="flex justify-between text-xs"><span className="text-[var(--text-muted)]">Leads/Episode</span><span className={`font-medium ${selectedShow.leadsPerEpisode >= 2 ? "text-[var(--text-primary)]" : "text-[var(--text-secondary)]"}`}>{selectedShow.leadsPerEpisode}</span></div>
                   </div>
 
-                  <div className="border-t border-slate-100 pt-3">
-                    <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400 mb-1">Marketing Role</p>
-                    <p className="text-xs text-slate-500 leading-relaxed">{selectedShow.marketingRole}</p>
+                  <div className="border-t border-[var(--border)] pt-3">
+                    <p className="text-[10px] font-medium uppercase tracking-wider text-[var(--text-muted)] mb-1">Marketing Role</p>
+                    <p className="text-xs text-[var(--text-secondary)] leading-relaxed">{selectedShow.marketingRole}</p>
                   </div>
 
                   {platforms.length > 0 && (
-                    <div className="border-t border-slate-100 pt-3">
-                      <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400 mb-2">Platforms</p>
+                    <div className="border-t border-[var(--border)] pt-3">
+                      <p className="text-[10px] font-medium uppercase tracking-wider text-[var(--text-muted)] mb-2">Platforms</p>
                       <div className="flex gap-1.5 flex-wrap">
                         {platforms.map((p: string) => (
-                          <span key={p} className="px-2 py-1 rounded-md text-[10px] font-medium bg-slate-50 border border-slate-200 text-slate-600 capitalize">{p}</span>
+                          <span key={p} className="px-2 py-1 rounded-md text-[10px] font-medium bg-[var(--bg-secondary)] border border-[var(--border)] text-[var(--text-secondary)] capitalize">{p}</span>
                         ))}
                       </div>
                     </div>
                   )}
 
-                  <div className="border-t border-slate-100 pt-3 space-y-2">
+                  <div className="border-t border-[var(--border)] pt-3 space-y-2">
                     {selectedShow.status !== "cancelled" ? (
-                      <button onClick={() => { updateStatus(selectedShow.id, "cancelled"); setSelectedShow(null) }} className="w-full flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg border border-red-200 text-red-600 text-xs font-medium hover:bg-red-50 transition-colors">
+                      <button onClick={() => { updateStatus(selectedShow.id, "cancelled"); setSelectedShow(null) }} className="w-full flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg border border-[var(--border)] text-[var(--text-primary)] text-xs font-medium hover:bg-[var(--bg-card)] transition-colors">
                         <Pause className="w-3.5 h-3.5" /> Cancel Show
                       </button>
                     ) : (
-                      <button onClick={() => { updateStatus(selectedShow.id, "active"); setSelectedShow(null) }} className="w-full flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg border border-green-200 text-green-600 text-xs font-medium hover:bg-green-50 transition-colors">
+                      <button onClick={() => { updateStatus(selectedShow.id, "active"); setSelectedShow(null) }} className="w-full flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg border border-[var(--border)] text-green-600 text-xs font-medium hover:bg-[var(--bg-card)] transition-colors">
                         <Play className="w-3.5 h-3.5" /> Reactivate Show
                       </button>
                     )}

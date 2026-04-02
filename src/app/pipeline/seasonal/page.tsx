@@ -69,13 +69,13 @@ export default function SeasonalPage() {
     <div className="p-6 max-w-[1400px] mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-            <Calendar className="w-6 h-6 text-teal-600" /> Seasonal Patterns
+          <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2">
+            <Calendar className="w-6 h-6 text-[var(--text-primary)]" /> Seasonal Patterns
           </h1>
-          <p className="text-sm text-slate-500 mt-1">Track how performance varies by season, events, and market conditions</p>
+          <p className="text-sm text-[var(--text-secondary)] mt-1">Track how performance varies by season, events, and market conditions</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={load} className="p-2 rounded-lg bg-slate-50 text-slate-500 hover:text-slate-900"><RefreshCw className="w-4 h-4" /></button>
+          <button onClick={load} className="p-2 rounded-lg bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"><RefreshCw className="w-4 h-4" /></button>
           <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-teal-600 text-white text-sm font-medium hover:bg-teal-500">
             <Plus className="w-4 h-4" /> Add Pattern
           </button>
@@ -83,19 +83,19 @@ export default function SeasonalPage() {
       </div>
 
       {/* 12-month heatmap */}
-      <div className="rounded-xl bg-white border border-slate-200 p-6">
-        <h2 className="text-sm font-semibold text-slate-900 mb-3">Annual Marketing Activity Heatmap</h2>
+      <div className="rounded-xl bg-[var(--bg-primary)] border border-[var(--border)] p-6">
+        <h2 className="text-sm font-semibold text-[var(--text-primary)] mb-3">Annual Marketing Activity Heatmap</h2>
         <div className="grid grid-cols-12 gap-2">
           {MONTH_NAMES.map((name, i) => {
             const brands = monthHeat[i + 1] || []
             const intensity = brands.length
             const isCurrent = i + 1 === currentMonth
             return (
-              <div key={name} className={`rounded-lg p-3 text-center border relative ${isCurrent ? "ring-2 ring-teal-500 ring-offset-1 ring-offset-white" : ""} ${intensity >= 3 ? "bg-red-50 border-red-500/30" : intensity >= 2 ? "bg-orange-50 border-orange-500/30" : intensity >= 1 ? "bg-yellow-50 border-yellow-500/30" : "bg-slate-50 border-slate-200"}`}>
+              <div key={name} className={`rounded-lg p-3 text-center border relative ${isCurrent ? "ring-2 ring-teal-500 ring-offset-1 ring-offset-white" : ""} ${intensity >= 3 ? "bg-[var(--bg-card)] border-[var(--border)]/30" : intensity >= 2 ? "bg-[var(--bg-card)] border-[var(--border)]/30" : intensity >= 1 ? "bg-[var(--bg-card)] border-[var(--border)]/30" : "bg-[var(--bg-secondary)] border-[var(--border)]"}`}>
                 {isCurrent && <span className="absolute -top-2 left-1/2 -translate-x-1/2 px-1.5 py-0 rounded-full bg-teal-500 text-[8px] font-bold text-white uppercase tracking-wider">Now</span>}
-                <p className="text-xs font-medium text-slate-700">{name}</p>
-                <p className="text-lg font-bold text-slate-900">{intensity}</p>
-                <p className="text-[9px] text-slate-400">{[...new Set(brands)].join(", ")}</p>
+                <p className="text-xs font-medium text-[var(--text-primary)]">{name}</p>
+                <p className="text-lg font-bold text-[var(--text-primary)]">{intensity}</p>
+                <p className="text-[9px] text-[var(--text-muted)]">{[...new Set(brands)].join(", ")}</p>
               </div>
             )
           })}
@@ -105,17 +105,17 @@ export default function SeasonalPage() {
       {/* Active Now Banner */}
       {activeNow.length > 0 && (
         <div className="rounded-xl bg-teal-50 border border-teal-500/30 p-5">
-          <h2 className="text-sm font-semibold text-teal-600 mb-3 flex items-center gap-2">
+          <h2 className="text-sm font-semibold text-[var(--text-primary)] mb-3 flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-teal-600 animate-pulse" />
             Active This Month — {MONTH_NAMES[currentMonth - 1]}
           </h2>
           <div className="space-y-2">
             {activeNow.map(p => (
-              <div key={p.id} className="flex items-start gap-3 rounded-lg bg-white p-3">
-                <span className="px-2 py-0.5 rounded-full bg-slate-50 text-xs text-slate-600 flex-shrink-0 mt-0.5">{p.brand}</span>
+              <div key={p.id} className="flex items-start gap-3 rounded-lg bg-[var(--bg-primary)] p-3">
+                <span className="px-2 py-0.5 rounded-full bg-[var(--bg-secondary)] text-xs text-[var(--text-secondary)] flex-shrink-0 mt-0.5">{p.brand}</span>
                 <div>
-                  <p className="text-sm text-slate-700">{p.observation}</p>
-                  <p className="text-xs text-teal-600 mt-0.5">→ {p.action}</p>
+                  <p className="text-sm text-[var(--text-primary)]">{p.observation}</p>
+                  <p className="text-xs text-[var(--text-primary)] mt-0.5">→ {p.action}</p>
                 </div>
               </div>
             ))}
@@ -124,53 +124,53 @@ export default function SeasonalPage() {
       )}
 
       {showForm && (
-        <div className="rounded-xl bg-white border border-teal-500/30 p-6 space-y-4">
-          <h3 className="text-sm font-semibold text-slate-900">New Seasonal Pattern</h3>
-          <div><label className="block text-xs text-slate-500 mb-1">Brand</label>
-            <select value={form.brand} onChange={e => setForm({...form, brand: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-600 outline-none">
+        <div className="rounded-xl bg-[var(--bg-primary)] border border-teal-500/30 p-6 space-y-4">
+          <h3 className="text-sm font-semibold text-[var(--text-primary)]">New Seasonal Pattern</h3>
+          <div><label className="block text-xs text-[var(--text-secondary)] mb-1">Brand</label>
+            <select value={form.brand} onChange={e => setForm({...form, brand: e.target.value})} className="w-full bg-[var(--bg-secondary)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm text-[var(--text-secondary)] outline-none">
               {["TBF", "RA1", "ShotIQ", "HoS", "Bookmark"].map(b => <option key={b}>{b}</option>)}
             </select></div>
-          <div><label className="block text-xs text-slate-500 mb-1">Observation</label>
-            <textarea value={form.observation} onChange={e => setForm({...form, observation: e.target.value})} rows={2} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-600 outline-none resize-none" /></div>
-          <div><label className="block text-xs text-slate-500 mb-1">Action</label>
-            <textarea value={form.action} onChange={e => setForm({...form, action: e.target.value})} rows={2} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-600 outline-none resize-none" /></div>
-          <div><label className="block text-xs text-slate-500 mb-1">Affected Months</label>
+          <div><label className="block text-xs text-[var(--text-secondary)] mb-1">Observation</label>
+            <textarea value={form.observation} onChange={e => setForm({...form, observation: e.target.value})} rows={2} className="w-full bg-[var(--bg-secondary)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm text-[var(--text-secondary)] outline-none resize-none" /></div>
+          <div><label className="block text-xs text-[var(--text-secondary)] mb-1">Action</label>
+            <textarea value={form.action} onChange={e => setForm({...form, action: e.target.value})} rows={2} className="w-full bg-[var(--bg-secondary)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm text-[var(--text-secondary)] outline-none resize-none" /></div>
+          <div><label className="block text-xs text-[var(--text-secondary)] mb-1">Affected Months</label>
             <div className="flex gap-2 flex-wrap">
               {MONTH_NAMES.map((name, i) => (
-                <button key={i} onClick={() => toggleMonth(i + 1)} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${form.months.includes(i + 1) ? "bg-teal-50 text-teal-600 border border-teal-500/30" : "bg-slate-50 text-slate-500 border border-slate-200"}`}>
+                <button key={i} onClick={() => toggleMonth(i + 1)} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${form.months.includes(i + 1) ? "bg-teal-50 text-[var(--text-primary)] border border-teal-500/30" : "bg-[var(--bg-secondary)] text-[var(--text-secondary)] border border-[var(--border)]"}`}>
                   {name}
                 </button>
               ))}
             </div>
           </div>
           <div className="flex justify-end gap-2">
-            <button onClick={() => setShowForm(false)} className="px-4 py-2 rounded-lg bg-slate-50 text-slate-500 text-sm">Cancel</button>
+            <button onClick={() => setShowForm(false)} className="px-4 py-2 rounded-lg bg-[var(--bg-secondary)] text-[var(--text-secondary)] text-sm">Cancel</button>
             <button onClick={submit} disabled={!form.observation} className="px-4 py-2 rounded-lg bg-teal-600 text-white text-sm font-medium disabled:opacity-50">Save Pattern</button>
           </div>
         </div>
       )}
 
       {loading ? (
-        <div className="space-y-3">{[...Array(4)].map((_, i) => <div key={i} className="h-24 rounded-xl bg-white animate-pulse" />)}</div>
+        <div className="space-y-3">{[...Array(4)].map((_, i) => <div key={i} className="h-24 rounded-xl bg-[var(--bg-primary)] animate-pulse" />)}</div>
       ) : patterns.length === 0 ? (
-        <div className="rounded-xl bg-white border border-slate-200 p-12 text-center">
-          <Calendar className="w-12 h-12 text-slate-100 mx-auto mb-3" />
-          <p className="text-slate-400">No seasonal patterns tracked</p>
+        <div className="rounded-xl bg-[var(--bg-primary)] border border-[var(--border)] p-12 text-center">
+          <Calendar className="w-12 h-12 text-[var(--text-primary)] mx-auto mb-3" />
+          <p className="text-[var(--text-muted)]">No seasonal patterns tracked</p>
         </div>
       ) : (
         <div className="space-y-3">
           {patterns.map(p => (
-            <div key={p.id} className="rounded-xl bg-white border border-slate-200 p-4 hover:border-slate-200 transition-colors">
+            <div key={p.id} className="rounded-xl bg-[var(--bg-primary)] border border-[var(--border)] p-4 hover:border-[var(--border)] transition-colors">
               <div className="flex items-center gap-2 mb-2">
-                <span className="px-2 py-0.5 rounded-full bg-slate-50 text-xs text-slate-500">{p.brand}</span>
+                <span className="px-2 py-0.5 rounded-full bg-[var(--bg-secondary)] text-xs text-[var(--text-secondary)]">{p.brand}</span>
                 <div className="flex gap-1">
                   {(p.months as number[]).sort((a, b) => a - b).map(m => (
-                    <span key={m} className="px-1.5 py-0.5 rounded bg-teal-50 text-teal-600 text-[10px] font-medium">{MONTH_NAMES[m - 1]}</span>
+                    <span key={m} className="px-1.5 py-0.5 rounded bg-teal-50 text-[var(--text-primary)] text-[10px] font-medium">{MONTH_NAMES[m - 1]}</span>
                   ))}
                 </div>
               </div>
-              <p className="text-sm text-slate-700">📊 {p.observation}</p>
-              <p className="text-xs text-slate-500 mt-1">→ {p.action}</p>
+              <p className="text-sm text-[var(--text-primary)]">📊 {p.observation}</p>
+              <p className="text-xs text-[var(--text-secondary)] mt-1">→ {p.action}</p>
             </div>
           ))}
         </div>

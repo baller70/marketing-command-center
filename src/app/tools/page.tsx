@@ -46,18 +46,18 @@ const tools: Tool[] = [
 ]
 
 const categories = [
-  { key: "email", label: "Email Marketing", icon: Mail, color: "text-blue-600" },
+  { key: "email", label: "Email Marketing", icon: Mail, color: "text-[var(--text-primary)]" },
   { key: "social", label: "Social Media", icon: Share2, color: "text-pink-600" },
-  { key: "analytics", label: "Analytics", icon: BarChart3, color: "text-emerald-600" },
-  { key: "podcast", label: "Podcast", icon: Mic, color: "text-violet-600" },
-  { key: "automation", label: "Automation", icon: Zap, color: "text-amber-600" },
-  { key: "ads", label: "Advertising", icon: Megaphone, color: "text-orange-600" },
+  { key: "analytics", label: "Analytics", icon: BarChart3, color: "text-[var(--text-primary)]" },
+  { key: "podcast", label: "Podcast", icon: Mic, color: "text-[var(--text-primary)]" },
+  { key: "automation", label: "Automation", icon: Zap, color: "text-[var(--text-primary)]" },
+  { key: "ads", label: "Advertising", icon: Megaphone, color: "text-[var(--text-primary)]" },
 ]
 
 const statusConfig: Record<string, { label: string; icon: typeof CheckCircle; bgColor: string; textColor: string }> = {
-  active: { label: "Active", icon: CheckCircle, bgColor: "bg-green-50", textColor: "text-emerald-600" },
-  "needs-setup": { label: "Needs Setup", icon: AlertTriangle, bgColor: "bg-yellow-50", textColor: "text-amber-600" },
-  "oauth-required": { label: "OAuth Required", icon: Lock, bgColor: "bg-orange-50", textColor: "text-orange-600" },
+  active: { label: "Active", icon: CheckCircle, bgColor: "bg-[var(--bg-card)]", textColor: "text-[var(--text-primary)]" },
+  "needs-setup": { label: "Needs Setup", icon: AlertTriangle, bgColor: "bg-[var(--bg-card)]", textColor: "text-[var(--text-primary)]" },
+  "oauth-required": { label: "OAuth Required", icon: Lock, bgColor: "bg-[var(--bg-card)]", textColor: "text-[var(--text-primary)]" },
 }
 
 export default function ToolsPage() {
@@ -68,16 +68,16 @@ export default function ToolsPage() {
     <div className="p-6 max-w-[1400px] mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-            <Zap className="w-6 h-6 text-amber-600" /> Marketing Tools
+          <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2">
+            <Zap className="w-6 h-6 text-[var(--text-primary)]" /> Marketing Tools
           </h1>
-          <p className="text-sm text-slate-500 mt-1">All tools and platforms used by the Marketing Division</p>
+          <p className="text-sm text-[var(--text-secondary)] mt-1">All tools and platforms used by the Marketing Division</p>
         </div>
         <div className="flex items-center gap-3">
-          <span className="px-3 py-1.5 rounded-full bg-green-50 border border-green-500/20 text-emerald-600 text-xs font-medium">
+          <span className="px-3 py-1.5 rounded-full bg-[var(--bg-card)] border border-[var(--border)]/20 text-[var(--text-primary)] text-xs font-medium">
             {activeCount} Active
           </span>
-          <span className="px-3 py-1.5 rounded-full bg-yellow-50 border border-yellow-500/20 text-amber-600 text-xs font-medium">
+          <span className="px-3 py-1.5 rounded-full bg-[var(--bg-card)] border border-[var(--border)]/20 text-[var(--text-primary)] text-xs font-medium">
             {setupCount} Need Setup
           </span>
         </div>
@@ -90,7 +90,7 @@ export default function ToolsPage() {
 
         return (
           <div key={cat.key}>
-            <h3 className="text-lg font-semibold text-slate-900 mb-3 flex items-center gap-2">
+            <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-3 flex items-center gap-2">
               <Icon className={`w-5 h-5 ${cat.color}`} />
               {cat.label}
             </h3>
@@ -101,29 +101,29 @@ export default function ToolsPage() {
                 const url = getAppUrl(tool)
 
                 return (
-                  <div key={tool.id} className="rounded-xl bg-white border border-slate-200 p-4 hover:border-slate-300 transition-colors">
+                  <div key={tool.id} className="rounded-xl bg-[var(--bg-primary)] border border-[var(--border)] p-4 hover:border-[var(--border)] transition-colors">
                     <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-medium text-slate-900">{tool.name}</h4>
+                      <h4 className="font-medium text-[var(--text-primary)]">{tool.name}</h4>
                       <span className={`text-xs px-2 py-1 rounded-full flex items-center gap-1 ${sc.bgColor} ${sc.textColor}`}>
                         <StatusIcon className="w-3 h-3" />
                         {sc.label}
                       </span>
                     </div>
-                    <p className="text-sm text-slate-500 mb-1">{tool.description}</p>
-                    <p className="text-xs text-slate-400 mb-3">Best for: {tool.bestFor}</p>
+                    <p className="text-sm text-[var(--text-secondary)] mb-1">{tool.description}</p>
+                    <p className="text-xs text-[var(--text-muted)] mb-3">Best for: {tool.bestFor}</p>
                     <div className="flex items-center gap-3">
                       {url && (
-                        <a href={url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:text-blue-500 flex items-center gap-1 transition-colors">
+                        <a href={url} target="_blank" rel="noopener noreferrer" className="text-xs text-[var(--text-primary)] hover:text-[var(--text-primary)] flex items-center gap-1 transition-colors">
                           Open <ExternalLink className="w-3 h-3" />
                         </a>
                       )}
                       {tool.docsUrl && (
-                        <a href={tool.docsUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-slate-400 hover:text-slate-600 flex items-center gap-1 transition-colors">
+                        <a href={tool.docsUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-[var(--text-muted)] hover:text-[var(--text-secondary)] flex items-center gap-1 transition-colors">
                           Docs <ExternalLink className="w-3 h-3" />
                         </a>
                       )}
                       {tool.apiAvailable && (
-                        <span className="text-xs text-emerald-600">API ✓</span>
+                        <span className="text-xs text-[var(--text-primary)]">API ✓</span>
                       )}
                     </div>
                   </div>

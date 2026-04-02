@@ -8,10 +8,11 @@ import {
   Calendar, ChevronDown, ChevronRight,
   Target, Megaphone, LayoutDashboard, Wrench,
   Mail, Share2, BarChart2, ClipboardList, BellRing, Globe,
-  Zap
+  Zap, Sun, Moon
 } from "lucide-react"
 import { useState } from "react"
 import { useBrand, ALL_BRANDS } from "@/context/BrandContext"
+import { useTheme } from "@/components/ThemeProvider"
 
 type PipelineStage = {
   num: number
@@ -31,8 +32,8 @@ type PipelinePhase = {
 const pipelinePhases: PipelinePhase[] = [
   {
     phase: "Strategy",
-    color: "text-purple-500",
-    dotColor: "bg-purple-500",
+    color: "text-theme-muted",
+    dotColor: "bg-theme-secondary",
     stages: [
       { num: 1, label: "Intelligence", href: "/pipeline/intelligence", icon: Brain },
       { num: 2, label: "Brand Pods", href: "/pipeline/brand-pods", icon: Building2 },
@@ -41,8 +42,8 @@ const pipelinePhases: PipelinePhase[] = [
   },
   {
     phase: "Planning",
-    color: "text-blue-500",
-    dotColor: "bg-blue-500",
+    color: "text-theme-muted",
+    dotColor: "bg-theme-secondary",
     stages: [
       { num: 4, label: "Campaigns", href: "/pipeline/campaigns", icon: Megaphone },
       { num: 5, label: "Creative Briefs", href: "/pipeline/creative-briefs", icon: FileText },
@@ -50,8 +51,8 @@ const pipelinePhases: PipelinePhase[] = [
   },
   {
     phase: "Production",
-    color: "text-cyan-500",
-    dotColor: "bg-cyan-500",
+    color: "text-theme-muted",
+    dotColor: "bg-theme-secondary",
     stages: [
       { num: 6, label: "Content Delivery", href: "/pipeline/content-assets", icon: Package },
       { num: 7, label: "Assembly Line", href: "/pipeline/assembly", icon: Layers },
@@ -59,16 +60,16 @@ const pipelinePhases: PipelinePhase[] = [
   },
   {
     phase: "Quality",
-    color: "text-yellow-600",
-    dotColor: "bg-yellow-500",
+    color: "text-theme-muted",
+    dotColor: "bg-theme-secondary",
     stages: [
       { num: 8, label: "Quality Gate", href: "/pipeline/quality-gate", icon: CheckSquare },
     ],
   },
   {
     phase: "Execution",
-    color: "text-green-500",
-    dotColor: "bg-green-500",
+    color: "text-theme-muted",
+    dotColor: "bg-theme-secondary",
     stages: [
       {
         num: 9,
@@ -89,8 +90,8 @@ const pipelinePhases: PipelinePhase[] = [
   },
   {
     phase: "Optimization",
-    color: "text-orange-500",
-    dotColor: "bg-orange-500",
+    color: "text-theme-muted",
+    dotColor: "bg-theme-secondary",
     stages: [
       { num: 11, label: "Performance", href: "/pipeline/performance", icon: TrendingUp },
       { num: 12, label: "Learning Engine", href: "/pipeline/learning", icon: Lightbulb },
@@ -121,31 +122,32 @@ function BrandSwitcher() {
   const [open, setOpen] = useState(false)
 
   const displayName = activeBrand === "__all__" ? "All Brands" : brandInfo?.name || activeBrand
-  const displayColor = activeBrand === "__all__" ? "#f97316" : brandInfo?.color || "#f97316"
+  const displayColor = activeBrand === "__all__" ? "var(--text-secondary)" : brandInfo?.color || "var(--text-secondary)"
 
   return (
     <div className="mx-2 mb-2">
       <button
+        type="button"
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 transition-colors text-sm"
+        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg border border-theme bg-theme-secondary hover:bg-theme-card transition-colors text-sm"
       >
         <div
-          className="w-3 h-3 rounded-full shrink-0"
+          className="w-3 h-3 rounded-full shrink-0 border border-theme"
           style={{ backgroundColor: displayColor }}
         />
-        <span className="flex-1 text-left font-medium text-slate-700 truncate">{displayName}</span>
-        <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${open ? "rotate-180" : ""}`} />
+        <span className="flex-1 text-left font-medium text-theme-primary truncate">{displayName}</span>
+        <ChevronDown className={`w-3.5 h-3.5 text-theme-muted transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
 
       {open && (
-        <div className="mt-1 rounded-lg border border-slate-200 bg-white shadow-lg overflow-hidden z-50 relative">
+        <div className="mt-1 rounded-lg border border-theme bg-theme-primary shadow-lg overflow-hidden z-50 relative">
           <button
+            type="button"
             onClick={() => { setActiveBrand("__all__"); setOpen(false) }}
             className={`w-full flex items-center gap-2 px-3 py-2 text-sm transition-colors ${
-              activeBrand === "__all__"
-                ? "bg-orange-50 text-orange-600 font-medium"
-                : "text-slate-600 hover:bg-slate-50"
+              activeBrand === "__all__" ? "font-medium" : "text-theme-secondary hover:bg-theme-secondary"
             }`}
+            style={activeBrand === "__all__" ? { background: "var(--sidebar-active-bg)", color: "var(--sidebar-active-text)" } : undefined}
           >
             <Globe className="w-3.5 h-3.5" />
             <span>All Brands</span>
@@ -153,19 +155,19 @@ function BrandSwitcher() {
           {ALL_BRANDS.map(brand => (
             <button
               key={brand.id}
+              type="button"
               onClick={() => { setActiveBrand(brand.id); setOpen(false) }}
               className={`w-full flex items-center gap-2 px-3 py-2 text-sm transition-colors ${
-                activeBrand === brand.id
-                  ? "bg-orange-50 text-orange-600 font-medium"
-                  : "text-slate-600 hover:bg-slate-50"
+                activeBrand === brand.id ? "font-medium" : "text-theme-secondary hover:bg-theme-secondary"
               }`}
+              style={activeBrand === brand.id ? { background: "var(--sidebar-active-bg)", color: "var(--sidebar-active-text)" } : undefined}
             >
               <div
-                className="w-3 h-3 rounded-full shrink-0"
+                className="w-3 h-3 rounded-full shrink-0 border border-theme"
                 style={{ backgroundColor: brand.color }}
               />
               <span className="truncate">{brand.name}</span>
-              <span className="ml-auto text-[10px] text-slate-400">{brand.shortName}</span>
+              <span className="ml-auto text-[10px] text-theme-muted">{brand.shortName}</span>
             </button>
           ))}
         </div>
@@ -179,8 +181,9 @@ function NavSection({ title, items, pathname }: { title: string; items: { label:
   return (
     <div className="mb-1">
       <button
+        type="button"
         onClick={() => setCollapsed(!collapsed)}
-        className="w-full flex items-center justify-between px-4 py-2 text-[10px] uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-colors"
+        className="w-full flex items-center justify-between px-4 py-2 text-[10px] uppercase tracking-widest text-theme-muted hover:text-theme-secondary transition-colors"
       >
         <span>{title}</span>
         {collapsed ? <ChevronRight className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
@@ -195,12 +198,15 @@ function NavSection({ title, items, pathname }: { title: string; items: { label:
                 key={item.href}
                 href={item.href}
                 className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all ${
-                  active
-                    ? "bg-orange-50 text-orange-600 font-medium"
-                    : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+                  active ? "font-medium" : "hover:bg-theme-secondary"
                 }`}
+                style={
+                  active
+                    ? { background: "var(--sidebar-active-bg)", color: "var(--sidebar-active-text)" }
+                    : { color: "var(--text-secondary)" }
+                }
               >
-                <Icon className={`w-4 h-4 ${active ? "text-orange-600" : "text-slate-400"}`} />
+                <Icon className="w-4 h-4 shrink-0 opacity-90" />
                 <span>{item.label}</span>
               </Link>
             )
@@ -215,30 +221,40 @@ export default function Sidebar() {
   const pathname = usePathname()
   const [pipelineCollapsed, setPipelineCollapsed] = useState(false)
   const [appsExpanded, setAppsExpanded] = useState(false)
+  const { theme, toggleTheme } = useTheme()
 
   const appPaths = ["/apps/mautic", "/apps/postiz", "/apps/listmonk", "/apps/formbricks", "/apps/calcom", "/apps/umami"]
   const isOnAppPage = appPaths.includes(pathname)
 
+  const navInactive = { color: "var(--text-secondary)" }
+  const navActive = {
+    background: "var(--sidebar-active-bg)",
+    color: "var(--sidebar-active-text)",
+  }
+
   return (
-    <aside className="w-64 min-h-screen bg-white border-r border-slate-200 flex flex-col">
+    <aside
+      className="w-64 min-h-screen flex flex-col"
+      style={{ background: "var(--sidebar-bg)", borderRight: "1px solid var(--border)" }}
+    >
       {/* Header */}
-      <div className="p-4 border-b border-slate-200">
+      <div className="p-4" style={{ borderBottom: "1px solid var(--border)" }}>
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center">
-            <Target className="w-5 h-5 text-white" />
+          <div className="w-8 h-8 rounded-lg bg-theme-card border border-theme flex items-center justify-center">
+            <Target className="w-5 h-5 text-theme-primary" />
           </div>
           <div>
-            <h1 className="text-sm font-bold text-slate-900 tracking-tight">Marketing Engine</h1>
-            <p className="text-[10px] text-orange-600 uppercase tracking-widest">Autonomous Pipeline</p>
+            <h1 className="text-sm font-bold text-theme-primary tracking-tight">Marketing Engine</h1>
+            <p className="text-[10px] text-theme-secondary uppercase tracking-widest">Autonomous Pipeline</p>
           </div>
         </div>
       </div>
 
       {/* Agent badge */}
-      <div className="px-4 py-3 border-b border-slate-200">
+      <div className="px-4 py-3" style={{ borderBottom: "1px solid var(--border)" }}>
         <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-          <span className="text-xs text-slate-500">Derek — Marketing Agent</span>
+          <div className="w-2 h-2 rounded-full bg-[var(--bg-card)]0 animate-pulse" />
+          <span className="text-xs text-theme-secondary">Derek — Marketing Agent</span>
         </div>
       </div>
 
@@ -252,8 +268,9 @@ export default function Sidebar() {
         {/* Pipeline */}
         <div className="mb-1">
           <button
+            type="button"
             onClick={() => setPipelineCollapsed(!pipelineCollapsed)}
-            className="w-full flex items-center justify-between px-4 py-2 text-[10px] uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-colors"
+            className="w-full flex items-center justify-between px-4 py-2 text-[10px] uppercase tracking-widest text-theme-muted hover:text-theme-secondary transition-colors"
           >
             <span>Pipeline</span>
             {pipelineCollapsed ? <ChevronRight className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
@@ -284,39 +301,38 @@ export default function Sidebar() {
                           <div key={stage.num}>
                             {hasSubItems ? (
                               <button
+                                type="button"
                                 onClick={() => setAppsExpanded(!appsExpanded)}
                                 className={`w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-sm transition-all ${
-                                  active
-                                    ? "bg-orange-50 text-orange-600 font-medium"
-                                    : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+                                  active ? "font-medium" : "hover:bg-theme-secondary"
                                 }`}
+                                style={active ? navActive : navInactive}
                               >
-                                <span className="w-4 text-[10px] font-bold text-slate-300 text-right shrink-0">{stage.num}</span>
-                                <Icon className={`w-3.5 h-3.5 ${active ? "text-orange-600" : "text-slate-400"}`} />
+                                <span className="w-4 text-[10px] font-bold text-theme-muted text-right shrink-0">{stage.num}</span>
+                                <Icon className="w-3.5 h-3.5 shrink-0 opacity-90" />
                                 <span className="flex-1 text-left">{stage.label}</span>
                                 {showSubs
-                                  ? <ChevronDown className="w-3 h-3 text-slate-400" />
-                                  : <ChevronRight className="w-3 h-3 text-slate-400" />
+                                  ? <ChevronDown className="w-3 h-3 text-theme-muted" />
+                                  : <ChevronRight className="w-3 h-3 text-theme-muted" />
                                 }
                               </button>
                             ) : (
                               <Link
                                 href={stage.href}
                                 className={`flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-sm transition-all ${
-                                  active
-                                    ? "bg-orange-50 text-orange-600 font-medium"
-                                    : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+                                  active ? "font-medium" : "hover:bg-theme-secondary"
                                 }`}
+                                style={active ? navActive : navInactive}
                               >
-                                <span className="w-4 text-[10px] font-bold text-slate-300 text-right shrink-0">{stage.num}</span>
-                                <Icon className={`w-3.5 h-3.5 ${active ? "text-orange-600" : "text-slate-400"}`} />
+                                <span className="w-4 text-[10px] font-bold text-theme-muted text-right shrink-0">{stage.num}</span>
+                                <Icon className="w-3.5 h-3.5 shrink-0 opacity-90" />
                                 <span>{stage.label}</span>
                               </Link>
                             )}
 
                             {/* Sub-items for Marketing Apps */}
                             {showSubs && stage.subItems && (
-                              <div className="ml-7 mt-0.5 space-y-0.5 border-l-2 border-green-200 pl-2">
+                              <div className="ml-7 mt-0.5 space-y-0.5 border-l-2 border-theme pl-2">
                                 {stage.subItems.map(sub => {
                                   const SubIcon = sub.icon
                                   const subActive = pathname === sub.href
@@ -325,12 +341,11 @@ export default function Sidebar() {
                                       key={sub.href}
                                       href={sub.href}
                                       className={`flex items-center gap-2 px-2 py-1.5 rounded-md text-xs transition-all ${
-                                        subActive
-                                          ? "bg-green-50 text-green-700 font-medium"
-                                          : "text-slate-400 hover:bg-slate-50 hover:text-slate-700"
+                                        subActive ? "font-medium" : "hover:bg-theme-secondary"
                                       }`}
+                                      style={subActive ? navActive : { color: "var(--text-secondary)" }}
                                     >
-                                      <SubIcon className={`w-3.5 h-3.5 ${subActive ? "text-green-600" : "text-slate-300"}`} />
+                                      <SubIcon className="w-3.5 h-3.5 shrink-0 opacity-90" />
                                       <span>{sub.label}</span>
                                     </Link>
                                   )
@@ -354,9 +369,21 @@ export default function Sidebar() {
         ))}
       </nav>
 
+      <div className="px-3 py-2 mt-auto" style={{ borderTop: "1px solid var(--border)" }}>
+        <button
+          type="button"
+          onClick={toggleTheme}
+          className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm transition-colors hover:bg-theme-secondary"
+          style={{ color: "var(--text-secondary)" }}
+        >
+          {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+          <span>{theme === "dark" ? "Light Mode" : "Dark Mode"}</span>
+        </button>
+      </div>
+
       {/* Footer */}
-      <div className="p-4 border-t border-slate-200">
-        <div className="text-[10px] text-slate-400">
+      <div className="p-4" style={{ borderTop: "1px solid var(--border)" }}>
+        <div className="text-[10px] text-theme-muted">
           <p>Marketing Engine v2.0</p>
           <p>6 Brands · 12 Stages · Autonomous</p>
         </div>

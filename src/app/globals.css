@@ -1,45 +1,70 @@
-@import url('https://fonts.googleapis.com/css2?family=Russo+One&family=Saira:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
+@theme inline {
+  --font-saira: "Saira", sans-serif;
+  --font-russo-one: "Russo One", sans-serif;
+}
+
 :root {
-  --font-russo: 'Russo One', sans-serif;
-  --font-saira: 'Saira', sans-serif;
+  --font-saira: "Saira", sans-serif;
+  --font-russo: "Russo One", sans-serif;
+}
+
+/* ===== DARK MODE (default) ===== */
+html.dark {
+  --bg-primary: #030712;
+  --bg-secondary: #111827;
+  --bg-card: #1f2937;
+  --bg-card-hover: #374151;
+  --bg-input: #1f2937;
+  --border: #374151;
+  --border-hover: #4b5563;
+  --text-primary: #f3f4f6;
+  --text-secondary: #9ca3af;
+  --text-muted: #6b7280;
+  --sidebar-bg: #030712;
+  --sidebar-active-bg: rgba(255, 255, 255, 0.08);
+  --sidebar-active-text: #ffffff;
+  --sidebar-active-border: #ffffff;
+}
+
+/* ===== LIGHT MODE ===== */
+html.light {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f9fafb;
+  --bg-card: #f3f4f6;
+  --bg-card-hover: #e5e7eb;
+  --bg-input: #f3f4f6;
+  --border: #e5e7eb;
+  --border-hover: #d1d5db;
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --text-muted: #9ca3af;
+  --sidebar-bg: #ffffff;
+  --sidebar-active-bg: rgba(0, 0, 0, 0.05);
+  --sidebar-active-text: #000000;
+  --sidebar-active-border: #000000;
 }
 
 body {
   font-family: var(--font-saira);
-  background: #f8fafc;
-  color: #0f172a;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
-h1, h2, h3 {
-  font-family: var(--font-russo);
-}
+/* Theme-aware utility classes */
+.bg-theme-primary { background: var(--bg-primary); }
+.bg-theme-secondary { background: var(--bg-secondary); }
+.bg-theme-card { background: var(--bg-card); }
+.bg-theme-input { background: var(--bg-input); }
+.border-theme { border-color: var(--border); }
+.border-theme-hover { border-color: var(--border-hover); }
+.text-theme-primary { color: var(--text-primary); }
+.text-theme-secondary { color: var(--text-secondary); }
+.text-theme-muted { color: var(--text-muted); }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #f1f5f9;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
-
-/* Kevin's Font Standards */
-h1, h2, h3, .font-russo {
-  font-family: var(--font-russo-one), 'Russo One', sans-serif !important;
-}
-
-body, p, span, div, li, td, th, label, input, textarea, button, .font-saira {
-  font-family: var(--font-saira), 'Saira', sans-serif;
-}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-hover); }

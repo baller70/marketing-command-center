@@ -65,16 +65,16 @@ const PHASE_CONFIG = [
 ]
 
 const COLOR_MAP: Record<string, { bg: string; text: string; border: string; light: string; gradient: string }> = {
-  purple: { bg: "bg-purple-500", text: "text-purple-600", border: "border-purple-200", light: "bg-purple-50", gradient: "from-purple-600 to-purple-700" },
-  blue: { bg: "bg-blue-500", text: "text-blue-600", border: "border-blue-200", light: "bg-blue-50", gradient: "from-blue-600 to-blue-700" },
-  cyan: { bg: "bg-cyan-500", text: "text-cyan-600", border: "border-cyan-200", light: "bg-cyan-50", gradient: "from-cyan-600 to-cyan-700" },
-  yellow: { bg: "bg-yellow-500", text: "text-yellow-600", border: "border-yellow-200", light: "bg-yellow-50", gradient: "from-yellow-600 to-yellow-700" },
-  green: { bg: "bg-green-500", text: "text-green-600", border: "border-green-200", light: "bg-green-50", gradient: "from-green-600 to-green-700" },
-  orange: { bg: "bg-orange-500", text: "text-orange-600", border: "border-orange-200", light: "bg-orange-50", gradient: "from-orange-600 to-orange-700" },
+  purple: { bg: "bg-[var(--text-primary)]", text: "text-purple-600", border: "border-[var(--border)]", light: "bg-[var(--bg-card)]", gradient: "from-purple-600 to-purple-700" },
+  blue: { bg: "bg-[var(--text-primary)]", text: "text-[var(--text-primary)]", border: "border-[var(--border)]", light: "bg-[var(--bg-card)]", gradient: "from-blue-600 to-blue-700" },
+  cyan: { bg: "bg-[var(--text-primary)]", text: "text-[var(--text-primary)]", border: "border-[var(--border)]", light: "bg-[var(--bg-card)]", gradient: "from-cyan-600 to-cyan-700" },
+  yellow: { bg: "bg-[var(--bg-card)]0", text: "text-yellow-600", border: "border-yellow-200", light: "bg-[var(--bg-card)]", gradient: "from-yellow-600 to-yellow-700" },
+  green: { bg: "bg-[var(--bg-card)]0", text: "text-green-600", border: "border-[var(--border)]", light: "bg-[var(--bg-card)]", gradient: "from-green-600 to-green-700" },
+  orange: { bg: "bg-[var(--text-primary)]", text: "text-[var(--text-primary)]", border: "border-[var(--border)]", light: "bg-[var(--bg-card)]", gradient: "from-orange-600 to-orange-700" },
 }
 
 const STATUS_ICON = { green: CircleCheck, yellow: CircleAlert, red: CircleX }
-const STATUS_COLOR = { green: "text-green-500", yellow: "text-yellow-500", red: "text-red-500" }
+const STATUS_COLOR = { green: "text-[var(--text-secondary)]", yellow: "text-yellow-500", red: "text-[var(--text-secondary)]" }
 
 const PIPELINE_STAGES = [
   { num: 1, name: "Intelligence", href: "/pipeline/intelligence", icon: Brain, color: "purple" },
@@ -206,13 +206,13 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="p-6 max-w-[1600px] mx-auto space-y-6">
-        <div className="h-16 rounded-xl bg-white animate-pulse" />
-        <div className="h-20 rounded-xl bg-white animate-pulse" />
+        <div className="h-16 rounded-xl bg-[var(--bg-primary)] animate-pulse" />
+        <div className="h-20 rounded-xl bg-[var(--bg-primary)] animate-pulse" />
         <div className="grid grid-cols-12 gap-3">
-          {[...Array(12)].map((_, i) => <div key={i} className="h-20 rounded-lg bg-white animate-pulse" />)}
+          {[...Array(12)].map((_, i) => <div key={i} className="h-20 rounded-lg bg-[var(--bg-primary)] animate-pulse" />)}
         </div>
         <div className="grid grid-cols-3 gap-4">
-          {[...Array(6)].map((_, i) => <div key={i} className="h-52 rounded-xl bg-white animate-pulse" />)}
+          {[...Array(6)].map((_, i) => <div key={i} className="h-52 rounded-xl bg-[var(--bg-primary)] animate-pulse" />)}
         </div>
       </div>
     )
@@ -225,21 +225,21 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Marketing Engine</h1>
-          <p className="text-sm text-slate-500 mt-0.5">12-Stage Autonomous Pipeline Dashboard</p>
+          <h1 className="text-2xl font-bold text-[var(--text-primary)]">Marketing Engine</h1>
+          <p className="text-sm text-[var(--text-secondary)] mt-0.5">12-Stage Autonomous Pipeline Dashboard</p>
         </div>
         <div className="flex items-center gap-3">
           {lastUpdated && (
-            <span className="text-[11px] text-slate-400 flex items-center gap-1">
+            <span className="text-[11px] text-[var(--text-muted)] flex items-center gap-1">
               <Clock className="w-3 h-3" />
               {lastUpdated.toLocaleTimeString()}
             </span>
           )}
           {health && (
             <div className={`px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-1.5 ${
-              health.status === "green" ? "bg-green-50 border border-green-200 text-green-700" :
-              health.status === "yellow" ? "bg-yellow-50 border border-yellow-200 text-yellow-700" :
-              "bg-red-50 border border-red-200 text-red-700"
+              health.status === "green" ? "bg-[var(--bg-card)] border border-[var(--border)] text-[var(--text-primary)]" :
+              health.status === "yellow" ? "bg-[var(--bg-card)] border border-yellow-200 text-yellow-700" :
+              "bg-[var(--bg-card)] border border-[var(--border)] text-[var(--text-primary)]"
             }`}>
               <Activity className="w-3.5 h-3.5" />
               {health.summary.green}/{health.checks.length} Systems Healthy
@@ -250,18 +250,18 @@ export default function DashboardPage() {
 
       {/* Pipeline Health Strip */}
       {health && (
-        <div className="rounded-xl bg-white border border-slate-200 p-4">
+        <div className="rounded-xl bg-[var(--bg-primary)] border border-[var(--border)] p-4">
           <div className="flex items-center gap-2 mb-3">
-            <Activity className="w-4 h-4 text-slate-400" />
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Pipeline Health</span>
+            <Activity className="w-4 h-4 text-[var(--text-muted)]" />
+            <span className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">Pipeline Health</span>
           </div>
           <div className="flex gap-2 flex-wrap">
             {health.checks.map(check => {
               const Icon = STATUS_ICON[check.status]
               return (
-                <div key={check.name} className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-50 border border-slate-100">
+                <div key={check.name} className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border)]">
                   <Icon className={`w-3.5 h-3.5 ${STATUS_COLOR[check.status]}`} />
-                  <span className="text-[11px] text-slate-600 capitalize">{check.name.replace(/_/g, " ")}</span>
+                  <span className="text-[11px] text-[var(--text-secondary)] capitalize">{check.name.replace(/_/g, " ")}</span>
                 </div>
               )
             })}
@@ -270,10 +270,10 @@ export default function DashboardPage() {
       )}
 
       {/* Pipeline Flow - Phase-level overview */}
-      <div className="rounded-xl bg-white border border-slate-200 p-4">
+      <div className="rounded-xl bg-[var(--bg-primary)] border border-[var(--border)] p-4">
         <div className="flex items-center gap-2 mb-3">
-          <Target className="w-4 h-4 text-slate-400" />
-          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Pipeline Flow</span>
+          <Target className="w-4 h-4 text-[var(--text-muted)]" />
+          <span className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">Pipeline Flow</span>
         </div>
         <div className="grid grid-cols-6 gap-3">
           {PHASE_CONFIG.map((phase, pi) => {
@@ -284,7 +284,7 @@ export default function DashboardPage() {
               <Link key={phase.phase} href={phase.href} className={`rounded-lg ${colors.light} border ${colors.border} p-3 hover:shadow-md transition-all group relative overflow-hidden`}>
                 <div className={`absolute top-0 left-0 w-full h-1 ${colors.bg}`} />
                 <div className="flex items-center gap-2 mb-2 mt-1">
-                  <div className={`w-6 h-6 rounded-md bg-gradient-to-br ${colors.gradient} flex items-center justify-center`}>
+                  <div className={`w-6 h-6 rounded-md ${colors.gradient} flex items-center justify-center`}>
                     <Icon className="w-3.5 h-3.5 text-white" />
                   </div>
                   <span className={`text-[11px] font-bold ${colors.text} uppercase tracking-wider`}>{phase.phase}</span>
@@ -295,8 +295,8 @@ export default function DashboardPage() {
                     return (
                       <div key={s.num} className="flex items-center gap-1.5">
                         <span className={`text-[9px] font-bold ${colors.text} w-3 text-right`}>{s.num}</span>
-                        <StageIcon className="w-3 h-3 text-slate-400" />
-                        <span className="text-[11px] text-slate-600 truncate">{s.name}</span>
+                        <StageIcon className="w-3 h-3 text-[var(--text-muted)]" />
+                        <span className="text-[11px] text-[var(--text-secondary)] truncate">{s.name}</span>
                       </div>
                     )
                   })}
@@ -324,11 +324,11 @@ export default function DashboardPage() {
           <PhasePanel phase={PHASE_CONFIG[1]} color="blue">
             <MetricRow icon={Megaphone} label="Campaigns" value={d.campaigns.total} sub={`${d.campaigns.live} live, ${d.campaigns.draft} drafts`} href="/pipeline/campaigns" />
             <MetricRow icon={FileText} label="Creative Briefs" value={d.briefs.total} sub={`${d.briefs.pending} pending, ${d.briefs.delivered} delivered`} href="/pipeline/creative-briefs" />
-            <div className="mt-2 pt-2 border-t border-slate-100">
+            <div className="mt-2 pt-2 border-t border-[var(--border)]">
               <div className="flex gap-2">
-                <StatusPill label="Draft" count={d.campaigns.draft} color="bg-slate-200 text-slate-600" />
-                <StatusPill label="Live" count={d.campaigns.live} color="bg-blue-100 text-blue-700" />
-                <StatusPill label="Done" count={d.campaigns.completed} color="bg-green-100 text-green-700" />
+                <StatusPill label="Draft" count={d.campaigns.draft} color="bg-slate-200 text-[var(--text-secondary)]" />
+                <StatusPill label="Live" count={d.campaigns.live} color="bg-[var(--bg-card)] text-[var(--text-primary)]" />
+                <StatusPill label="Done" count={d.campaigns.completed} color="bg-[var(--bg-card)] text-[var(--text-primary)]" />
               </div>
             </div>
           </PhasePanel>
@@ -338,10 +338,10 @@ export default function DashboardPage() {
             <MetricRow icon={Package} label="Content Delivery" value={d.contentAssets.total} sub={`${d.contentAssets.received} received, ${d.contentAssets.deployed} deployed`} href="/pipeline/content-assets" />
             <MetricRow icon={Layers} label="Assembly Line" value={d.assembly.total} sub={`${d.assembly.completed} done, ${d.assembly.inProgress} in progress`} href="/pipeline/assembly" />
             {d.contentAssets.total > 0 && (
-              <div className="mt-2 pt-2 border-t border-slate-100">
+              <div className="mt-2 pt-2 border-t border-[var(--border)]">
                 <ProgressBar segments={[
                   { value: d.contentAssets.received, color: "bg-cyan-400", label: "Received" },
-                  { value: d.contentAssets.assigned, color: "bg-cyan-500", label: "Assigned" },
+                  { value: d.contentAssets.assigned, color: "bg-[var(--text-primary)]", label: "Assigned" },
                   { value: d.contentAssets.deployed, color: "bg-cyan-700", label: "Deployed" },
                 ]} total={d.contentAssets.total} />
               </div>
@@ -354,12 +354,12 @@ export default function DashboardPage() {
             <div className="mt-2 space-y-2">
               <div className="flex gap-2">
                 <StatusPill label="Pending" count={d.qualityGate.pending} color="bg-yellow-100 text-yellow-700" />
-                <StatusPill label="Approved" count={d.qualityGate.approved} color="bg-green-100 text-green-700" />
-                <StatusPill label="Rejected" count={d.qualityGate.rejected} color="bg-red-100 text-red-700" />
+                <StatusPill label="Approved" count={d.qualityGate.approved} color="bg-[var(--bg-card)] text-[var(--text-primary)]" />
+                <StatusPill label="Rejected" count={d.qualityGate.rejected} color="bg-[var(--bg-card)] text-[var(--text-primary)]" />
               </div>
               {(d.qualityGate.approved + d.qualityGate.rejected) > 0 && (
-                <div className="text-[11px] text-slate-400">
-                  Approval rate: <span className="font-semibold text-slate-600">
+                <div className="text-[11px] text-[var(--text-muted)]">
+                  Approval rate: <span className="font-semibold text-[var(--text-secondary)]">
                     {Math.round((d.qualityGate.approved / (d.qualityGate.approved + d.qualityGate.rejected)) * 100)}%
                   </span>
                 </div>
@@ -376,8 +376,8 @@ export default function DashboardPage() {
           {/* Execution Phase */}
           <PhasePanel phase={PHASE_CONFIG[4]} color="green">
             <MetricRow icon={Send} label="Deployments" value={d.deployments.live} sub={`${d.deployments.total} total, ${d.deployments.live} live`} href="/pipeline/deployments" />
-            <div className="mt-2 pt-2 border-t border-slate-100">
-              <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Marketing Apps</p>
+            <div className="mt-2 pt-2 border-t border-[var(--border)]">
+              <p className="text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-2">Marketing Apps</p>
               <div className="grid grid-cols-3 gap-1.5">
                 {[
                   { label: "Mautic", icon: Mail, href: "/apps/mautic" },
@@ -391,11 +391,11 @@ export default function DashboardPage() {
                   const healthCheck = health?.checks.find(c => c.name === app.label.toLowerCase())
                   const appStatus = healthCheck?.status || "green"
                   return (
-                    <Link key={app.label} href={app.href} className="flex items-center gap-1.5 px-2 py-1.5 rounded-md bg-green-50/50 border border-green-100 hover:bg-green-50 transition-colors">
+                    <Link key={app.label} href={app.href} className="flex items-center gap-1.5 px-2 py-1.5 rounded-md bg-[var(--bg-card)]/50 border border-green-100 hover:bg-[var(--bg-card)] transition-colors">
                       <AppIcon className="w-3 h-3 text-green-600" />
-                      <span className="text-[10px] text-slate-600 truncate">{app.label}</span>
+                      <span className="text-[10px] text-[var(--text-secondary)] truncate">{app.label}</span>
                       <div className={`w-1.5 h-1.5 rounded-full ml-auto shrink-0 ${
-                        appStatus === "green" ? "bg-green-400" : appStatus === "yellow" ? "bg-yellow-400" : "bg-red-400"
+                        appStatus === "green" ? "bg-green-400" : appStatus === "yellow" ? "bg-yellow-400" : "bg-[var(--text-muted)]"
                       }`} />
                     </Link>
                   )
@@ -409,21 +409,21 @@ export default function DashboardPage() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <DollarSign className="w-4 h-4 text-orange-500" />
-                  <span className="text-sm font-medium text-slate-700">Revenue</span>
+                  <DollarSign className="w-4 h-4 text-[var(--text-primary)]" />
+                  <span className="text-sm font-medium text-[var(--text-primary)]">Revenue</span>
                 </div>
-                <span className="text-lg font-bold text-slate-900">${d.performance.revenue.toLocaleString()}</span>
+                <span className="text-lg font-bold text-[var(--text-primary)]">${d.performance.revenue.toLocaleString()}</span>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-lg bg-orange-50/50 border border-orange-100 p-2.5">
-                  <p className="text-[10px] text-slate-400 uppercase tracking-wider">ROAS</p>
-                  <p className={`text-xl font-bold mt-0.5 ${d.performance.roas >= 1 ? "text-green-600" : "text-red-600"}`}>
+                <div className="rounded-lg bg-[var(--bg-card)]/50 border border-orange-100 p-2.5">
+                  <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider">ROAS</p>
+                  <p className={`text-xl font-bold mt-0.5 ${d.performance.roas >= 1 ? "text-green-600" : "text-[var(--text-primary)]"}`}>
                     {d.performance.roas > 0 ? `${d.performance.roas.toFixed(1)}x` : "---"}
                   </p>
                 </div>
-                <div className="rounded-lg bg-orange-50/50 border border-orange-100 p-2.5">
-                  <p className="text-[10px] text-slate-400 uppercase tracking-wider">Spent</p>
-                  <p className="text-xl font-bold text-slate-900 mt-0.5">${d.performance.budgetSpent.toLocaleString()}</p>
+                <div className="rounded-lg bg-[var(--bg-card)]/50 border border-orange-100 p-2.5">
+                  <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider">Spent</p>
+                  <p className="text-xl font-bold text-[var(--text-primary)] mt-0.5">${d.performance.budgetSpent.toLocaleString()}</p>
                 </div>
               </div>
               <MetricRow icon={Lightbulb} label="Learning Rules" value={d.learning.total} sub={`${d.learning.active} active`} href="/pipeline/learning" />
@@ -434,10 +434,10 @@ export default function DashboardPage() {
 
       {/* Pipeline Throughput Summary */}
       {d && (
-        <div className="rounded-xl bg-white border border-slate-200 p-5">
+        <div className="rounded-xl bg-[var(--bg-primary)] border border-[var(--border)] p-5">
           <div className="flex items-center gap-2 mb-4">
-            <Activity className="w-4 h-4 text-slate-400" />
-            <span className="text-sm font-semibold text-slate-700">Pipeline Throughput</span>
+            <Activity className="w-4 h-4 text-[var(--text-muted)]" />
+            <span className="text-sm font-semibold text-[var(--text-primary)]">Pipeline Throughput</span>
           </div>
           <div className="grid grid-cols-6 gap-3">
             {[
@@ -451,9 +451,9 @@ export default function DashboardPage() {
               const colors = COLOR_MAP[item.color]
               return (
                 <div key={item.label} className={`rounded-lg ${colors.light} border ${colors.border} p-3`}>
-                  <p className="text-[10px] text-slate-400 uppercase tracking-wider">{item.label}</p>
+                  <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider">{item.label}</p>
                   <p className={`text-2xl font-bold ${colors.text} mt-1`}>{item.value}</p>
-                  <p className="text-[11px] text-slate-400 mt-0.5">{item.sub}</p>
+                  <p className="text-[11px] text-[var(--text-muted)] mt-0.5">{item.sub}</p>
                 </div>
               )
             })}
@@ -468,14 +468,14 @@ function PhasePanel({ phase, color, children }: { phase: typeof PHASE_CONFIG[0];
   const colors = COLOR_MAP[color]
   const Icon = phase.icon
   return (
-    <div className="rounded-xl bg-white border border-slate-200 overflow-hidden">
+    <div className="rounded-xl bg-[var(--bg-primary)] border border-[var(--border)] overflow-hidden">
       <div className={`flex items-center gap-2 px-4 py-2.5 ${colors.light} border-b ${colors.border}`}>
-        <div className={`w-6 h-6 rounded-md bg-gradient-to-br ${colors.gradient} flex items-center justify-center`}>
+        <div className={`w-6 h-6 rounded-md ${colors.gradient} flex items-center justify-center`}>
           <Icon className="w-3.5 h-3.5 text-white" />
         </div>
         <div className="flex-1 min-w-0">
           <span className={`text-xs font-bold ${colors.text} uppercase tracking-wider`}>{phase.phase}</span>
-          <p className="text-[10px] text-slate-400 truncate">{phase.stages.join(" / ")}</p>
+          <p className="text-[10px] text-[var(--text-muted)] truncate">{phase.stages.join(" / ")}</p>
         </div>
         <Link href={phase.href} className={`text-[10px] ${colors.text} hover:underline font-medium`}>View</Link>
       </div>
@@ -489,12 +489,12 @@ function PhasePanel({ phase, color, children }: { phase: typeof PHASE_CONFIG[0];
 function MetricRow({ icon: Icon, label, value, sub, href }: { icon: typeof Brain; label: string; value: number; sub: string; href: string }) {
   return (
     <Link href={href} className="flex items-center gap-3 py-1.5 group">
-      <Icon className="w-4 h-4 text-slate-300 group-hover:text-slate-500 transition-colors shrink-0" />
+      <Icon className="w-4 h-4 text-slate-300 group-hover:text-[var(--text-secondary)] transition-colors shrink-0" />
       <div className="flex-1 min-w-0">
-        <span className="text-sm text-slate-700 group-hover:text-slate-900 font-medium">{label}</span>
-        <p className="text-[11px] text-slate-400 truncate">{sub}</p>
+        <span className="text-sm text-[var(--text-primary)] group-hover:text-[var(--text-primary)] font-medium">{label}</span>
+        <p className="text-[11px] text-[var(--text-muted)] truncate">{sub}</p>
       </div>
-      <span className="text-lg font-bold text-slate-900">{value}</span>
+      <span className="text-lg font-bold text-[var(--text-primary)]">{value}</span>
     </Link>
   )
 }
@@ -512,7 +512,7 @@ function ProgressBar({ segments, total }: { segments: { value: number; color: st
   if (total === 0) return null
   return (
     <div>
-      <div className="flex h-2 rounded-full overflow-hidden bg-slate-100">
+      <div className="flex h-2 rounded-full overflow-hidden bg-[var(--bg-secondary)]">
         {segments.map(seg => (
           seg.value > 0 ? (
             <div key={seg.label} className={`${seg.color} transition-all`} style={{ width: `${(seg.value / total) * 100}%` }} />
@@ -523,7 +523,7 @@ function ProgressBar({ segments, total }: { segments: { value: number; color: st
         {segments.map(seg => (
           <div key={seg.label} className="flex items-center gap-1">
             <div className={`w-2 h-2 rounded-full ${seg.color}`} />
-            <span className="text-[10px] text-slate-400">{seg.label} ({seg.value})</span>
+            <span className="text-[10px] text-[var(--text-muted)]">{seg.label} ({seg.value})</span>
           </div>
         ))}
       </div>

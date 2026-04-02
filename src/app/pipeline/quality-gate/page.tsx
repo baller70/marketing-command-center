@@ -21,10 +21,10 @@ interface Review {
 }
 
 const decisionColors: Record<string, string> = {
-  pending: "bg-yellow-50 text-amber-600",
-  pass: "bg-green-50 text-emerald-600",
-  revise: "bg-orange-50 text-orange-600",
-  reject: "bg-red-50 text-red-600",
+  pending: "bg-[var(--bg-card)] text-[var(--text-primary)]",
+  pass: "bg-[var(--bg-card)] text-[var(--text-primary)]",
+  revise: "bg-[var(--bg-card)] text-[var(--text-primary)]",
+  reject: "bg-[var(--bg-card)] text-[var(--text-primary)]",
 }
 
 const CHECKLIST_BRAND = [
@@ -107,13 +107,13 @@ export default function QualityGatePage() {
     return (
       <div className="space-y-1">
         <div className="flex items-center justify-between mb-2">
-          <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wide">{title}</h4>
-          <span className="text-[10px] text-slate-400">{done}/{items.length}</span>
+          <h4 className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wide">{title}</h4>
+          <span className="text-[10px] text-[var(--text-muted)]">{done}/{items.length}</span>
         </div>
         {items.map(item => (
-          <label key={item.key} className="flex items-center gap-2 cursor-pointer p-1.5 rounded hover:bg-slate-50">
-            <input type="checkbox" checked={!!checks[item.key]} onChange={() => toggleCheck(reviewId, item.key)} className="rounded border-slate-300" />
-            <span className={`text-xs ${checks[item.key] ? "text-emerald-600 line-through" : "text-slate-600"}`}>{item.label}</span>
+          <label key={item.key} className="flex items-center gap-2 cursor-pointer p-1.5 rounded hover:bg-[var(--bg-card)]">
+            <input type="checkbox" checked={!!checks[item.key]} onChange={() => toggleCheck(reviewId, item.key)} className="rounded border-[var(--border)]" />
+            <span className={`text-xs ${checks[item.key] ? "text-[var(--text-primary)] line-through" : "text-[var(--text-secondary)]"}`}>{item.label}</span>
           </label>
         ))}
       </div>
@@ -124,54 +124,54 @@ export default function QualityGatePage() {
     <div className="p-6 max-w-[1400px] mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-            <CheckSquare className="w-6 h-6 text-amber-600" /> Stage 6: Quality Gate
+          <h1 className="text-2xl font-bold text-[var(--text-primary)] flex items-center gap-2">
+            <CheckSquare className="w-6 h-6 text-[var(--text-primary)]" /> Stage 6: Quality Gate
           </h1>
-          <p className="text-sm text-slate-500 mt-1">Brand compliance, messaging accuracy, funnel technical checks, ad platform compliance</p>
+          <p className="text-sm text-[var(--text-secondary)] mt-1">Brand compliance, messaging accuracy, funnel technical checks, ad platform compliance</p>
         </div>
-        <button onClick={load} className="p-2 rounded-lg bg-slate-50 text-slate-500 hover:text-slate-900"><RefreshCw className="w-4 h-4" /></button>
+        <button onClick={load} className="p-2 rounded-lg bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"><RefreshCw className="w-4 h-4" /></button>
       </div>
 
       <div className="flex items-center gap-3 flex-wrap">
-        <select value={brandFilter} onChange={e => setBrandFilter(e.target.value)} className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-sm text-slate-600 outline-none">
+        <select value={brandFilter} onChange={e => setBrandFilter(e.target.value)} className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-lg px-3 py-1.5 text-sm text-[var(--text-secondary)] outline-none">
           <option value="__all__">All Brands</option>
           {["TBF", "RA1", "ShotIQ", "HoS", "Bookmark"].map(b => <option key={b} value={b}>{b}</option>)}
         </select>
         {["__all__", "pending", "pass", "revise", "reject"].map(d => (
-          <button key={d} onClick={() => setDecisionFilter(d)} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${decisionFilter === d ? "bg-yellow-50 text-amber-600 border border-yellow-500/30" : "bg-slate-50 text-slate-500 border border-slate-200"}`}>
+          <button key={d} onClick={() => setDecisionFilter(d)} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${decisionFilter === d ? "bg-[var(--bg-card)] text-[var(--text-primary)] border border-[var(--border)]/30" : "bg-[var(--bg-secondary)] text-[var(--text-secondary)] border border-[var(--border)]"}`}>
             {d === "__all__" ? "All" : d.toUpperCase()}
           </button>
         ))}
-        <span className="text-xs text-slate-400 ml-auto">{reviews.length} reviews</span>
+        <span className="text-xs text-[var(--text-muted)] ml-auto">{reviews.length} reviews</span>
       </div>
 
       {loading ? (
-        <div className="space-y-4">{[...Array(3)].map((_, i) => <div key={i} className="h-28 rounded-xl bg-white animate-pulse" />)}</div>
+        <div className="space-y-4">{[...Array(3)].map((_, i) => <div key={i} className="h-28 rounded-xl bg-[var(--bg-primary)] animate-pulse" />)}</div>
       ) : reviews.length === 0 ? (
-        <div className="rounded-xl bg-white border border-slate-200 p-12 text-center">
-          <Shield className="w-12 h-12 text-slate-100 mx-auto mb-3" />
-          <p className="text-slate-400">No campaigns in Quality Gate</p>
-          <p className="text-xs text-slate-400 mt-1">Campaigns enter the gate after assembly is complete</p>
+        <div className="rounded-xl bg-[var(--bg-primary)] border border-[var(--border)] p-12 text-center">
+          <Shield className="w-12 h-12 text-[var(--text-primary)] mx-auto mb-3" />
+          <p className="text-[var(--text-muted)]">No campaigns in Quality Gate</p>
+          <p className="text-xs text-[var(--text-muted)] mt-1">Campaigns enter the gate after assembly is complete</p>
         </div>
       ) : (
         <div className="space-y-4">
           {reviews.map(r => (
-            <div key={r.id} className="rounded-xl bg-white border border-slate-200 overflow-hidden">
-              <button onClick={() => setExpandedId(expandedId === r.id ? null : r.id)} className="w-full p-5 flex items-center justify-between text-left hover:bg-slate-50 transition-colors">
+            <div key={r.id} className="rounded-xl bg-[var(--bg-primary)] border border-[var(--border)] overflow-hidden">
+              <button onClick={() => setExpandedId(expandedId === r.id ? null : r.id)} className="w-full p-5 flex items-center justify-between text-left hover:bg-[var(--bg-card)] transition-colors">
                 <div className="flex items-center gap-3">
-                  <Shield className="w-5 h-5 text-amber-600" />
+                  <Shield className="w-5 h-5 text-[var(--text-primary)]" />
                   <div>
-                    <h3 className="text-sm font-semibold text-slate-900">{r.campaign?.name}</h3>
-                    <p className="text-xs text-slate-400">{r.campaign?.brandPod?.brand} · {r.reviewType.replace("_", " ")}</p>
+                    <h3 className="text-sm font-semibold text-[var(--text-primary)]">{r.campaign?.name}</h3>
+                    <p className="text-xs text-[var(--text-muted)]">{r.campaign?.brandPod?.brand} · {r.reviewType.replace("_", " ")}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
                   <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${decisionColors[r.decision]}`}>{r.decision.toUpperCase()}</span>
-                  {r.escalatedToJane && <span className="px-2 py-0.5 rounded-full bg-red-50 text-red-600 text-[10px] flex items-center gap-1"><ArrowUp className="w-3 h-3" /> Escalated</span>}
+                  {r.escalatedToJane && <span className="px-2 py-0.5 rounded-full bg-[var(--bg-card)] text-[var(--text-primary)] text-[10px] flex items-center gap-1"><ArrowUp className="w-3 h-3" /> Escalated</span>}
                 </div>
               </button>
               {expandedId === r.id && (
-                <div className="border-t border-slate-200 p-5 space-y-4">
+                <div className="border-t border-[var(--border)] p-5 space-y-4">
                   <div className="grid grid-cols-2 gap-6">
                     {renderChecklist(r.id, "Brand Compliance", CHECKLIST_BRAND)}
                     {renderChecklist(r.id, "Messaging Accuracy", CHECKLIST_MESSAGING)}
@@ -179,10 +179,10 @@ export default function QualityGatePage() {
                     {renderChecklist(r.id, "Ad Platform Compliance", CHECKLIST_AD)}
                   </div>
                   {r.decision === "pending" && (
-                    <div className="flex items-center gap-3 pt-4 border-t border-slate-200">
-                      <button onClick={() => updateDecision(r.id, "pass")} className="px-4 py-2 rounded-lg bg-green-600 text-white text-sm font-medium hover:bg-green-500 flex items-center gap-1.5"><CheckCircle className="w-4 h-4" /> PASS</button>
-                      <button onClick={() => updateDecision(r.id, "revise")} className="px-4 py-2 rounded-lg bg-yellow-600 text-white text-sm font-medium hover:bg-yellow-500 flex items-center gap-1.5"><AlertTriangle className="w-4 h-4" /> REVISE</button>
-                      <button onClick={() => updateDecision(r.id, "reject")} className="px-4 py-2 rounded-lg bg-red-600 text-white text-sm font-medium hover:bg-red-500 flex items-center gap-1.5"><XCircle className="w-4 h-4" /> REJECT</button>
+                    <div className="flex items-center gap-3 pt-4 border-t border-[var(--border)]">
+                      <button onClick={() => updateDecision(r.id, "pass")} className="px-4 py-2 rounded-lg bg-[var(--text-primary)] text-white text-sm font-medium hover:bg-[var(--bg-card)]0 flex items-center gap-1.5"><CheckCircle className="w-4 h-4" /> PASS</button>
+                      <button onClick={() => updateDecision(r.id, "revise")} className="px-4 py-2 rounded-lg bg-yellow-600 text-white text-sm font-medium hover:bg-[var(--bg-card)]0 flex items-center gap-1.5"><AlertTriangle className="w-4 h-4" /> REVISE</button>
+                      <button onClick={() => updateDecision(r.id, "reject")} className="px-4 py-2 rounded-lg bg-[var(--text-primary)] text-white text-sm font-medium hover:bg-[var(--bg-card)]0 flex items-center gap-1.5"><XCircle className="w-4 h-4" /> REJECT</button>
                     </div>
                   )}
                 </div>
