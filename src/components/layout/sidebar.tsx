@@ -238,6 +238,7 @@ export default function Sidebar() {
       style={{ background: "var(--sidebar-bg)", borderRight: "1px solid var(--border)" }}
     >
       {/* Header */}
+      <a href={typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") ? "http://localhost:3100" : "https://kevinclaw.89-167-33-236.sslip.io"} className="flex items-center gap-1 px-4 py-2 text-xs transition-colors hover:text-[var(--text-primary)]" style={{ color: "var(--text-muted)", borderBottom: "1px solid var(--border)" }}><span>←</span> KevinClaw</a>
       <div className="p-4" style={{ borderBottom: "1px solid var(--border)" }}>
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-theme-card border border-theme flex items-center justify-center">
