@@ -559,29 +559,90 @@ export default function PipelinePage() {
             Completed ({completedItems.length})
           </h3>
           <div className="grid gap-2">
-            {completedItems.slice(0, 10).map(item => (
-              <div
-                key={item.id}
-                className="flex items-center gap-3 p-3 rounded-xl"
-                style={{ background: "var(--bg-card)", border: "1px solid var(--border)", opacity: 0.7 }}
-              >
-                <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm truncate" style={{ color: "var(--text-primary)" }}>{item.title}</span>
-                    <BrandBadge brand={item.brand} />
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => handleAction(item.id, "recycle")}
-                  className="flex items-center gap-1 px-2 py-1 rounded text-[10px] text-amber-400 hover:bg-amber-500/20 transition-colors"
+            {completedItems.slice(0, 20).map(item => {
+              const isExpanded = expandedId === item.id
+              return (
+                <div
+                  key={item.id}
+                  className="rounded-xl overflow-hidden transition-all"
+                  style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
                 >
-                  <RotateCcw className="w-3 h-3" /> Recycle
-                </button>
-                <span className="text-[10px]" style={{ color: "var(--text-muted)" }}>{timeAgo(item.updatedAt)}</span>
-              </div>
-            ))}
+                  <button
+                    type="button"
+                    onClick={() => setExpandedId(isExpanded ? null : item.id)}
+                    className="w-full flex items-center gap-3 p-3 text-left hover:bg-[var(--bg-card-hover)] transition-colors"
+                  >
+                    <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-sm font-medium truncate" style={{ color: "var(--text-primary)" }}>
+                          {item.title}
+                        </span>
+                        <BrandBadge brand={item.brand} />
+                        <SourceBadge source={item.source} />
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded ${item.pipelineMode === "automatic" ? "bg-purple-500/20 text-purple-400" : "bg-blue-500/20 text-blue-400"}`}>
+                          {item.pipelineMode === "automatic" ? "Auto" : "Manual"}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs" style={{ color: "var(--text-muted)" }}>
+                          All 12 stages complete
+                        </span>
+                        <span className="text-[10px]" style={{ color: "var(--text-muted)" }}>
+                          <Clock className="w-3 h-3 inline mr-0.5" />
+                          {timeAgo(item.updatedAt)}
+                        </span>
+                      </div>
+                    </div>
+                    <StageProgress currentStage={item.currentStage} status={item.status} compact />
+                    {isExpanded ? <ChevronUp className="w-4 h-4 shrink-0 text-[var(--text-muted)]" /> : <ChevronDown className="w-4 h-4 shrink-0 text-[var(--text-muted)]" />}
+                  </button>
+
+                  {isExpanded && (
+                    <div className="px-4 pb-4 space-y-3" style={{ borderTop: "1px solid var(--border)" }}>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3">
+                        <div>
+                          <h4 className="text-xs font-medium mb-2" style={{ color: "var(--text-secondary)" }}>Stage Progress</h4>
+                          <StageProgress currentStage={item.currentStage} status={item.status} logs={item.logs} />
+                        </div>
+                        <div className="space-y-3">
+                          {item.contentPreview && (
+                            <div>
+                              <h4 className="text-xs font-medium mb-1" style={{ color: "var(--text-secondary)" }}>Content Preview</h4>
+                              <p className="text-xs p-2 rounded" style={{ background: "var(--bg-secondary)", color: "var(--text-primary)" }}>
+                                {item.contentPreview.substring(0, 300)}
+                              </p>
+                            </div>
+                          )}
+                          {item.emailDraft && !!(item.emailDraft as Record<string, unknown>).subject && (
+                            <div>
+                              <h4 className="text-xs font-medium mb-1" style={{ color: "var(--text-secondary)" }}>Email Draft</h4>
+                              <div className="text-xs p-2 rounded space-y-1" style={{ background: "var(--bg-secondary)" }}>
+                                <p style={{ color: "var(--text-primary)" }}>
+                                  <strong>Subject:</strong> {String((item.emailDraft as Record<string, unknown>).subject)}
+                                </p>
+                                {!!(item.emailDraft as Record<string, unknown>).recipientListId && (
+                                  <p style={{ color: "var(--text-muted)" }}>
+                                    List: {String((item.emailDraft as Record<string, unknown>).recipientListId)} ({String((item.emailDraft as Record<string, unknown>).platform || "unknown")})
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => handleAction(item.id, "recycle")}
+                            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 transition-colors"
+                          >
+                            <RotateCcw className="w-3 h-3" /> Recycle
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
           </div>
         </div>
       )}
