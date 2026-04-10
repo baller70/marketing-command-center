@@ -27,6 +27,8 @@ interface PipelineItem {
   approvedAt: string | null
   rejectionReason: string | null
   recycledFromId: string | null
+  deploymentData: Record<string, unknown> | null
+  performanceData: Record<string, unknown> | null
   createdAt: string
   updatedAt: string
   logs: { stage: number; stageName: string; action: string; details: string | null; createdAt: string }[]
@@ -508,6 +510,47 @@ export default function PipelinePage() {
                               </div>
                             </div>
                           )}
+                          {/* Campaign Result (if deployed) */}
+                          {item.deploymentData && !!(item.deploymentData as Record<string, unknown>).deployed && (
+                            <div>
+                              <h4 className="text-xs font-medium mb-1" style={{ color: "var(--text-secondary)" }}>Campaign Result</h4>
+                              <div className="text-xs p-2 rounded space-y-1" style={{ background: "var(--bg-secondary)" }}>
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium ${(item.deploymentData as Record<string, unknown>).sent ? "bg-emerald-500/20 text-emerald-400" : "bg-yellow-500/20 text-yellow-400"}`}>
+                                    {(item.deploymentData as Record<string, unknown>).sent ? "Sent" : "Staged"}
+                                  </span>
+                                  <span style={{ color: "var(--text-muted)" }}>
+                                    via {String((item.deploymentData as Record<string, unknown>).platform || "unknown")}
+                                  </span>
+                                </div>
+                                {!!(item.deploymentData as Record<string, unknown>).listId && (
+                                  <p style={{ color: "var(--text-primary)" }}>
+                                    <strong>List:</strong> {String((item.deploymentData as Record<string, unknown>).listId)}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Email Preview (if body exists) */}
+                          {item.emailDraft && !!(item.emailDraft as Record<string, unknown>).body && (
+                            <div>
+                              <h4 className="text-xs font-medium mb-1" style={{ color: "var(--text-secondary)" }}>Email Preview</h4>
+                              <div
+                                className="rounded border overflow-hidden"
+                                style={{ border: "1px solid var(--border)", maxHeight: "400px", overflowY: "auto" }}
+                              >
+                                <iframe
+                                  srcDoc={String((item.emailDraft as Record<string, unknown>).body)}
+                                  title="Email preview"
+                                  className="w-full"
+                                  style={{ height: "350px", border: "none", background: "#ffffff" }}
+                                  sandbox=""
+                                />
+                              </div>
+                            </div>
+                          )}
+
                           <div className="flex items-center gap-2 flex-wrap">
                             {item.currentStage === 7 && item.pipelineMode === "manual" ? (
                               <button
@@ -629,6 +672,52 @@ export default function PipelinePage() {
                               </div>
                             </div>
                           )}
+                          {/* Campaign Result */}
+                          {item.deploymentData && (
+                            <div>
+                              <h4 className="text-xs font-medium mb-1" style={{ color: "var(--text-secondary)" }}>Campaign Result</h4>
+                              <div className="text-xs p-2 rounded space-y-1" style={{ background: "var(--bg-secondary)" }}>
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-medium">
+                                    <CheckCircle className="w-3 h-3" /> {(item.deploymentData as Record<string, unknown>).sent ? "Sent" : "Deployed"}
+                                  </span>
+                                  <span style={{ color: "var(--text-muted)" }}>
+                                    via {String((item.deploymentData as Record<string, unknown>).platform || "unknown")}
+                                  </span>
+                                </div>
+                                {!!(item.deploymentData as Record<string, unknown>).listId && (
+                                  <p style={{ color: "var(--text-primary)" }}>
+                                    <strong>Recipient List:</strong> {String((item.deploymentData as Record<string, unknown>).listId)}
+                                  </p>
+                                )}
+                                {!!(item.deploymentData as Record<string, unknown>).sentAt && (
+                                  <p style={{ color: "var(--text-muted)" }}>
+                                    Sent at: {new Date(String((item.deploymentData as Record<string, unknown>).sentAt)).toLocaleString()}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Email Preview */}
+                          {item.emailDraft && !!(item.emailDraft as Record<string, unknown>).body && (
+                            <div>
+                              <h4 className="text-xs font-medium mb-1" style={{ color: "var(--text-secondary)" }}>Email Preview</h4>
+                              <div
+                                className="rounded border overflow-hidden"
+                                style={{ border: "1px solid var(--border)", maxHeight: "400px", overflowY: "auto" }}
+                              >
+                                <iframe
+                                  srcDoc={String((item.emailDraft as Record<string, unknown>).body)}
+                                  title="Email preview"
+                                  className="w-full"
+                                  style={{ height: "350px", border: "none", background: "#ffffff" }}
+                                  sandbox=""
+                                />
+                              </div>
+                            </div>
+                          )}
+
                           <button
                             type="button"
                             onClick={() => handleAction(item.id, "recycle")}
