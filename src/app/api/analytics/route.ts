@@ -28,8 +28,10 @@ export async function GET() {
       try {
         const stats = await umami.getWebsiteStats(websiteId, yesterday, now);
         results[brand] = stats;
-      } catch {
-        results[brand] = { error: 'unreachable' };
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : 'Unknown error'
+        console.error(`[analytics] ${brand}:`, msg, err)
+        results[brand] = { error: 'unreachable' }
       }
     }
 
@@ -40,11 +42,16 @@ export async function GET() {
       websites: Object.keys(WEBSITES).length,
       analytics: results,
     });
-  } catch (error) {
-    return NextResponse.json({
-      success: false,
-      configured: true,
-      error: String(error),
-    }, { status: 500 });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[analytics]', msg, err)
+    return NextResponse.json(
+      {
+        success: false,
+        configured: true,
+        error: 'Internal server error',
+      },
+      { status: 500 }
+    )
   }
 }

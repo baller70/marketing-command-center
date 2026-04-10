@@ -189,9 +189,10 @@ export async function GET() {
         pending: results.filter(r => r.decision === 'pending').length,
       },
     })
-  } catch (error) {
-    console.error('[auto-quality-gate] GET error:', error)
-    return NextResponse.json({ error: 'Failed to preview quality gate', details: String(error) }, { status: 500 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[auto-quality-gate] GET error:', msg, err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
@@ -213,8 +214,9 @@ export async function POST(req: NextRequest) {
         pending: results.filter(r => r.decision === 'pending').length,
       },
     })
-  } catch (error) {
-    console.error('[auto-quality-gate] POST error:', error)
-    return NextResponse.json({ error: 'Quality gate failed', details: String(error) }, { status: 500 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[auto-quality-gate] POST error:', msg, err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

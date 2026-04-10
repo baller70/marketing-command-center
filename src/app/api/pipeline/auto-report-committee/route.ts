@@ -97,11 +97,15 @@ async function postToCommittee(endpoint: string, body: Record<string, unknown>):
     try {
       const data = JSON.parse(text)
       return { ok: res.ok, data }
-    } catch {
-      return { ok: false, error: `Invalid JSON from ${endpoint}: ${text.slice(0, 200)}` }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Unknown error'
+      console.error(`[auto-report-committee] JSON parse ${endpoint}:`, msg, err)
+      return { ok: false, error: 'Invalid response from committee hub' }
     }
-  } catch (error) {
-    return { ok: false, error: String(error) }
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[auto-report-committee] fetchJSON:', msg, err)
+    return { ok: false, error: 'Request failed' }
   }
 }
 
@@ -109,8 +113,10 @@ export async function GET() {
   try {
     const report = await gatherReport()
     return NextResponse.json({ success: true, preview: true, report })
-  } catch (error) {
-    return NextResponse.json({ error: 'Failed to gather report', details: String(error) }, { status: 500 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[auto-report-committee] GET:', msg, err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
@@ -180,7 +186,9 @@ export async function POST(req: NextRequest) {
         learning: learningResult,
       },
     })
-  } catch (error) {
-    return NextResponse.json({ error: 'Committee reporting failed', details: String(error) }, { status: 500 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[auto-report-committee] POST:', msg, err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

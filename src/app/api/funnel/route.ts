@@ -8,8 +8,10 @@ function getCredentials() {
   try {
     const data = fs.readFileSync(credPath, 'utf-8');
     return JSON.parse(data);
-  } catch {
-    return null;
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[funnel] loadCredentials:', msg, err)
+    return null
   }
 }
 
@@ -166,11 +168,15 @@ export async function POST(request: Request) {
       apiResponse: result
     });
     
-  } catch (error: any) {
-    console.error('Failed to add to funnel:', error);
-    return NextResponse.json({ 
-      success: false, 
-      error: error.message 
-    }, { status: 500 });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('Failed to add to funnel:', msg, err)
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Internal server error',
+      },
+      { status: 500 }
+    )
   }
 }

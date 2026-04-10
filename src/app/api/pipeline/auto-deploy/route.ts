@@ -54,8 +54,9 @@ async function runAutoDeploy(commit: boolean): Promise<DeployAction[]> {
               scheduledDate: (campaign.startDate || new Date()).toISOString(),
             })
             externalId = result?.id || null
-          } catch (e) {
-            console.error(`[auto-deploy] Postiz deploy failed for ${channel}, using fallback:`, e)
+          } catch (err: unknown) {
+            const msg = err instanceof Error ? err.message : 'Unknown error'
+            console.error(`[auto-deploy] Postiz deploy failed for ${channel}, using fallback:`, msg, err)
           }
         } else if (emailChannels.includes(channel)) {
           try {
@@ -64,8 +65,9 @@ async function runAutoDeploy(commit: boolean): Promise<DeployAction[]> {
               subject: campaign.name,
               body: campaign.messagingLane || campaign.name,
             })
-          } catch (e) {
-            console.error(`[auto-deploy] Mautic deploy failed for ${channel}, using fallback:`, e)
+          } catch (err: unknown) {
+            const msg = err instanceof Error ? err.message : 'Unknown error'
+            console.error(`[auto-deploy] Mautic deploy failed for ${channel}, using fallback:`, msg, err)
           }
         }
 
@@ -137,8 +139,10 @@ export async function GET() {
         deploymentsNeeded: actions.filter(a => a.action.includes('deploy')).length,
       },
     })
-  } catch (error) {
-    return NextResponse.json({ error: 'Failed', details: String(error) }, { status: 500 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[auto-deploy] GET:', msg, err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
@@ -157,7 +161,9 @@ export async function POST(req: NextRequest) {
         advanced: actions.filter(a => a.action.includes('ADVANCED')).length,
       },
     })
-  } catch (error) {
-    return NextResponse.json({ error: 'Auto-deploy failed', details: String(error) }, { status: 500 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[auto-deploy] POST:', msg, err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

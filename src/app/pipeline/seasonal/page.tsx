@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useBrand } from "@/context/BrandContext"
-import { Calendar, RefreshCw, Plus, Filter, Sun, Snowflake, Leaf, TreePine } from "lucide-react"
+import { AlertTriangle, Calendar, RefreshCw, Plus } from "lucide-react"
 
 interface SeasonalPattern {
   id: string
@@ -20,6 +20,7 @@ export default function SeasonalPage() {
   const { activeBrand } = useBrand()
   const [patterns, setPatterns] = useState<SeasonalPattern[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [brandFilter, setBrandFilter] = useState("__all__")
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({ brand: "TBF", observation: "", action: "", months: [] as number[] })
@@ -27,22 +28,36 @@ export default function SeasonalPage() {
   useEffect(() => { setBrandFilter(activeBrand) }, [activeBrand])
 
   async function load() {
+    setError(null)
     setLoading(true)
-    const params = new URLSearchParams()
-    if (brandFilter !== "__all__") params.set("brand", brandFilter)
-    const res = await fetch(`/api/pipeline/seasonal?${params}`)
-    const data = await res.json()
-    setPatterns(data.patterns || [])
-    setLoading(false)
+    try {
+      const params = new URLSearchParams()
+      if (brandFilter !== "__all__") params.set("brand", brandFilter)
+      const res = await fetch(`/api/pipeline/seasonal?${params}`)
+      if (!res.ok) throw new Error(`API error: ${res.status}`)
+      const data = await res.json()
+      setPatterns(data.patterns || [])
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Unknown error"
+      setError(msg)
+    } finally {
+      setLoading(false)
+    }
   }
 
-  useEffect(() => { load() }, [brandFilter])
+  useEffect(() => { void load() }, [brandFilter])
 
   async function submit() {
-    await fetch("/api/pipeline/seasonal", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) })
-    setShowForm(false)
-    setForm({ brand: "TBF", observation: "", action: "", months: [] })
-    load()
+    try {
+      const res = await fetch("/api/pipeline/seasonal", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) })
+      if (!res.ok) throw new Error(`API error: ${res.status}`)
+      setShowForm(false)
+      setForm({ brand: "TBF", observation: "", action: "", months: [] })
+      await load()
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Unknown error"
+      setError(msg)
+    }
   }
 
   function toggleMonth(m: number) {
@@ -75,8 +90,8 @@ export default function SeasonalPage() {
           <p className="text-sm text-[var(--text-secondary)] mt-1">Track how performance varies by season, events, and market conditions</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={load} className="p-2 rounded-lg bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"><RefreshCw className="w-4 h-4" /></button>
-          <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-teal-600 text-white text-sm font-medium hover:bg-teal-500">
+          <button type="button" onClick={() => void load()} className="p-2 rounded-lg bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"><RefreshCw className="w-4 h-4" /></button>
+          <button type="button" onClick={() => setShowForm(!showForm)} className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-teal-600 text-white text-sm font-medium hover:bg-teal-500">
             <Plus className="w-4 h-4" /> Add Pattern
           </button>
         </div>
@@ -137,21 +152,27 @@ export default function SeasonalPage() {
           <div><label className="block text-xs text-[var(--text-secondary)] mb-1">Affected Months</label>
             <div className="flex gap-2 flex-wrap">
               {MONTH_NAMES.map((name, i) => (
-                <button key={i} onClick={() => toggleMonth(i + 1)} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${form.months.includes(i + 1) ? "bg-teal-50 text-[var(--text-primary)] border border-teal-500/30" : "bg-[var(--bg-secondary)] text-[var(--text-secondary)] border border-[var(--border)]"}`}>
+                <button type="button" key={i} onClick={() => toggleMonth(i + 1)} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${form.months.includes(i + 1) ? "bg-teal-50 text-[var(--text-primary)] border border-teal-500/30" : "bg-[var(--bg-secondary)] text-[var(--text-secondary)] border border-[var(--border)]"}`}>
                   {name}
                 </button>
               ))}
             </div>
           </div>
           <div className="flex justify-end gap-2">
-            <button onClick={() => setShowForm(false)} className="px-4 py-2 rounded-lg bg-[var(--bg-secondary)] text-[var(--text-secondary)] text-sm">Cancel</button>
-            <button onClick={submit} disabled={!form.observation} className="px-4 py-2 rounded-lg bg-teal-600 text-white text-sm font-medium disabled:opacity-50">Save Pattern</button>
+            <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 rounded-lg bg-[var(--bg-secondary)] text-[var(--text-secondary)] text-sm">Cancel</button>
+            <button type="button" onClick={() => void submit()} disabled={!form.observation} className="px-4 py-2 rounded-lg bg-teal-600 text-white text-sm font-medium disabled:opacity-50">Save Pattern</button>
           </div>
         </div>
       )}
 
       {loading ? (
         <div className="space-y-3">{[...Array(4)].map((_, i) => <div key={i} className="h-24 rounded-xl bg-[var(--bg-primary)] animate-pulse" />)}</div>
+      ) : error ? (
+        <div className="text-center py-12">
+          <AlertTriangle className="w-6 h-6 text-yellow-400 mx-auto mb-2" />
+          <p className="text-sm text-[var(--text-muted)]">{error}</p>
+          <button type="button" onClick={() => void load()} className="mt-3 px-3 py-1.5 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] underline">Retry</button>
+        </div>
       ) : patterns.length === 0 ? (
         <div className="rounded-xl bg-[var(--bg-primary)] border border-[var(--border)] p-12 text-center">
           <Calendar className="w-12 h-12 text-[var(--text-primary)] mx-auto mb-3" />

@@ -6,126 +6,104 @@ import {
   Brain, Building2, FileText, Layers, CheckSquare,
   Send, TrendingUp, Lightbulb, Tv, Package,
   Calendar, ChevronDown, ChevronRight,
-  Target, Megaphone, LayoutDashboard, Wrench,
+  Target, LayoutDashboard, Wrench,
   Mail, Share2, BarChart2, ClipboardList, BellRing, Globe,
-  Zap, Sun, Moon
+  Sun, Moon, Users, Workflow
 } from "lucide-react"
-import { useState } from "react"
+import { useState, useRef, useEffect, useCallback } from "react"
 import { useBrand, ALL_BRANDS } from "@/context/BrandContext"
 import { useTheme } from "@/components/ThemeProvider"
 
-type PipelineStage = {
-  num: number
-  label: string
-  href: string
-  icon: typeof Brain
-  subItems?: { label: string; href: string; icon: typeof Brain }[]
+type NavItem = { label: string; href: string; icon: typeof Brain }
+
+type NavSection = {
+  title: string
+  items: NavItem[]
+  defaultCollapsed?: boolean
 }
 
-type PipelinePhase = {
-  phase: string
-  color: string
-  dotColor: string
-  stages: PipelineStage[]
-}
-
-const pipelinePhases: PipelinePhase[] = [
-  {
-    phase: "Strategy",
-    color: "text-theme-muted",
-    dotColor: "bg-theme-secondary",
-    stages: [
-      { num: 1, label: "Intelligence", href: "/pipeline/intelligence", icon: Brain },
-      { num: 2, label: "Brand Pods", href: "/pipeline/brand-pods", icon: Building2 },
-      { num: 3, label: "TV Shows", href: "/pipeline/tv-shows", icon: Tv },
-    ],
-  },
-  {
-    phase: "Planning",
-    color: "text-theme-muted",
-    dotColor: "bg-theme-secondary",
-    stages: [
-      { num: 4, label: "Campaigns", href: "/pipeline/campaigns", icon: Megaphone },
-      { num: 5, label: "Creative Briefs", href: "/pipeline/creative-briefs", icon: FileText },
-    ],
-  },
-  {
-    phase: "Production",
-    color: "text-theme-muted",
-    dotColor: "bg-theme-secondary",
-    stages: [
-      { num: 6, label: "Content Delivery", href: "/pipeline/content-assets", icon: Package },
-      { num: 7, label: "Assembly Line", href: "/pipeline/assembly", icon: Layers },
-    ],
-  },
-  {
-    phase: "Quality",
-    color: "text-theme-muted",
-    dotColor: "bg-theme-secondary",
-    stages: [
-      { num: 8, label: "Quality Gate", href: "/pipeline/quality-gate", icon: CheckSquare },
-    ],
-  },
-  {
-    phase: "Execution",
-    color: "text-theme-muted",
-    dotColor: "bg-theme-secondary",
-    stages: [
-      {
-        num: 9,
-        label: "Marketing Apps",
-        href: "/apps/mautic",
-        icon: Zap,
-        subItems: [
-          { label: "Mautic", href: "/apps/mautic", icon: Mail },
-          { label: "Postiz", href: "/apps/postiz", icon: Share2 },
-          { label: "Listmonk", href: "/apps/listmonk", icon: BellRing },
-          { label: "Formbricks", href: "/apps/formbricks", icon: ClipboardList },
-          { label: "Cal.com", href: "/apps/calcom", icon: Calendar },
-          { label: "Umami", href: "/apps/umami", icon: BarChart2 },
-        ],
-      },
-      { num: 10, label: "Deployments", href: "/pipeline/deployments", icon: Send },
-    ],
-  },
-  {
-    phase: "Optimization",
-    color: "text-theme-muted",
-    dotColor: "bg-theme-secondary",
-    stages: [
-      { num: 11, label: "Performance", href: "/pipeline/performance", icon: TrendingUp },
-      { num: 12, label: "Learning Engine", href: "/pipeline/learning", icon: Lightbulb },
-    ],
-  },
-]
-
-const topSections = [
-  {
-    title: "Division Files",
-    items: [{ label: "Files", href: "/files", icon: FileText }],
-  },
+const sections: NavSection[] = [
   {
     title: "Overview",
-    items: [{ label: "Dashboard", href: "/", icon: LayoutDashboard }],
+    items: [
+      { label: "Dashboard", href: "/", icon: LayoutDashboard },
+    ],
   },
-]
-
-const bottomSections = [
   {
-    title: "Resources",
-    items: [{ label: "Tools", href: "/tools", icon: Wrench }],
+    title: "Pipeline",
+    items: [
+      { label: "All Items", href: "/pipeline", icon: Workflow },
+      { label: "Brands", href: "/pipeline/brand-pods", icon: Building2 },
+    ],
+  },
+  {
+    title: "Contacts",
+    items: [
+      { label: "Leads & Contacts", href: "/leads", icon: Users },
+      { label: "Email Lists", href: "/pipeline/email-config", icon: Mail },
+    ],
+  },
+  {
+    title: "Apps",
+    defaultCollapsed: true,
+    items: [
+      { label: "Mautic", href: "/apps/mautic", icon: Mail },
+      { label: "Postiz", href: "/apps/postiz", icon: Share2 },
+      { label: "Listmonk", href: "/apps/listmonk", icon: BellRing },
+      { label: "Formbricks", href: "/apps/formbricks", icon: ClipboardList },
+      { label: "Cal.com", href: "/apps/calcom", icon: Calendar },
+      { label: "Umami", href: "/apps/umami", icon: BarChart2 },
+    ],
+  },
+  {
+    title: "Settings",
+    defaultCollapsed: true,
+    items: [
+      { label: "Intelligence", href: "/pipeline/intelligence", icon: Brain },
+      { label: "Campaigns (Legacy)", href: "/pipeline/campaigns", icon: Target },
+      { label: "Creative Briefs", href: "/pipeline/creative-briefs", icon: FileText },
+      { label: "Assembly Line", href: "/pipeline/assembly", icon: Layers },
+      { label: "Quality Gate", href: "/pipeline/quality-gate", icon: CheckSquare },
+      { label: "Deployments", href: "/pipeline/deployments", icon: Send },
+      { label: "Content Assets", href: "/pipeline/content-assets", icon: Package },
+      { label: "Performance", href: "/pipeline/performance", icon: TrendingUp },
+      { label: "Learning Engine", href: "/pipeline/learning", icon: Lightbulb },
+      { label: "TV Shows", href: "/pipeline/tv-shows", icon: Tv },
+      { label: "Seasonal", href: "/pipeline/seasonal", icon: Calendar },
+      { label: "Division Files", href: "/files", icon: FileText },
+      { label: "Tools", href: "/tools", icon: Wrench },
+    ],
   },
 ]
 
 function BrandSwitcher() {
   const { activeBrand, setActiveBrand, brandInfo } = useBrand()
   const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  const close = useCallback(() => setOpen(false), [])
+
+  useEffect(() => {
+    if (!open) return
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) close()
+    }
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === "Escape") close()
+    }
+    document.addEventListener("mousedown", handleClick)
+    document.addEventListener("keydown", handleKey)
+    return () => {
+      document.removeEventListener("mousedown", handleClick)
+      document.removeEventListener("keydown", handleKey)
+    }
+  }, [open, close])
 
   const displayName = activeBrand === "__all__" ? "All Brands" : brandInfo?.name || activeBrand
   const displayColor = activeBrand === "__all__" ? "var(--text-secondary)" : brandInfo?.color || "var(--text-secondary)"
 
   return (
-    <div className="mx-2 mb-2">
+    <div className="mx-2 mb-2" ref={ref}>
       <button
         type="button"
         onClick={() => setOpen(!open)}
@@ -176,8 +154,16 @@ function BrandSwitcher() {
   )
 }
 
-function NavSection({ title, items, pathname }: { title: string; items: { label: string; href: string; icon: typeof Brain }[]; pathname: string }) {
-  const [collapsed, setCollapsed] = useState(false)
+function isRouteActive(pathname: string, href: string): boolean {
+  if (href === "/") return pathname === "/"
+  if (href === "/pipeline") return pathname === "/pipeline"
+  return pathname === href || pathname.startsWith(href + "/")
+}
+
+function CollapsibleSection({ section, pathname }: { section: NavSection; pathname: string }) {
+  const hasActiveChild = section.items.some(item => isRouteActive(pathname, item.href))
+  const [collapsed, setCollapsed] = useState(section.defaultCollapsed && !hasActiveChild)
+
   return (
     <div className="mb-1">
       <button
@@ -185,14 +171,14 @@ function NavSection({ title, items, pathname }: { title: string; items: { label:
         onClick={() => setCollapsed(!collapsed)}
         className="w-full flex items-center justify-between px-4 py-2 text-[10px] uppercase tracking-widest text-theme-muted hover:text-theme-secondary transition-colors"
       >
-        <span>{title}</span>
+        <span>{section.title}</span>
         {collapsed ? <ChevronRight className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
       </button>
       {!collapsed && (
         <div className="space-y-0.5 px-2">
-          {items.map(item => {
+          {section.items.map(item => {
             const Icon = item.icon
-            const active = pathname === item.href
+            const active = isRouteActive(pathname, item.href)
             return (
               <Link
                 key={item.href}
@@ -219,26 +205,29 @@ function NavSection({ title, items, pathname }: { title: string; items: { label:
 
 export default function Sidebar() {
   const pathname = usePathname()
-  const [pipelineCollapsed, setPipelineCollapsed] = useState(false)
-  const [appsExpanded, setAppsExpanded] = useState(false)
   const { theme, toggleTheme } = useTheme()
+  const [kevinClawHref, setKevinClawHref] = useState("http://localhost:3100")
 
-  const appPaths = ["/apps/mautic", "/apps/postiz", "/apps/listmonk", "/apps/formbricks", "/apps/calcom", "/apps/umami"]
-  const isOnAppPage = appPaths.includes(pathname)
-
-  const navInactive = { color: "var(--text-secondary)" }
-  const navActive = {
-    background: "var(--sidebar-active-bg)",
-    color: "var(--sidebar-active-text)",
-  }
+  useEffect(() => {
+    setKevinClawHref(
+      typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+        ? "http://localhost:3100"
+        : "https://kevinclaw.89-167-33-236.sslip.io"
+    )
+  }, [])
 
   return (
     <aside
       className="w-64 min-h-screen flex flex-col"
       style={{ background: "var(--sidebar-bg)", borderRight: "1px solid var(--border)" }}
     >
-      {/* Header */}
-      <a href={typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") ? "http://localhost:3100" : "https://kevinclaw.89-167-33-236.sslip.io"} className="flex items-center gap-1 px-4 py-2 text-xs transition-colors hover:text-[var(--text-primary)]" style={{ color: "var(--text-muted)", borderBottom: "1px solid var(--border)" }}><span>←</span> KevinClaw</a>
+<a
+        href={kevinClawHref}
+        className="flex items-center gap-1 px-4 py-2 text-xs transition-colors hover:text-[var(--text-primary)]"
+        style={{ color: "var(--text-muted)", borderBottom: "1px solid var(--border)" }}
+      >
+        <span>&larr;</span> KevinClaw
+      </a>
       <div className="p-4" style={{ borderBottom: "1px solid var(--border)" }}>
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-theme-card border border-theme flex items-center justify-center">
@@ -246,127 +235,22 @@ export default function Sidebar() {
           </div>
           <div>
             <h1 className="text-sm font-bold text-theme-primary tracking-tight">Marketing Engine</h1>
-            <p className="text-[10px] text-theme-secondary uppercase tracking-widest">Autonomous Pipeline</p>
+            <p className="text-[10px] text-theme-secondary uppercase tracking-widest">12-Stage Pipeline</p>
           </div>
         </div>
       </div>
 
-      {/* Agent badge */}
       <div className="px-4 py-3" style={{ borderBottom: "1px solid var(--border)" }}>
         <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-[var(--bg-card)]0 animate-pulse" />
+          <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
           <span className="text-xs text-theme-secondary">Derek — Marketing Agent</span>
         </div>
       </div>
 
-      {/* Nav */}
       <nav className="flex-1 overflow-y-auto py-2">
-        {/* Top sections */}
-        {topSections.map(section => (
-          <NavSection key={section.title} title={section.title} items={section.items} pathname={pathname} />
-        ))}
-
-        {/* Pipeline */}
-        <div className="mb-1">
-          <button
-            type="button"
-            onClick={() => setPipelineCollapsed(!pipelineCollapsed)}
-            className="w-full flex items-center justify-between px-4 py-2 text-[10px] uppercase tracking-widest text-theme-muted hover:text-theme-secondary transition-colors"
-          >
-            <span>Pipeline</span>
-            {pipelineCollapsed ? <ChevronRight className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-          </button>
-
-          {!pipelineCollapsed && (
-            <>
-              <BrandSwitcher />
-
-              <div className="px-2">
-                {pipelinePhases.map((phase) => (
-                  <div key={phase.phase} className="mb-1">
-                    {/* Phase header */}
-                    <div className="flex items-center gap-2 px-3 pt-2 pb-1">
-                      <div className={`w-1.5 h-1.5 rounded-full ${phase.dotColor}`} />
-                      <span className={`text-[9px] font-bold uppercase tracking-widest ${phase.color}`}>{phase.phase}</span>
-                    </div>
-
-                    {/* Stages */}
-                    <div className="space-y-0.5">
-                      {phase.stages.map(stage => {
-                        const Icon = stage.icon
-                        const active = pathname === stage.href || (stage.subItems && stage.subItems.some(si => pathname === si.href))
-                        const hasSubItems = stage.subItems && stage.subItems.length > 0
-                        const showSubs = hasSubItems && (appsExpanded || isOnAppPage)
-
-                        return (
-                          <div key={stage.num}>
-                            {hasSubItems ? (
-                              <button
-                                type="button"
-                                onClick={() => setAppsExpanded(!appsExpanded)}
-                                className={`w-full flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-sm transition-all ${
-                                  active ? "font-medium" : "hover:bg-theme-secondary"
-                                }`}
-                                style={active ? navActive : navInactive}
-                              >
-                                <span className="w-4 text-[10px] font-bold text-theme-muted text-right shrink-0">{stage.num}</span>
-                                <Icon className="w-3.5 h-3.5 shrink-0 opacity-90" />
-                                <span className="flex-1 text-left">{stage.label}</span>
-                                {showSubs
-                                  ? <ChevronDown className="w-3 h-3 text-theme-muted" />
-                                  : <ChevronRight className="w-3 h-3 text-theme-muted" />
-                                }
-                              </button>
-                            ) : (
-                              <Link
-                                href={stage.href}
-                                className={`flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-sm transition-all ${
-                                  active ? "font-medium" : "hover:bg-theme-secondary"
-                                }`}
-                                style={active ? navActive : navInactive}
-                              >
-                                <span className="w-4 text-[10px] font-bold text-theme-muted text-right shrink-0">{stage.num}</span>
-                                <Icon className="w-3.5 h-3.5 shrink-0 opacity-90" />
-                                <span>{stage.label}</span>
-                              </Link>
-                            )}
-
-                            {/* Sub-items for Marketing Apps */}
-                            {showSubs && stage.subItems && (
-                              <div className="ml-7 mt-0.5 space-y-0.5 border-l-2 border-theme pl-2">
-                                {stage.subItems.map(sub => {
-                                  const SubIcon = sub.icon
-                                  const subActive = pathname === sub.href
-                                  return (
-                                    <Link
-                                      key={sub.href}
-                                      href={sub.href}
-                                      className={`flex items-center gap-2 px-2 py-1.5 rounded-md text-xs transition-all ${
-                                        subActive ? "font-medium" : "hover:bg-theme-secondary"
-                                      }`}
-                                      style={subActive ? navActive : { color: "var(--text-secondary)" }}
-                                    >
-                                      <SubIcon className="w-3.5 h-3.5 shrink-0 opacity-90" />
-                                      <span>{sub.label}</span>
-                                    </Link>
-                                  )
-                                })}
-                              </div>
-                            )}
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
-        </div>
-
-        {/* Bottom sections */}
-        {bottomSections.map(section => (
-          <NavSection key={section.title} title={section.title} items={section.items} pathname={pathname} />
+        <BrandSwitcher />
+        {sections.map(section => (
+          <CollapsibleSection key={section.title} section={section} pathname={pathname} />
         ))}
       </nav>
 
@@ -382,11 +266,10 @@ export default function Sidebar() {
         </button>
       </div>
 
-      {/* Footer */}
       <div className="p-4" style={{ borderTop: "1px solid var(--border)" }}>
         <div className="text-[10px] text-theme-muted">
-          <p>Marketing Engine v2.0</p>
-          <p>6 Brands · 12 Stages · Autonomous</p>
+          <p>Marketing Engine v3.0</p>
+          <p>6 Brands · 12 Stages · Pipeline</p>
         </div>
       </div>
     </aside>

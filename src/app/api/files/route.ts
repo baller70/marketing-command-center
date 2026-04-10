@@ -18,7 +18,9 @@ export async function GET(req: Request) {
 
     const files = fs.readdirSync(MEMORY_PATH).filter(f => f.endsWith(".md")).sort();
     return NextResponse.json({ path: MEMORY_PATH, files });
-  } catch (err) {
-    return NextResponse.json({ error: "Failed to read files" }, { status: 500 });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Unknown error"
+    console.error("[files] GET:", msg, err)
+    return NextResponse.json({ error: "Failed to read files" }, { status: 500 })
   }
 }

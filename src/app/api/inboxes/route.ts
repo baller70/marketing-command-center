@@ -29,7 +29,10 @@ function loadInboxes(): InboxConfig {
     if (fs.existsSync(INBOXES_FILE)) {
       return JSON.parse(fs.readFileSync(INBOXES_FILE, 'utf-8'));
     }
-  } catch (e) {}
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[inboxes] loadInboxes:', msg, err)
+  }
   
   // Default: Kevin's main inbox
   return {
@@ -57,8 +60,9 @@ function saveInboxes(config: InboxConfig) {
       fs.mkdirSync(dir, { recursive: true });
     }
     fs.writeFileSync(INBOXES_FILE, JSON.stringify(config, null, 2));
-  } catch (e) {
-    console.error('Failed to save inboxes:', e);
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('Failed to save inboxes:', msg, err)
   }
 }
 

@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react"
 import { useBrand, ALL_BRANDS } from "@/context/BrandContext"
 import {
-  Tv, RefreshCw, Plus, Play, Pause, XCircle, LayoutGrid, List, Clapperboard,
-  Calendar, Clock, TrendingUp, ChevronLeft, ChevronRight, Radio, Film, Star, Mic2, Trophy, Eye
+  AlertTriangle, Tv, RefreshCw, Play, Pause, XCircle, Clapperboard,
+  Calendar, TrendingUp, Radio, Film, Star, Mic2, Trophy, Eye
 } from "lucide-react"
 
 interface TVShow {
@@ -58,7 +58,7 @@ function ShowCard({ show, onClick }: { show: TVShow; onClick: () => void }) {
   const platforms: string[] = (show as any).platforms || []
 
   return (
-    <button onClick={onClick} className="group relative rounded-xl border border-[var(--border)] bg-[var(--bg-primary)] overflow-hidden transition-all hover:border-[var(--border)] hover:shadow-lg hover:-translate-y-0.5 text-left w-full">
+    <button type="button" onClick={onClick} className="group relative rounded-xl border border-[var(--border)] bg-[var(--bg-primary)] overflow-hidden transition-all hover:border-[var(--border)] hover:shadow-lg hover:-translate-y-0.5 text-left w-full">
       <div className="h-32 relative overflow-hidden" style={{ background: `linear-gradient(135deg, ${accentColor}40, ${accentColor}15)` }}>
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
         <div className="absolute top-2.5 left-2.5">
@@ -255,12 +255,12 @@ function PerformanceView({ shows }: { shows: TVShow[] }) {
 
                     <div className="flex gap-1 ml-4">
                       {s.status !== "cancelled" && (
-                        <button className="p-1.5 rounded-lg hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors" title="Cancel Show">
+                        <button type="button" className="p-1.5 rounded-lg hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors" title="Cancel Show">
                           <XCircle className="w-4 h-4" />
                         </button>
                       )}
                       {s.status === "cancelled" && (
-                        <button className="p-1.5 rounded-lg hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors" title="Reactivate">
+                        <button type="button" className="p-1.5 rounded-lg hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors" title="Reactivate">
                           <Play className="w-4 h-4" />
                         </button>
                       )}
@@ -280,6 +280,7 @@ export default function TVShowsPage() {
   const { activeBrand } = useBrand()
   const [shows, setShows] = useState<TVShow[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [brandFilter, setBrandFilter] = useState("__all__")
   const [tab, setTab] = useState<TabView>("shows")
   const [selectedShow, setSelectedShow] = useState<TVShow | null>(null)
@@ -287,20 +288,34 @@ export default function TVShowsPage() {
   useEffect(() => { setBrandFilter(activeBrand) }, [activeBrand])
 
   async function load() {
+    setError(null)
     setLoading(true)
-    const params = new URLSearchParams()
-    if (brandFilter !== "__all__") params.set("brand", brandFilter)
-    const res = await fetch(`/api/pipeline/tv-shows?${params}`)
-    const data = await res.json()
-    setShows(data.shows || [])
-    setLoading(false)
+    try {
+      const params = new URLSearchParams()
+      if (brandFilter !== "__all__") params.set("brand", brandFilter)
+      const res = await fetch(`/api/pipeline/tv-shows?${params}`)
+      if (!res.ok) throw new Error(`API error: ${res.status}`)
+      const data = await res.json()
+      setShows(data.shows || [])
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Unknown error"
+      setError(msg)
+    } finally {
+      setLoading(false)
+    }
   }
 
-  useEffect(() => { load() }, [brandFilter])
+  useEffect(() => { void load() }, [brandFilter])
 
   async function updateStatus(id: string, status: string) {
-    await fetch("/api/pipeline/tv-shows", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, status }) })
-    load()
+    try {
+      const res = await fetch("/api/pipeline/tv-shows", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, status }) })
+      if (!res.ok) throw new Error(`API error: ${res.status}`)
+      await load()
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Unknown error"
+      setError(msg)
+    }
   }
 
   const activeShows = shows.filter(s => s.status === "active").length
@@ -329,7 +344,7 @@ export default function TVShowsPage() {
           </div>
 
           <div className="flex items-center gap-2">
-            <button onClick={load} className={`p-2 rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card)] transition-colors`}>
+            <button type="button" onClick={() => void load()} className={`p-2 rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card)] transition-colors`}>
               <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
             </button>
           </div>
@@ -345,6 +360,7 @@ export default function TVShowsPage() {
             { key: "performance" as TabView, label: "Performance", icon: TrendingUp },
           ]).map(t => (
             <button
+              type="button"
               key={t.key}
               onClick={() => setTab(t.key)}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
@@ -383,6 +399,12 @@ export default function TVShowsPage() {
         {loading ? (
           <div className="flex items-center justify-center h-64 text-[var(--text-muted)]">
             <RefreshCw className="w-6 h-6 animate-spin mr-2" /> Loading programming...
+          </div>
+        ) : error ? (
+          <div className="text-center py-12">
+            <AlertTriangle className="w-6 h-6 text-yellow-400 mx-auto mb-2" />
+            <p className="text-sm text-[var(--text-muted)]">{error}</p>
+            <button type="button" onClick={() => void load()} className="mt-3 px-3 py-1.5 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] underline">Retry</button>
           </div>
         ) : shows.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 text-[var(--text-muted)]">
@@ -427,7 +449,7 @@ export default function TVShowsPage() {
               <>
                 <div className="h-28 relative overflow-hidden shrink-0" style={{ background: `linear-gradient(135deg, ${accentColor}60, ${accentColor}20)` }}>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                  <button onClick={() => setSelectedShow(null)} className="absolute top-2 right-2 p-1.5 rounded-full bg-black/40 text-white hover:bg-black/60 transition-colors">
+                  <button type="button" onClick={() => setSelectedShow(null)} className="absolute top-2 right-2 p-1.5 rounded-full bg-black/40 text-white hover:bg-black/60 transition-colors">
                     <XCircle className="w-4 h-4" />
                   </button>
                   <div className="absolute bottom-3 left-3 right-3">
@@ -470,11 +492,11 @@ export default function TVShowsPage() {
 
                   <div className="border-t border-[var(--border)] pt-3 space-y-2">
                     {selectedShow.status !== "cancelled" ? (
-                      <button onClick={() => { updateStatus(selectedShow.id, "cancelled"); setSelectedShow(null) }} className="w-full flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg border border-[var(--border)] text-[var(--text-primary)] text-xs font-medium hover:bg-[var(--bg-card)] transition-colors">
+                      <button type="button" onClick={() => { void updateStatus(selectedShow.id, "cancelled"); setSelectedShow(null) }} className="w-full flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg border border-[var(--border)] text-[var(--text-primary)] text-xs font-medium hover:bg-[var(--bg-card)] transition-colors">
                         <Pause className="w-3.5 h-3.5" /> Cancel Show
                       </button>
                     ) : (
-                      <button onClick={() => { updateStatus(selectedShow.id, "active"); setSelectedShow(null) }} className="w-full flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg border border-[var(--border)] text-green-600 text-xs font-medium hover:bg-[var(--bg-card)] transition-colors">
+                      <button type="button" onClick={() => { void updateStatus(selectedShow.id, "active"); setSelectedShow(null) }} className="w-full flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg border border-[var(--border)] text-green-600 text-xs font-medium hover:bg-[var(--bg-card)] transition-colors">
                         <Play className="w-3.5 h-3.5" /> Reactivate Show
                       </button>
                     )}

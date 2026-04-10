@@ -1,10 +1,20 @@
 import { NextResponse } from 'next/server';
-import { exec } from 'child_process';
+import { execFile } from 'child_process';
 import { promisify } from 'util';
 import fs from 'fs';
 import path from 'path';
 
-const execAsync = promisify(exec);
+const execFileAsync = promisify(execFile);
+
+const ALLOWED_FOLDERS = new Set([
+  'INBOX',
+  'Sent',
+  '[Gmail]/Sent Mail',
+  '[Gmail]/Drafts',
+  '[Gmail]/Trash',
+  '[Gmail]/Spam',
+  '[Gmail]/All Mail',
+]);
 
 const PREFS_FILE = path.join(process.env.HOME || '', '.config/clawdbot/email_filter_prefs.json');
 
@@ -43,7 +53,10 @@ function loadPrefs(): EmailFilterPrefs {
     if (fs.existsSync(PREFS_FILE)) {
       return JSON.parse(fs.readFileSync(PREFS_FILE, 'utf-8'));
     }
-  } catch (e) {}
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[gmail] loadPrefs:', msg, err)
+  }
   
   return {
     trustedSenders: [],
@@ -174,9 +187,10 @@ async function getRecentEmails(folder: string = 'INBOX', limit: number = 50, fil
     // Fetch more emails to have enough after filtering
     const fetchLimit = filterRealOnly ? limit * 4 : limit;
     
-    const { stdout } = await execAsync(
-      `himalaya envelope list -f ${folder} -w ${fetchLimit} -o json 2>/dev/null`,
-      { timeout: 30000 }
+    const { stdout } = await execFileAsync(
+      'himalaya',
+      ['envelope', 'list', '-f', folder, '-w', String(fetchLimit), '-o', 'json'],
+      { timeout: 30000, maxBuffer: 10 * 1024 * 1024 }
     );
     
     const rawEmails = JSON.parse(stdout);
@@ -213,15 +227,23 @@ async function getRecentEmails(folder: string = 'INBOX', limit: number = 50, fil
     });
     
     return emails.slice(0, limit);
-  } catch (error) {
-    console.error('Failed to get emails:', error);
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('Failed to get emails:', msg, err)
     return [];
   }
 }
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const folder = searchParams.get('folder') || 'INBOX';
+  const rawFolder = searchParams.get('folder') ?? 'INBOX';
+  if (!ALLOWED_FOLDERS.has(rawFolder)) {
+    return NextResponse.json(
+      { success: false, error: 'Invalid folder' },
+      { status: 400 }
+    );
+  }
+  const folder = rawFolder;
   const limit = parseInt(searchParams.get('limit') || '30');
   const filter = searchParams.get('filter') || 'real'; // 'real' or 'all'
 

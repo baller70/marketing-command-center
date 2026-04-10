@@ -37,8 +37,10 @@ async function checkDatabaseConnectivity(): Promise<HealthCheck> {
   try {
     await prisma.campaign.count()
     return { name: 'database', status: 'green', message: 'Database connected' }
-  } catch (error) {
-    return { name: 'database', status: 'red', message: `Database error: ${String(error).slice(0, 100)}` }
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[health] database check:', msg, err)
+    return { name: 'database', status: 'red', message: 'Database error' }
   }
 }
 
@@ -143,9 +145,9 @@ async function checkCommitteeHubConnectivity(): Promise<HealthCheck> {
     }
     // External dependency — degraded, not critical to marketing operations
     return { name: 'committee_hub', status: 'yellow', message: `Committee hub returned ${res.status} (external dependency — marketing pipeline unaffected)` }
-  } catch {
-    // Committee hub being down should NOT mark marketing as unhealthy
-    // Marketing pipeline operates independently; hub is for reporting only
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[health] committee_hub:', msg, err)
     return { name: 'committee_hub', status: 'yellow', message: 'Committee hub unreachable (external dependency — marketing pipeline unaffected)' }
   }
 }
@@ -200,7 +202,9 @@ async function checkMautic(): Promise<HealthCheck> {
       try {
         const segments = await mautic.listSegments()
         return { name: 'mautic' as const, status: 'green' as const, message: `Mautic connected — ${segments?.total || 0} segments` }
-      } catch {
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : 'Unknown error'
+        console.error('[health] mautic:', msg, err)
         return { name: 'mautic' as const, status: 'yellow' as const, message: 'Mautic unreachable' }
       }
     })(),
@@ -217,7 +221,9 @@ async function checkFormbricks(): Promise<HealthCheck> {
         return ok
           ? { name: 'formbricks' as const, status: 'green' as const, message: 'Formbricks connected' }
           : { name: 'formbricks' as const, status: 'yellow' as const, message: 'Formbricks not configured' }
-      } catch {
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : 'Unknown error'
+        console.error('[health] formbricks:', msg, err)
         return { name: 'formbricks' as const, status: 'yellow' as const, message: 'Formbricks unreachable' }
       }
     })(),
@@ -258,11 +264,16 @@ export async function GET() {
         red: redCount,
       },
     })
-  } catch (error) {
-    return NextResponse.json({
-      success: false,
-      status: 'red',
-      error: String(error),
-    }, { status: 500 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[health] GET:', msg, err)
+    return NextResponse.json(
+      {
+        success: false,
+        status: 'red',
+        error: 'Internal server error',
+      },
+      { status: 500 }
+    )
   }
 }

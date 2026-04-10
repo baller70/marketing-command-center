@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useBrand } from "@/context/BrandContext"
-import { Lightbulb, RefreshCw, Plus, Filter, Brain, TrendingUp, MessageSquare, Calendar, Shield, Archive, Zap } from "lucide-react"
+import { AlertTriangle, Lightbulb, RefreshCw, Plus, Filter, Brain, TrendingUp, MessageSquare, Calendar, Shield, Archive, Zap } from "lucide-react"
 
 interface LearningRule {
   id: string
@@ -31,6 +31,7 @@ export default function LearningPage() {
   const { activeBrand } = useBrand()
   const [rules, setRules] = useState<LearningRule[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [loopFilter, setLoopFilter] = useState("__all__")
   const [brandFilter, setBrandFilter] = useState("__all__")
   const [showForm, setShowForm] = useState(false)
@@ -39,28 +40,48 @@ export default function LearningPage() {
   useEffect(() => { setBrandFilter(activeBrand) }, [activeBrand])
 
   async function load() {
+    setError(null)
     setLoading(true)
-    const params = new URLSearchParams()
-    if (brandFilter !== "__all__") params.set("brand", brandFilter)
-    if (loopFilter !== "__all__") params.set("loopType", loopFilter)
-    const res = await fetch(`/api/pipeline/learning?${params}`)
-    const data = await res.json()
-    setRules(data.rules || [])
-    setLoading(false)
+    try {
+      const params = new URLSearchParams()
+      if (brandFilter !== "__all__") params.set("brand", brandFilter)
+      if (loopFilter !== "__all__") params.set("loopType", loopFilter)
+      const res = await fetch(`/api/pipeline/learning?${params}`)
+      if (!res.ok) throw new Error(`API error: ${res.status}`)
+      const data = await res.json()
+      setRules(data.rules || [])
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Unknown error"
+      setError(msg)
+    } finally {
+      setLoading(false)
+    }
   }
 
-  useEffect(() => { load() }, [loopFilter, brandFilter])
+  useEffect(() => { void load() }, [loopFilter, brandFilter])
 
   async function submit() {
-    await fetch("/api/pipeline/learning", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) })
-    setShowForm(false)
-    setForm({ brand: "TBF", dataSource: "", rule: "", confidence: "medium", appliesTo: "", loopType: "campaign_pattern" })
-    load()
+    try {
+      const res = await fetch("/api/pipeline/learning", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) })
+      if (!res.ok) throw new Error(`API error: ${res.status}`)
+      setShowForm(false)
+      setForm({ brand: "TBF", dataSource: "", rule: "", confidence: "medium", appliesTo: "", loopType: "campaign_pattern" })
+      await load()
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Unknown error"
+      setError(msg)
+    }
   }
 
   async function updateStatus(id: string, status: string) {
-    await fetch("/api/pipeline/learning", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, status }) })
-    load()
+    try {
+      const res = await fetch("/api/pipeline/learning", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, status }) })
+      if (!res.ok) throw new Error(`API error: ${res.status}`)
+      await load()
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Unknown error"
+      setError(msg)
+    }
   }
 
   // Group by loop type
@@ -80,8 +101,8 @@ export default function LearningPage() {
           <p className="text-sm text-[var(--text-secondary)] mt-1">5 feedback loops that make campaigns smarter every cycle — the unfair advantage</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={load} className="p-2 rounded-lg bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"><RefreshCw className="w-4 h-4" /></button>
-          <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-pink-600 text-white text-sm font-medium hover:bg-[var(--text-primary)]">
+          <button type="button" onClick={() => void load()} className="p-2 rounded-lg bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"><RefreshCw className="w-4 h-4" /></button>
+          <button type="button" onClick={() => setShowForm(!showForm)} className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-pink-600 text-white text-sm font-medium hover:bg-[var(--text-primary)]">
             <Plus className="w-4 h-4" /> Add Rule
           </button>
         </div>
@@ -93,7 +114,7 @@ export default function LearningPage() {
           const Icon = lt.icon
           const count = grouped[lt.value]?.length || 0
           return (
-            <button key={lt.value} onClick={() => setLoopFilter(loopFilter === lt.value ? "__all__" : lt.value)}
+            <button type="button" key={lt.value} onClick={() => setLoopFilter(loopFilter === lt.value ? "__all__" : lt.value)}
               className={`rounded-lg p-3 text-left transition-colors ${loopFilter === lt.value ? "bg-pink-50 border border-pink-500/30" : "bg-[var(--bg-primary)] border border-[var(--border)] hover:border-[var(--border)]"}`}>
               <Icon className={`w-5 h-5 ${lt.color} mb-1`} />
               <p className="text-xs font-medium text-[var(--text-primary)]">{lt.label}</p>
@@ -138,14 +159,20 @@ export default function LearningPage() {
               <input value={form.appliesTo} onChange={e => setForm({...form, appliesTo: e.target.value})} placeholder="e.g., Stage 3 Assembly, Stage 5 Deployment" className="w-full bg-[var(--bg-secondary)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm text-[var(--text-secondary)] outline-none placeholder:text-[var(--text-muted)]" /></div>
           </div>
           <div className="flex justify-end gap-2">
-            <button onClick={() => setShowForm(false)} className="px-4 py-2 rounded-lg bg-[var(--bg-secondary)] text-[var(--text-secondary)] text-sm">Cancel</button>
-            <button onClick={submit} disabled={!form.rule} className="px-4 py-2 rounded-lg bg-pink-600 text-white text-sm font-medium disabled:opacity-50">Save Rule</button>
+            <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 rounded-lg bg-[var(--bg-secondary)] text-[var(--text-secondary)] text-sm">Cancel</button>
+            <button type="button" onClick={() => void submit()} disabled={!form.rule} className="px-4 py-2 rounded-lg bg-pink-600 text-white text-sm font-medium disabled:opacity-50">Save Rule</button>
           </div>
         </div>
       )}
 
       {loading ? (
         <div className="space-y-3">{[...Array(5)].map((_, i) => <div key={i} className="h-20 rounded-xl bg-[var(--bg-primary)] animate-pulse" />)}</div>
+      ) : error ? (
+        <div className="text-center py-12">
+          <AlertTriangle className="w-6 h-6 text-yellow-400 mx-auto mb-2" />
+          <p className="text-sm text-[var(--text-muted)]">{error}</p>
+          <button type="button" onClick={() => void load()} className="mt-3 px-3 py-1.5 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] underline">Retry</button>
+        </div>
       ) : rules.length === 0 ? (
         <div className="rounded-xl bg-[var(--bg-primary)] border border-[var(--border)] p-12 text-center">
           <Brain className="w-12 h-12 text-[var(--text-primary)] mx-auto mb-3" />
@@ -173,8 +200,8 @@ export default function LearningPage() {
                     </div>
                   </div>
                   <div className="flex gap-1 ml-4">
-                    {r.status === "active" && <button onClick={() => updateStatus(r.id, "deprecated")} className="p-1.5 rounded-lg hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-secondary)]" title="Deprecate"><Archive className="w-4 h-4" /></button>}
-                    {r.status === "testing" && <button onClick={() => updateStatus(r.id, "active")} className="p-1.5 rounded-lg hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)]" title="Activate"><Zap className="w-4 h-4" /></button>}
+                    {r.status === "active" && <button type="button" onClick={() => void updateStatus(r.id, "deprecated")} className="p-1.5 rounded-lg hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-secondary)]" title="Deprecate"><Archive className="w-4 h-4" /></button>}
+                    {r.status === "testing" && <button type="button" onClick={() => void updateStatus(r.id, "active")} className="p-1.5 rounded-lg hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)]" title="Activate"><Zap className="w-4 h-4" /></button>}
                   </div>
                 </div>
               </div>

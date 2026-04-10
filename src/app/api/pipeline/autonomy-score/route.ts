@@ -128,10 +128,15 @@ export async function GET() {
             'Add email delivery integration',
           ],
     })
-  } catch (error) {
-    return NextResponse.json({
-      success: false,
-      error: String(error),
-    }, { status: 500 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[autonomy-score]', msg, err)
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Internal server error',
+      },
+      { status: 500 }
+    )
   }
 }

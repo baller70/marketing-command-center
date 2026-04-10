@@ -124,9 +124,10 @@ export async function GET(req: NextRequest) {
       wouldAdvance: actions.length,
       actions,
     })
-  } catch (error) {
-    console.error('[auto-brief-advance] GET error:', error)
-    return NextResponse.json({ error: String(error) }, { status: 500 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[auto-brief-advance] GET error:', msg, err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
@@ -141,8 +142,9 @@ export async function POST(req: NextRequest) {
       advanced: actions.length,
       actions,
     })
-  } catch (error) {
-    console.error('[auto-brief-advance] POST error:', error)
-    return NextResponse.json({ error: String(error) }, { status: 500 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[auto-brief-advance] POST error:', msg, err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

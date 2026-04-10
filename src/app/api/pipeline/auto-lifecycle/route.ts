@@ -135,8 +135,10 @@ export async function GET() {
         archive: actions.filter(a => a.action === 'archive').length,
       },
     })
-  } catch (error) {
-    return NextResponse.json({ error: String(error) }, { status: 500 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[auto-lifecycle] GET:', msg, err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
@@ -164,8 +166,10 @@ export async function POST(req: NextRequest) {
             })
           }
           executed.push(`${action.action}: "${action.campaignName}" — ${action.reason}`)
-        } catch (err) {
-          errors.push(`Failed to ${action.action} "${action.campaignName}": ${String(err)}`)
+        } catch (err: unknown) {
+          const msg = err instanceof Error ? err.message : 'Unknown error'
+          console.error('[auto-lifecycle] action:', msg, err)
+          errors.push(`Failed to ${action.action} "${action.campaignName}"`)
         }
       }
     }
@@ -180,7 +184,9 @@ export async function POST(req: NextRequest) {
       details: { executed, errors },
       summary: `Lifecycle: ${executed.length} actions executed, ${errors.length} errors`,
     })
-  } catch (error) {
-    return NextResponse.json({ error: String(error) }, { status: 500 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[auto-lifecycle] POST:', msg, err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

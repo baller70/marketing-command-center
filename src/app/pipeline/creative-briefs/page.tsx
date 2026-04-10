@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useBrand } from "@/context/BrandContext"
-import { FileText, Plus, RefreshCw, Filter, Clock, CheckCircle, Package, AlertTriangle, Send } from "lucide-react"
+import { AlertTriangle, FileText, Plus, RefreshCw, Filter, CheckCircle, Package, Send } from "lucide-react"
 
 interface Brief {
   id: string
@@ -34,6 +34,7 @@ export default function CreativeBriefsPage() {
   const [brandFilter, setBrandFilter] = useState("__all__")
   const [statusFilter, setStatusFilter] = useState("__all__")
   const [showForm, setShowForm] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [form, setForm] = useState({
     brand: "TBF", campaignName: "", campaignGoal: "awareness", targetAudience: "",
     messagingLane: "", keyMessage: "", cta: "", deadline: "", priority: "standard",
@@ -41,29 +42,49 @@ export default function CreativeBriefsPage() {
   })
 
   async function load() {
+    setError(null)
     setLoading(true)
-    const params = new URLSearchParams()
-    if (brandFilter !== "__all__") params.set("brand", brandFilter)
-    if (statusFilter !== "__all__") params.set("status", statusFilter)
-    const res = await fetch(`/api/pipeline/creative-briefs?${params}`)
-    const data = await res.json()
-    setBriefs(data.briefs || [])
-    setLoading(false)
+    try {
+      const params = new URLSearchParams()
+      if (brandFilter !== "__all__") params.set("brand", brandFilter)
+      if (statusFilter !== "__all__") params.set("status", statusFilter)
+      const res = await fetch(`/api/pipeline/creative-briefs?${params}`)
+      if (!res.ok) throw new Error(`API error: ${res.status}`)
+      const data = await res.json()
+      setBriefs(data.briefs || [])
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Unknown error"
+      setError(msg)
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => { setBrandFilter(activeBrand) }, [activeBrand])
-  useEffect(() => { load() }, [brandFilter, statusFilter])
+  useEffect(() => { void load() }, [brandFilter, statusFilter])
 
   async function submit() {
-    const data = { ...form, deadline: form.deadline ? new Date(form.deadline).toISOString() : undefined }
-    await fetch("/api/pipeline/creative-briefs", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) })
-    setShowForm(false)
-    load()
+    try {
+      const data = { ...form, deadline: form.deadline ? new Date(form.deadline).toISOString() : undefined }
+      const res = await fetch("/api/pipeline/creative-briefs", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) })
+      if (!res.ok) throw new Error(`API error: ${res.status}`)
+      setShowForm(false)
+      await load()
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Unknown error"
+      setError(msg)
+    }
   }
 
   async function updateStatus(id: string, status: string) {
-    await fetch("/api/pipeline/creative-briefs", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, status }) })
-    load()
+    try {
+      const res = await fetch("/api/pipeline/creative-briefs", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, status }) })
+      if (!res.ok) throw new Error(`API error: ${res.status}`)
+      await load()
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Unknown error"
+      setError(msg)
+    }
   }
 
   function addAsset() {
@@ -89,8 +110,8 @@ export default function CreativeBriefsPage() {
           <p className="text-sm text-[var(--text-secondary)] mt-1">Asset requests sent to the Content Division — the Marketing → Content handoff</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={load} className="p-2 rounded-lg bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"><RefreshCw className="w-4 h-4" /></button>
-          <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-cyan-600 text-white text-sm font-medium hover:bg-[var(--text-primary)]">
+          <button type="button" onClick={() => void load()} className="p-2 rounded-lg bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"><RefreshCw className="w-4 h-4" /></button>
+          <button type="button" onClick={() => setShowForm(!showForm)} className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-cyan-600 text-white text-sm font-medium hover:bg-[var(--text-primary)]">
             <Plus className="w-4 h-4" /> New Brief
           </button>
         </div>
@@ -147,7 +168,7 @@ export default function CreativeBriefsPage() {
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="text-xs text-[var(--text-secondary)]">Assets Needed</label>
-              <button onClick={addAsset} className="text-xs text-[var(--text-primary)] hover:text-cyan-500">+ Add asset</button>
+              <button type="button" onClick={addAsset} className="text-xs text-[var(--text-primary)] hover:text-cyan-500">+ Add asset</button>
             </div>
             {form.assetsNeeded.map((asset, idx) => (
               <div key={idx} className="grid grid-cols-4 gap-2 mb-2">
@@ -163,8 +184,8 @@ export default function CreativeBriefsPage() {
             ))}
           </div>
           <div className="flex justify-end gap-2">
-            <button onClick={() => setShowForm(false)} className="px-4 py-2 rounded-lg bg-[var(--bg-secondary)] text-[var(--text-secondary)] text-sm">Cancel</button>
-            <button onClick={submit} disabled={!form.campaignName || !form.keyMessage} className="px-4 py-2 rounded-lg bg-cyan-600 text-white text-sm font-medium disabled:opacity-50 flex items-center gap-1.5">
+            <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 rounded-lg bg-[var(--bg-secondary)] text-[var(--text-secondary)] text-sm">Cancel</button>
+            <button type="button" onClick={() => void submit()} disabled={!form.campaignName || !form.keyMessage} className="px-4 py-2 rounded-lg bg-cyan-600 text-white text-sm font-medium disabled:opacity-50 flex items-center gap-1.5">
               <Send className="w-3.5 h-3.5" /> Submit Brief
             </button>
           </div>
@@ -173,6 +194,12 @@ export default function CreativeBriefsPage() {
 
       {loading ? (
         <div className="space-y-3">{[...Array(4)].map((_, i) => <div key={i} className="h-32 rounded-xl bg-[var(--bg-primary)] animate-pulse" />)}</div>
+      ) : error ? (
+        <div className="text-center py-12">
+          <AlertTriangle className="w-6 h-6 text-yellow-400 mx-auto mb-2" />
+          <p className="text-sm text-[var(--text-muted)]">{error}</p>
+          <button type="button" onClick={() => void load()} className="mt-3 px-3 py-1.5 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] underline">Retry</button>
+        </div>
       ) : briefs.length === 0 ? (
         <div className="rounded-xl bg-[var(--bg-primary)] border border-[var(--border)] p-12 text-center">
           <FileText className="w-12 h-12 text-[var(--text-primary)] mx-auto mb-3" />
@@ -209,9 +236,9 @@ export default function CreativeBriefsPage() {
                   )}
                 </div>
                 <div className="flex items-center gap-1 ml-4">
-                  {b.status === "submitted" && <button onClick={() => updateStatus(b.id, "acknowledged")} className="p-1.5 rounded-lg hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)]" title="Acknowledge"><CheckCircle className="w-4 h-4" /></button>}
-                  {b.status === "acknowledged" && <button onClick={() => updateStatus(b.id, "in_production")} className="p-1.5 rounded-lg hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)]" title="Mark in production"><Package className="w-4 h-4" /></button>}
-                  {b.status === "in_production" && <button onClick={() => updateStatus(b.id, "delivered")} className="p-1.5 rounded-lg hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)]" title="Mark delivered"><CheckCircle className="w-4 h-4" /></button>}
+                  {b.status === "submitted" && <button type="button" onClick={() => void updateStatus(b.id, "acknowledged")} className="p-1.5 rounded-lg hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)]" title="Acknowledge"><CheckCircle className="w-4 h-4" /></button>}
+                  {b.status === "acknowledged" && <button type="button" onClick={() => void updateStatus(b.id, "in_production")} className="p-1.5 rounded-lg hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)]" title="Mark in production"><Package className="w-4 h-4" /></button>}
+                  {b.status === "in_production" && <button type="button" onClick={() => void updateStatus(b.id, "delivered")} className="p-1.5 rounded-lg hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)]" title="Mark delivered"><CheckCircle className="w-4 h-4" /></button>}
                 </div>
               </div>
             </div>

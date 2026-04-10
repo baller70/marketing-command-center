@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useBrand } from "@/context/BrandContext"
-import { Send, RefreshCw, Filter, Plus, Play, Pause, CheckCircle, ExternalLink } from "lucide-react"
+import { AlertTriangle, Send, RefreshCw, Filter, Play, Pause, CheckCircle } from "lucide-react"
 
 interface Deployment {
   id: string
@@ -30,6 +30,7 @@ export default function DeploymentsPage() {
   const { activeBrand } = useBrand()
   const [deployments, setDeployments] = useState<Deployment[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [brandFilter, setBrandFilter] = useState("__all__")
   const [channelFilter, setChannelFilter] = useState("__all__")
   const [statusFilter, setStatusFilter] = useState("__all__")
@@ -37,26 +38,40 @@ export default function DeploymentsPage() {
   useEffect(() => { setBrandFilter(activeBrand) }, [activeBrand])
 
   async function load() {
+    setError(null)
     setLoading(true)
-    const params = new URLSearchParams()
-    if (brandFilter !== "__all__") params.set("brand", brandFilter)
-    if (channelFilter !== "__all__") params.set("channel", channelFilter)
-    if (statusFilter !== "__all__") params.set("status", statusFilter)
-    const res = await fetch(`/api/pipeline/deployments?${params}`)
-    const data = await res.json()
-    setDeployments(data.deployments || [])
-    setLoading(false)
+    try {
+      const params = new URLSearchParams()
+      if (brandFilter !== "__all__") params.set("brand", brandFilter)
+      if (channelFilter !== "__all__") params.set("channel", channelFilter)
+      if (statusFilter !== "__all__") params.set("status", statusFilter)
+      const res = await fetch(`/api/pipeline/deployments?${params}`)
+      if (!res.ok) throw new Error(`API error: ${res.status}`)
+      const data = await res.json()
+      setDeployments(data.deployments || [])
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Unknown error"
+      setError(msg)
+    } finally {
+      setLoading(false)
+    }
   }
 
-  useEffect(() => { load() }, [brandFilter, channelFilter, statusFilter])
+  useEffect(() => { void load() }, [brandFilter, channelFilter, statusFilter])
 
   async function updateStatus(id: string, status: string) {
-    await fetch("/api/pipeline/deployments", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, status, ...(status === "live" ? { launchedAt: new Date().toISOString() } : {}) }),
-    })
-    load()
+    try {
+      const res = await fetch("/api/pipeline/deployments", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, status, ...(status === "live" ? { launchedAt: new Date().toISOString() } : {}) }),
+      })
+      if (!res.ok) throw new Error(`API error: ${res.status}`)
+      await load()
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Unknown error"
+      setError(msg)
+    }
   }
 
   const channels = [...new Set(deployments.map(d => d.channel))]
@@ -73,7 +88,7 @@ export default function DeploymentsPage() {
           </h1>
           <p className="text-sm text-[var(--text-secondary)] mt-1">Deploy campaigns to the right channels at the right time — organic + paid coordination</p>
         </div>
-        <button onClick={load} className="p-2 rounded-lg bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"><RefreshCw className="w-4 h-4" /></button>
+        <button type="button" onClick={() => void load()} className="p-2 rounded-lg bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"><RefreshCw className="w-4 h-4" /></button>
       </div>
 
       {/* Summary stats */}
@@ -114,6 +129,12 @@ export default function DeploymentsPage() {
 
       {loading ? (
         <div className="space-y-3">{[...Array(4)].map((_, i) => <div key={i} className="h-20 rounded-xl bg-[var(--bg-primary)] animate-pulse" />)}</div>
+      ) : error ? (
+        <div className="text-center py-12">
+          <AlertTriangle className="w-6 h-6 text-yellow-400 mx-auto mb-2" />
+          <p className="text-sm text-[var(--text-muted)]">{error}</p>
+          <button type="button" onClick={() => void load()} className="mt-3 px-3 py-1.5 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] underline">Retry</button>
+        </div>
       ) : deployments.length === 0 ? (
         <div className="rounded-xl bg-[var(--bg-primary)] border border-[var(--border)] p-12 text-center">
           <Send className="w-12 h-12 text-[var(--text-primary)] mx-auto mb-3" />
@@ -142,10 +163,10 @@ export default function DeploymentsPage() {
                     {d.budgetSpent > 0 && <p className="text-xs text-[var(--text-muted)]">Spent: ${d.budgetSpent.toLocaleString()}</p>}
                   </div>
                   <div className="flex gap-1">
-                    {d.status === "scheduled" && <button onClick={() => updateStatus(d.id, "live")} className="p-1.5 rounded-lg hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)]"><Play className="w-4 h-4" /></button>}
-                    {d.status === "live" && <button onClick={() => updateStatus(d.id, "paused")} className="p-1.5 rounded-lg hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)]"><Pause className="w-4 h-4" /></button>}
-                    {d.status === "paused" && <button onClick={() => updateStatus(d.id, "live")} className="p-1.5 rounded-lg hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)]"><Play className="w-4 h-4" /></button>}
-                    {["live", "paused"].includes(d.status) && <button onClick={() => updateStatus(d.id, "completed")} className="p-1.5 rounded-lg hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)]"><CheckCircle className="w-4 h-4" /></button>}
+                    {d.status === "scheduled" && <button type="button" onClick={() => void updateStatus(d.id, "live")} className="p-1.5 rounded-lg hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)]"><Play className="w-4 h-4" /></button>}
+                    {d.status === "live" && <button type="button" onClick={() => void updateStatus(d.id, "paused")} className="p-1.5 rounded-lg hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)]"><Pause className="w-4 h-4" /></button>}
+                    {d.status === "paused" && <button type="button" onClick={() => void updateStatus(d.id, "live")} className="p-1.5 rounded-lg hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)]"><Play className="w-4 h-4" /></button>}
+                    {["live", "paused"].includes(d.status) && <button type="button" onClick={() => void updateStatus(d.id, "completed")} className="p-1.5 rounded-lg hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)]"><CheckCircle className="w-4 h-4" /></button>}
                   </div>
                 </div>
               </div>

@@ -21,12 +21,12 @@ interface IntelEntry {
 const BRANDS = ["__all__", "TBF", "RA1", "ShotIQ", "HoS", "Bookmark", "all"]
 const CATEGORIES = ["__all__", "audience", "competitor", "platform", "local_market", "industry", "pricing", "seasonal"]
 const PRIORITIES = ["__all__", "high", "medium", "low"]
-const STATUSES = ["__all__", "new", "actioned", "archived"]
 
 export default function IntelligencePage() {
   const { activeBrand } = useBrand()
   const [entries, setEntries] = useState<IntelEntry[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [brand, setBrand] = useState("__all__")
   const [category, setCategory] = useState("__all__")
   const [priority, setPriority] = useState("__all__")
@@ -36,37 +36,57 @@ export default function IntelligencePage() {
   useEffect(() => { setBrand(activeBrand) }, [activeBrand])
 
   async function load() {
+    setError(null)
     setLoading(true)
-    const params = new URLSearchParams()
-    if (brand !== "__all__") params.set("brand", brand)
-    if (category !== "__all__") params.set("category", category)
-    if (priority !== "__all__") params.set("priority", priority)
-    const res = await fetch(`/api/pipeline/intelligence?${params}`)
-    const data = await res.json()
-    setEntries(data.entries || [])
-    setLoading(false)
+    try {
+      const params = new URLSearchParams()
+      if (brand !== "__all__") params.set("brand", brand)
+      if (category !== "__all__") params.set("category", category)
+      if (priority !== "__all__") params.set("priority", priority)
+      const res = await fetch(`/api/pipeline/intelligence?${params}`)
+      if (!res.ok) throw new Error(`API error: ${res.status}`)
+      const data = await res.json()
+      setEntries(data.entries || [])
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Unknown error"
+      setError(msg)
+    } finally {
+      setLoading(false)
+    }
   }
 
-  useEffect(() => { load() }, [brand, category, priority])
+  useEffect(() => { void load() }, [brand, category, priority])
 
   async function submit() {
-    await fetch("/api/pipeline/intelligence", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    })
-    setShowForm(false)
-    setForm({ brand: "TBF", category: "audience", source: "", insight: "", actionable: false, actionRecommended: "", priority: "medium" })
-    load()
+    try {
+      const res = await fetch("/api/pipeline/intelligence", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      })
+      if (!res.ok) throw new Error(`API error: ${res.status}`)
+      setShowForm(false)
+      setForm({ brand: "TBF", category: "audience", source: "", insight: "", actionable: false, actionRecommended: "", priority: "medium" })
+      await load()
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Unknown error"
+      setError(msg)
+    }
   }
 
   async function updateStatus(id: string, status: string) {
-    await fetch("/api/pipeline/intelligence", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, status }),
-    })
-    load()
+    try {
+      const res = await fetch("/api/pipeline/intelligence", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, status }),
+      })
+      if (!res.ok) throw new Error(`API error: ${res.status}`)
+      await load()
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Unknown error"
+      setError(msg)
+    }
   }
 
   const priorityColors: Record<string, string> = { high: "bg-[var(--bg-card)] text-[var(--text-primary)]", medium: "bg-[var(--bg-card)] text-[var(--text-primary)]", low: "bg-[var(--bg-card)] text-[var(--text-primary)]" }
@@ -89,10 +109,10 @@ export default function IntelligencePage() {
           <p className="text-sm text-[var(--text-secondary)] mt-1">Monitor audience behavior, competitors, platform changes, and local market conditions</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={load} className="p-2 rounded-lg bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
+          <button type="button" onClick={() => void load()} className="p-2 rounded-lg bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
             <RefreshCw className="w-4 h-4" />
           </button>
-          <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[var(--text-primary)] text-white text-sm font-medium hover:bg-[var(--text-primary)] transition-colors">
+          <button type="button" onClick={() => setShowForm(!showForm)} className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[var(--text-primary)] text-white text-sm font-medium hover:bg-[var(--text-primary)] transition-colors">
             <Plus className="w-4 h-4" /> Add Intel
           </button>
         </div>
@@ -161,8 +181,8 @@ export default function IntelligencePage() {
             </div>
           )}
           <div className="flex justify-end gap-2">
-            <button onClick={() => setShowForm(false)} className="px-4 py-2 rounded-lg bg-[var(--bg-secondary)] text-[var(--text-secondary)] text-sm hover:text-[var(--text-primary)] transition-colors">Cancel</button>
-            <button onClick={submit} disabled={!form.insight || !form.source} className="px-4 py-2 rounded-lg bg-[var(--text-primary)] text-white text-sm font-medium hover:bg-[var(--text-primary)] transition-colors disabled:opacity-50">Save Entry</button>
+            <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 rounded-lg bg-[var(--bg-secondary)] text-[var(--text-secondary)] text-sm hover:text-[var(--text-primary)] transition-colors">Cancel</button>
+            <button type="button" onClick={() => void submit()} disabled={!form.insight || !form.source} className="px-4 py-2 rounded-lg bg-[var(--text-primary)] text-white text-sm font-medium hover:bg-[var(--text-primary)] transition-colors disabled:opacity-50">Save Entry</button>
           </div>
         </div>
       )}
@@ -170,6 +190,12 @@ export default function IntelligencePage() {
       {/* Entries */}
       {loading ? (
         <div className="space-y-3">{[...Array(5)].map((_, i) => <div key={i} className="h-24 rounded-xl bg-[var(--bg-primary)] animate-pulse" />)}</div>
+      ) : error ? (
+        <div className="text-center py-12">
+          <AlertTriangle className="w-6 h-6 text-yellow-400 mx-auto mb-2" />
+          <p className="text-sm text-[var(--text-muted)]">{error}</p>
+          <button type="button" onClick={() => void load()} className="mt-3 px-3 py-1.5 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] underline">Retry</button>
+        </div>
       ) : entries.length === 0 ? (
         <div className="rounded-xl bg-[var(--bg-primary)] border border-[var(--border)] p-12 text-center">
           <Brain className="w-12 h-12 text-[var(--text-primary)] mx-auto mb-3" />
@@ -209,12 +235,12 @@ export default function IntelligencePage() {
                   </div>
                   <div className="flex items-center gap-1 ml-4">
                     {entry.status !== "actioned" && (
-                      <button onClick={() => updateStatus(entry.id, "actioned")} className="p-1.5 rounded-lg hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors" title="Mark actioned">
+                      <button type="button" onClick={() => void updateStatus(entry.id, "actioned")} className="p-1.5 rounded-lg hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors" title="Mark actioned">
                         <CheckCircle className="w-4 h-4" />
                       </button>
                     )}
                     {entry.status !== "archived" && (
-                      <button onClick={() => updateStatus(entry.id, "archived")} className="p-1.5 rounded-lg hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors" title="Archive">
+                      <button type="button" onClick={() => void updateStatus(entry.id, "archived")} className="p-1.5 rounded-lg hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors" title="Archive">
                         <Archive className="w-4 h-4" />
                       </button>
                     )}

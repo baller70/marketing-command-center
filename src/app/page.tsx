@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import {
   Brain, Megaphone, CheckSquare, Send, TrendingUp, Lightbulb,
   Target, Building2, DollarSign, AlertTriangle,
@@ -91,117 +91,137 @@ const PIPELINE_STAGES = [
   { num: 12, name: "Learning Engine", href: "/pipeline/learning", icon: Lightbulb, color: "orange" },
 ]
 
-const APP_STATUS_MAP: Record<string, { label: string; icon: typeof Mail }> = {
-  mautic: { label: "Mautic", icon: Mail },
-  formbricks: { label: "Formbricks", icon: ClipboardList },
-}
-
 export default function DashboardPage() {
   const [health, setHealth] = useState<HealthData | null>(null)
   const [phaseData, setPhaseData] = useState<PhaseData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const [
-          healthRes, intelRes, podsRes, showsRes, campaignsRes,
-          briefsRes, assetsRes, assemblyRes, qgRes, deploysRes,
-          perfRes, learningRes,
-        ] = await Promise.all([
-          fetch("/api/pipeline/health").then(r => r.json()).catch(() => null),
-          fetch("/api/pipeline/intelligence").then(r => r.json()).catch(() => ({ entries: [] })),
-          fetch("/api/pipeline/brand-pods").then(r => r.json()).catch(() => ({ pods: [] })),
-          fetch("/api/pipeline/tv-shows").then(r => r.json()).catch(() => ({ shows: [] })),
-          fetch("/api/pipeline/campaigns").then(r => r.json()).catch(() => ({ campaigns: [] })),
-          fetch("/api/pipeline/creative-briefs").then(r => r.json()).catch(() => ({ briefs: [] })),
-          fetch("/api/pipeline/content-assets").then(r => r.json()).catch(() => ({ assets: [] })),
-          fetch("/api/pipeline/assembly").then(r => r.json()).catch(() => ({ assemblies: [] })),
-          fetch("/api/pipeline/quality-gate").then(r => r.json()).catch(() => ({ reviews: [] })),
-          fetch("/api/pipeline/deployments").then(r => r.json()).catch(() => ({ deployments: [] })),
-          fetch("/api/pipeline/performance").then(r => r.json()).catch(() => ({ totals: {} })),
-          fetch("/api/pipeline/learning").then(r => r.json()).catch(() => ({ rules: [] })),
-        ])
-
-        if (healthRes?.checks) setHealth(healthRes)
-
-        const allCampaigns = campaignsRes.campaigns || []
-        const allBriefs = briefsRes.briefs || []
-        const allAssets = assetsRes.assets || []
-        const allAssemblies = assemblyRes.assemblies || []
-        const allReviews = qgRes.reviews || []
-        const allDeploys = deploysRes.deployments || []
-        const allRules = learningRes.rules || []
-        const allShows = showsRes.shows || []
-        const totals = perfRes.totals || {}
-
-        const oneDayAgo = Date.now() - 86400000
-        const recentIntel = (intelRes.entries || []).filter((e: { createdAt: string }) =>
-          new Date(e.createdAt).getTime() > oneDayAgo
-        ).length
-
-        setPhaseData({
-          intelligence: { total: intelRes.entries?.length || 0, recent24h: recentIntel },
-          brandPods: { total: podsRes.pods?.length || 0 },
-          tvShows: {
-            total: allShows.length,
-            airing: allShows.filter((s: { status: string }) => s.status === "airing").length,
-            planned: allShows.filter((s: { status: string }) => s.status === "planned").length,
-          },
-          campaigns: {
-            total: allCampaigns.length,
-            draft: allCampaigns.filter((c: { status: string }) => c.status === "draft").length,
-            live: allCampaigns.filter((c: { status: string }) => c.status === "live").length,
-            completed: allCampaigns.filter((c: { status: string }) => c.status === "completed").length,
-          },
-          briefs: {
-            total: allBriefs.length,
-            pending: allBriefs.filter((b: { status: string }) => b.status === "pending" || b.status === "draft").length,
-            delivered: allBriefs.filter((b: { status: string }) => b.status === "delivered").length,
-          },
-          contentAssets: {
-            total: allAssets.length,
-            received: allAssets.filter((a: { status: string }) => a.status === "received").length,
-            assigned: allAssets.filter((a: { status: string }) => a.status === "assigned").length,
-            deployed: allAssets.filter((a: { status: string }) => a.status === "deployed").length,
-          },
-          assembly: {
-            total: allAssemblies.length,
-            completed: allAssemblies.filter((a: { status: string }) => a.status === "done").length,
-            inProgress: allAssemblies.filter((a: { status: string }) => a.status === "in_progress").length,
-          },
-          qualityGate: {
-            pending: allReviews.filter((r: { decision: string }) => r.decision === "pending").length,
-            approved: allReviews.filter((r: { decision: string }) => r.decision === "approved").length,
-            rejected: allReviews.filter((r: { decision: string }) => r.decision === "rejected").length,
-          },
-          deployments: {
-            live: allDeploys.filter((d: { status: string }) => d.status === "live").length,
-            total: allDeploys.length,
-          },
-          performance: {
-            revenue: totals.revenueGenerated || 0,
-            budgetSpent: totals.budgetSpent || 0,
-            roas: totals.budgetSpent > 0 ? totals.revenueGenerated / totals.budgetSpent : 0,
-          },
-          learning: {
-            total: allRules.length,
-            active: allRules.filter((r: { status: string }) => r.status === "active").length,
-          },
-        })
-
-        setLastUpdated(new Date())
-      } catch (e) {
-        console.error("Dashboard load error:", e)
-      } finally {
-        setLoading(false)
+  const load = useCallback(async (opts?: { background?: boolean }) => {
+    setError(null)
+    if (!opts?.background) setLoading(true)
+    try {
+      async function fetchJson(url: string): Promise<unknown> {
+        const res = await fetch(url)
+        if (!res.ok) throw new Error(`API error: ${res.status}`)
+        return res.json()
       }
+
+      const [
+        healthRes, intelRes, podsRes, showsRes, campaignsRes,
+        briefsRes, assetsRes, assemblyRes, qgRes, deploysRes,
+        perfRes, learningRes,
+      ] = await Promise.all([
+        fetchJson("/api/pipeline/health").catch(() => null),
+        fetchJson("/api/pipeline/intelligence"),
+        fetchJson("/api/pipeline/brand-pods"),
+        fetchJson("/api/pipeline/tv-shows"),
+        fetchJson("/api/pipeline/campaigns"),
+        fetchJson("/api/pipeline/creative-briefs"),
+        fetchJson("/api/pipeline/content-assets"),
+        fetchJson("/api/pipeline/assembly"),
+        fetchJson("/api/pipeline/quality-gate"),
+        fetchJson("/api/pipeline/deployments"),
+        fetchJson("/api/pipeline/performance"),
+        fetchJson("/api/pipeline/learning"),
+      ])
+
+      const healthData = healthRes as HealthData | null
+      if (healthData?.checks) setHealth(healthData)
+
+      const intelResTyped = intelRes as { entries?: { createdAt: string }[] }
+      const podsResTyped = podsRes as { pods?: unknown[] }
+      const showsResTyped = showsRes as { shows?: { status: string }[] }
+      const campaignsResTyped = campaignsRes as { campaigns?: { status: string }[] }
+      const briefsResTyped = briefsRes as { briefs?: { status: string }[] }
+      const assetsResTyped = assetsRes as { assets?: { status: string }[] }
+      const assemblyResTyped = assemblyRes as { assemblies?: { status: string }[] }
+      const qgResTyped = qgRes as { reviews?: { decision: string }[] }
+      const deploysResTyped = deploysRes as { deployments?: { status: string }[] }
+      const perfResTyped = perfRes as { totals?: Record<string, number> }
+      const learningResTyped = learningRes as { rules?: { status: string }[] }
+
+      const allCampaigns = campaignsResTyped.campaigns || []
+      const allBriefs = briefsResTyped.briefs || []
+      const allAssets = assetsResTyped.assets || []
+      const allAssemblies = assemblyResTyped.assemblies || []
+      const allReviews = qgResTyped.reviews || []
+      const allDeploys = deploysResTyped.deployments || []
+      const allRules = learningResTyped.rules || []
+      const allShows = showsResTyped.shows || []
+      const totals = perfResTyped.totals || {}
+
+      const oneDayAgo = Date.now() - 86400000
+      const recentIntel = (intelResTyped.entries || []).filter((e: { createdAt: string }) =>
+        new Date(e.createdAt).getTime() > oneDayAgo
+      ).length
+
+      setPhaseData({
+        intelligence: { total: intelResTyped.entries?.length || 0, recent24h: recentIntel },
+        brandPods: { total: podsResTyped.pods?.length || 0 },
+        tvShows: {
+          total: allShows.length,
+          airing: allShows.filter((s: { status: string }) => s.status === "airing").length,
+          planned: allShows.filter((s: { status: string }) => s.status === "planned").length,
+        },
+        campaigns: {
+          total: allCampaigns.length,
+          draft: allCampaigns.filter((c: { status: string }) => c.status === "draft").length,
+          live: allCampaigns.filter((c: { status: string }) => c.status === "live").length,
+          completed: allCampaigns.filter((c: { status: string }) => c.status === "completed").length,
+        },
+        briefs: {
+          total: allBriefs.length,
+          pending: allBriefs.filter((b: { status: string }) => b.status === "pending" || b.status === "draft").length,
+          delivered: allBriefs.filter((b: { status: string }) => b.status === "delivered").length,
+        },
+        contentAssets: {
+          total: allAssets.length,
+          received: allAssets.filter((a: { status: string }) => a.status === "received").length,
+          assigned: allAssets.filter((a: { status: string }) => a.status === "assigned").length,
+          deployed: allAssets.filter((a: { status: string }) => a.status === "deployed").length,
+        },
+        assembly: {
+          total: allAssemblies.length,
+          completed: allAssemblies.filter((a: { status: string }) => a.status === "done").length,
+          inProgress: allAssemblies.filter((a: { status: string }) => a.status === "in_progress").length,
+        },
+        qualityGate: {
+          pending: allReviews.filter((r: { decision: string }) => r.decision === "pending").length,
+          approved: allReviews.filter((r: { decision: string }) => r.decision === "approved").length,
+          rejected: allReviews.filter((r: { decision: string }) => r.decision === "rejected").length,
+        },
+        deployments: {
+          live: allDeploys.filter((d: { status: string }) => d.status === "live").length,
+          total: allDeploys.length,
+        },
+        performance: {
+          revenue: totals.revenueGenerated || 0,
+          budgetSpent: totals.budgetSpent || 0,
+          roas: totals.budgetSpent > 0 ? totals.revenueGenerated / totals.budgetSpent : 0,
+        },
+        learning: {
+          total: allRules.length,
+          active: allRules.filter((r: { status: string }) => r.status === "active").length,
+        },
+      })
+
+      setLastUpdated(new Date())
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Unknown error"
+      setError(msg)
+      console.error("Dashboard load error:", err)
+    } finally {
+      setLoading(false)
     }
-    load()
-    const interval = setInterval(load, 60000)
-    return () => clearInterval(interval)
   }, [])
+
+  useEffect(() => {
+    void load()
+    const interval = setInterval(() => void load({ background: true }), 60000)
+    return () => clearInterval(interval)
+  }, [load])
 
   if (loading) {
     return (
@@ -213,6 +233,24 @@ export default function DashboardPage() {
         </div>
         <div className="grid grid-cols-3 gap-4">
           {[...Array(6)].map((_, i) => <div key={i} className="h-52 rounded-xl bg-[var(--bg-primary)] animate-pulse" />)}
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 max-w-[1600px] mx-auto">
+        <div className="text-center py-12">
+          <AlertTriangle className="w-6 h-6 text-yellow-400 mx-auto mb-2" />
+          <p className="text-sm text-[var(--text-muted)]">{error}</p>
+          <button
+            type="button"
+            onClick={() => void load()}
+            className="mt-3 px-3 py-1.5 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] underline"
+          >
+            Retry
+          </button>
         </div>
       </div>
     )

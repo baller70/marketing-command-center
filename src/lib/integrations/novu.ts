@@ -52,8 +52,9 @@ async function notify(
       timestamp: new Date().toISOString(),
     })
     return true
-  } catch (err: any) {
-    console.error(`[NOVU-MKT] Failed to send ${eventType}: ${err.message}`)
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error(`[NOVU-MKT] Failed to send ${eventType}: ${msg}`)
     return false
   }
 }

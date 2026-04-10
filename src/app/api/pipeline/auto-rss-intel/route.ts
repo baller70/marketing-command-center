@@ -127,8 +127,9 @@ async function fetchFeed(feed: typeof RSS_FEEDS[0]): Promise<RSSItem[]> {
     if (!res.ok) return []
     const xml = await res.text()
     return extractItems(xml)
-  } catch {
-    console.warn(`[auto-rss-intel] Failed to fetch ${feed.source}: skipping`)
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.warn(`[auto-rss-intel] Failed to fetch ${feed.source}:`, msg, err)
     return []
   }
 }
@@ -181,9 +182,10 @@ export async function GET() {
       entries,
       summary: { total: entries.length },
     })
-  } catch (error) {
-    console.error('[auto-rss-intel] GET error:', error)
-    return NextResponse.json({ error: 'Failed to preview RSS intelligence', details: String(error) }, { status: 500 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[auto-rss-intel] GET error:', msg, err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
@@ -223,8 +225,9 @@ export async function POST(req: NextRequest) {
       timestamp: new Date().toISOString(),
       persisted: { created: created.length, skipped: skipped.length, details: created },
     })
-  } catch (error) {
-    console.error('[auto-rss-intel] POST error:', error)
-    return NextResponse.json({ error: 'RSS intelligence ingestion failed', details: String(error) }, { status: 500 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[auto-rss-intel] POST error:', msg, err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

@@ -139,8 +139,9 @@ export async function POST(request: Request) {
       },
       postizResponse: result,
     })
-  } catch (error: any) {
-    console.error("[social-post] Failed:", error.message)
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Unknown error"
+    console.error("[social-post] Failed:", msg, err)
+    return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 })
   }
 }

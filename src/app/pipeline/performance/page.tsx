@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useBrand } from "@/context/BrandContext"
-import { TrendingUp, RefreshCw, Filter, BarChart3, DollarSign, Users, MousePointerClick, Eye, Target } from "lucide-react"
+import { AlertTriangle, CheckCircle, TrendingUp, RefreshCw, Filter, BarChart3, DollarSign, Users, MousePointerClick, Eye, Target } from "lucide-react"
 
 interface Metric {
   id: string
@@ -42,22 +42,31 @@ export default function PerformancePage() {
   const [metrics, setMetrics] = useState<Metric[]>([])
   const [totals, setTotals] = useState<Totals>({ impressions: 0, clicks: 0, leadsGenerated: 0, enrollments: 0, revenueGenerated: 0, budgetSpent: 0 })
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [brandFilter, setBrandFilter] = useState("__all__")
 
   useEffect(() => { setBrandFilter(activeBrand) }, [activeBrand])
 
   async function load() {
+    setError(null)
     setLoading(true)
-    const params = new URLSearchParams()
-    if (brandFilter !== "__all__") params.set("brand", brandFilter)
-    const res = await fetch(`/api/pipeline/performance?${params}`)
-    const data = await res.json()
-    setMetrics(data.metrics || [])
-    setTotals(data.totals || { impressions: 0, clicks: 0, leadsGenerated: 0, enrollments: 0, revenueGenerated: 0, budgetSpent: 0 })
-    setLoading(false)
+    try {
+      const params = new URLSearchParams()
+      if (brandFilter !== "__all__") params.set("brand", brandFilter)
+      const res = await fetch(`/api/pipeline/performance?${params}`)
+      if (!res.ok) throw new Error(`API error: ${res.status}`)
+      const data = await res.json()
+      setMetrics(data.metrics || [])
+      setTotals(data.totals || { impressions: 0, clicks: 0, leadsGenerated: 0, enrollments: 0, revenueGenerated: 0, budgetSpent: 0 })
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Unknown error"
+      setError(msg)
+    } finally {
+      setLoading(false)
+    }
   }
 
-  useEffect(() => { load() }, [brandFilter])
+  useEffect(() => { void load() }, [brandFilter])
 
   const overallROAS = totals.budgetSpent > 0 ? (totals.revenueGenerated / totals.budgetSpent).toFixed(1) : "—"
   const overallCPL = totals.leadsGenerated > 0 ? (totals.budgetSpent / totals.leadsGenerated).toFixed(2) : "—"
@@ -83,7 +92,7 @@ export default function PerformancePage() {
           </h1>
           <p className="text-sm text-[var(--text-secondary)] mt-1">Campaign performance metrics + revenue attribution — every dollar traceable</p>
         </div>
-        <button onClick={load} className="p-2 rounded-lg bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"><RefreshCw className="w-4 h-4" /></button>
+        <button type="button" onClick={() => void load()} className="p-2 rounded-lg bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"><RefreshCw className="w-4 h-4" /></button>
       </div>
 
       <div className="flex items-center gap-3">
@@ -93,6 +102,20 @@ export default function PerformancePage() {
         </select>
       </div>
 
+      {loading ? (
+        <div className="space-y-4">
+          <div className="grid grid-cols-4 gap-4">{[...Array(8)].map((_, i) => <div key={i} className="h-24 rounded-lg bg-[var(--bg-primary)] animate-pulse" />)}</div>
+          <div className="h-48 rounded-xl bg-[var(--bg-primary)] animate-pulse" />
+          <div className="space-y-3">{[...Array(4)].map((_, i) => <div key={i} className="h-20 rounded-xl bg-[var(--bg-primary)] animate-pulse" />)}</div>
+        </div>
+      ) : error ? (
+        <div className="text-center py-12">
+          <AlertTriangle className="w-6 h-6 text-yellow-400 mx-auto mb-2" />
+          <p className="text-sm text-[var(--text-muted)]">{error}</p>
+          <button type="button" onClick={() => void load()} className="mt-3 px-3 py-1.5 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] underline">Retry</button>
+        </div>
+      ) : (
+        <>
       {/* KPI cards */}
       <div className="grid grid-cols-4 gap-4">
         {statCards.map(card => {
@@ -193,9 +216,7 @@ export default function PerformancePage() {
       </div>
 
       {/* Per-campaign metrics */}
-      {loading ? (
-        <div className="space-y-3">{[...Array(4)].map((_, i) => <div key={i} className="h-20 rounded-xl bg-[var(--bg-primary)] animate-pulse" />)}</div>
-      ) : metrics.length === 0 ? (
+      {metrics.length === 0 ? (
         <div className="rounded-xl bg-[var(--bg-primary)] border border-[var(--border)] p-12 text-center">
           <BarChart3 className="w-12 h-12 text-[var(--text-primary)] mx-auto mb-3" />
           <p className="text-[var(--text-muted)]">No performance data yet</p>
@@ -226,10 +247,8 @@ export default function PerformancePage() {
           ))}
         </div>
       )}
+        </>
+      )}
     </div>
   )
-}
-
-function CheckCircle(props: React.SVGProps<SVGSVGElement>) {
-  return <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
 }

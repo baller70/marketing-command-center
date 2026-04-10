@@ -36,8 +36,10 @@ export async function POST(req: NextRequest) {
     )
 
     return NextResponse.json({ received: true })
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Unknown error"
+    console.error("[social-teaser]", msg, err)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
 
@@ -49,7 +51,10 @@ export async function GET() {
   let scheduledPosts: any = null
   try {
     scheduledPosts = await postiz.listPosts({ status: "scheduled" })
-  } catch {}
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Unknown error"
+    console.error("[social-teaser] listPosts:", msg, err)
+  }
 
   return NextResponse.json({
     recentTeasers,

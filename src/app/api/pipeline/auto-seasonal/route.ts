@@ -144,8 +144,10 @@ export async function GET() {
         alreadyCovered: actions.filter(a => a.status === 'already_covered').length,
       },
     })
-  } catch (error) {
-    return NextResponse.json({ error: 'Failed', details: String(error) }, { status: 500 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[auto-seasonal] GET:', msg, err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
@@ -168,7 +170,9 @@ export async function POST(req: NextRequest) {
         skipped: actions.filter(a => a.status === 'skipped').length,
       },
     })
-  } catch (error) {
-    return NextResponse.json({ error: 'Auto-seasonal failed', details: String(error) }, { status: 500 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[auto-seasonal] POST:', msg, err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

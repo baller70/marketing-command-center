@@ -77,8 +77,10 @@ async function runStageOnce(stage: typeof STAGES[0]): Promise<{ ok: boolean; dat
       return { ok: false, error: data.error || `HTTP ${res.status}` }
     }
     return { ok: true, data }
-  } catch (error) {
-    return { ok: false, error: String(error) }
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[auto-full-cycle] runStageOnce:', msg, err)
+    return { ok: false, error: 'Internal error' }
   }
 }
 
@@ -174,12 +176,17 @@ export async function POST(req: NextRequest) {
       summary: { succeeded, failed, skipped },
       results,
     })
-  } catch (error) {
-    return NextResponse.json({
-      success: false,
-      error: String(error),
-      results,
-      totalDurationMs: Date.now() - cycleStart,
-    }, { status: 500 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[auto-full-cycle] POST:', msg, err)
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Internal server error',
+        results,
+        totalDurationMs: Date.now() - cycleStart,
+      },
+      { status: 500 }
+    )
   }
 }

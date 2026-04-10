@@ -97,7 +97,9 @@ async function generateContentAssets(commit: boolean): Promise<AssetAction[]> {
       const raw = brief.assetsNeeded
       if (Array.isArray(raw)) assetsNeeded = raw as typeof assetsNeeded
       else if (typeof raw === 'string') assetsNeeded = JSON.parse(raw)
-    } catch {
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Unknown error'
+      console.error('[auto-content-assets] parse assetsNeeded:', msg, err)
       continue
     }
 
@@ -182,9 +184,10 @@ export async function GET() {
       actions,
       summary: { wouldCreate: created.length, alreadyExist: skipped.length },
     })
-  } catch (error) {
-    console.error('[auto-content-assets] GET error:', error)
-    return NextResponse.json({ error: 'Failed to preview content assets', details: String(error) }, { status: 500 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[auto-content-assets] GET error:', msg, err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
@@ -204,8 +207,9 @@ export async function POST(req: NextRequest) {
       actions,
       summary: { created: created.length, skipped: skipped.length, total: actions.length },
     })
-  } catch (error) {
-    console.error('[auto-content-assets] POST error:', error)
-    return NextResponse.json({ error: 'Auto content asset generation failed', details: String(error) }, { status: 500 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[auto-content-assets] POST error:', msg, err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

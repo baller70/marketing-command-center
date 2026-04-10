@@ -1,5 +1,33 @@
 import { prisma } from '@/lib/prisma'
+import { sanitizeJsonBody } from '@/lib/sanitize-pipeline-body'
 import { NextRequest, NextResponse } from 'next/server'
+
+const ASSET_FIELDS = [
+  'assetId',
+  'brand',
+  'messagingLane',
+  'format',
+  'platformOptimized',
+  'dimensions',
+  'duration',
+  'campaignId',
+  'captionText',
+  'ctaText',
+  'status',
+] as const
+
+function pickAssetData(body: Record<string, unknown>) {
+  const data: Record<string, unknown> = {}
+  for (const k of ASSET_FIELDS) {
+    if (!(k in body) || body[k] === undefined) continue
+    if (k === 'duration' && body[k] != null) {
+      data[k] = Number(body[k])
+    } else {
+      data[k] = body[k]
+    }
+  }
+  return data
+}
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
@@ -21,14 +49,40 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const body = await req.json()
-  const asset = await prisma.contentAsset.create({ data: body })
-  return NextResponse.json({ asset }, { status: 201 })
+  try {
+    const raw = await req.json()
+    const body = sanitizeJsonBody(raw)
+    if (!body) {
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
+    }
+    const data = pickAssetData(body)
+    const asset = await prisma.contentAsset.create({ data: data as never })
+    return NextResponse.json({ asset }, { status: 201 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[content-assets] POST:', msg, err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
 }
 
 export async function PATCH(req: NextRequest) {
-  const body = await req.json()
-  const { id, ...data } = body
-  const asset = await prisma.contentAsset.update({ where: { id }, data })
-  return NextResponse.json({ asset })
+  try {
+    const raw = await req.json()
+    const body = sanitizeJsonBody(raw)
+    if (!body) {
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
+    }
+    const id = body.id
+    if (!id || typeof id !== 'string') {
+      return NextResponse.json({ error: 'id is required' }, { status: 400 })
+    }
+    delete body.id
+    const data = pickAssetData(body)
+    const asset = await prisma.contentAsset.update({ where: { id }, data: data as never })
+    return NextResponse.json({ asset })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[content-assets] PATCH:', msg, err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
 }

@@ -69,8 +69,9 @@ export async function POST(req: NextRequest) {
       mauticContactId: contactId,
       segment: segmentId ? body.brand : "none",
     })
-  } catch (err: any) {
-    console.error("[lead-ingest] Error:", err.message)
-    return NextResponse.json({ error: err.message }, { status: 500 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Unknown error"
+    console.error("[lead-ingest] Error:", msg, err)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }

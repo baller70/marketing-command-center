@@ -26,8 +26,9 @@ function loadPrefs(): EmailFilterPrefs {
     if (fs.existsSync(PREFS_FILE)) {
       return JSON.parse(fs.readFileSync(PREFS_FILE, 'utf-8'));
     }
-  } catch (e) {
-    console.error('Failed to load email prefs:', e);
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('Failed to load email prefs:', msg, err)
   }
   
   // Default prefs
@@ -74,8 +75,9 @@ function savePrefs(prefs: EmailFilterPrefs) {
     }
     prefs.updatedAt = new Date().toISOString();
     fs.writeFileSync(PREFS_FILE, JSON.stringify(prefs, null, 2));
-  } catch (e) {
-    console.error('Failed to save email prefs:', e);
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('Failed to save email prefs:', msg, err)
   }
 }
 

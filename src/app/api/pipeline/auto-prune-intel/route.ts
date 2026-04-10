@@ -94,8 +94,10 @@ export async function GET() {
         maxEntries: MAX_ENTRIES,
       },
     })
-  } catch (error) {
-    return NextResponse.json({ error: String(error) }, { status: 500 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[auto-prune-intel]', msg, err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
@@ -130,7 +132,9 @@ export async function POST(req: NextRequest) {
       breakdown: result.toPrune,
       totalRemaining: result.totalEntries - deleted,
     })
-  } catch (error) {
-    return NextResponse.json({ error: String(error) }, { status: 500 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[auto-prune-intel]', msg, err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

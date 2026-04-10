@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useBrand } from "@/context/BrandContext"
-import { Megaphone, Plus, RefreshCw, Filter, Play, Pause, Square, CheckCircle, Clock, AlertTriangle, Trash2, ArrowRight } from "lucide-react"
+import { AlertTriangle, Megaphone, Plus, RefreshCw, Filter, Play, Pause, Square, CheckCircle, ArrowRight } from "lucide-react"
 
 interface Campaign {
   id: string
@@ -49,48 +49,70 @@ export default function CampaignsPage() {
   const [brandFilter, setBrandFilter] = useState("__all__")
   const [statusFilter, setStatusFilter] = useState("__all__")
   const [showForm, setShowForm] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [form, setForm] = useState({
     brandPodId: "", name: "", messagingLane: "", goal: "awareness",
     targetAudience: "", offer: "", channels: [] as string[], budget: 0, horizon: "H2",
   })
 
   async function load() {
+    setError(null)
     setLoading(true)
-    const params = new URLSearchParams()
-    if (brandFilter !== "__all__") params.set("brand", brandFilter)
-    if (statusFilter !== "__all__") params.set("status", statusFilter)
-    const [cRes, pRes] = await Promise.all([
-      fetch(`/api/pipeline/campaigns?${params}`),
-      fetch("/api/pipeline/brand-pods"),
-    ])
-    const cData = await cRes.json()
-    const pData = await pRes.json()
-    setCampaigns(cData.campaigns || [])
-    setPods(pData.pods || [])
-    setLoading(false)
+    try {
+      const params = new URLSearchParams()
+      if (brandFilter !== "__all__") params.set("brand", brandFilter)
+      if (statusFilter !== "__all__") params.set("status", statusFilter)
+      const [cRes, pRes] = await Promise.all([
+        fetch(`/api/pipeline/campaigns?${params}`),
+        fetch("/api/pipeline/brand-pods"),
+      ])
+      if (!cRes.ok) throw new Error(`API error: ${cRes.status}`)
+      if (!pRes.ok) throw new Error(`API error: ${pRes.status}`)
+      const cData = await cRes.json()
+      const pData = await pRes.json()
+      setCampaigns(cData.campaigns || [])
+      setPods(pData.pods || [])
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Unknown error"
+      setError(msg)
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => { setBrandFilter(activeBrand) }, [activeBrand])
-  useEffect(() => { load() }, [brandFilter, statusFilter])
+  useEffect(() => { void load() }, [brandFilter, statusFilter])
 
   async function submit() {
-    const data = { ...form, channels: form.channels }
-    await fetch("/api/pipeline/campaigns", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    })
-    setShowForm(false)
-    load()
+    try {
+      const data = { ...form, channels: form.channels }
+      const res = await fetch("/api/pipeline/campaigns", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      })
+      if (!res.ok) throw new Error(`API error: ${res.status}`)
+      setShowForm(false)
+      await load()
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Unknown error"
+      setError(msg)
+    }
   }
 
   async function updateStatus(id: string, status: string) {
-    await fetch("/api/pipeline/campaigns", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, status }),
-    })
-    load()
+    try {
+      const res = await fetch("/api/pipeline/campaigns", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, status }),
+      })
+      if (!res.ok) throw new Error(`API error: ${res.status}`)
+      await load()
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Unknown error"
+      setError(msg)
+    }
   }
 
   const toggleChannel = (ch: string) => {
@@ -111,10 +133,10 @@ export default function CampaignsPage() {
           <p className="text-sm text-[var(--text-secondary)] mt-1">Campaign strategy, planning, and lifecycle management across all 5 brands</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={load} className="p-2 rounded-lg bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
+          <button type="button" onClick={() => void load()} className="p-2 rounded-lg bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
             <RefreshCw className="w-4 h-4" />
           </button>
-          <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[var(--text-primary)] text-white text-sm font-medium hover:bg-[var(--text-primary)] transition-colors">
+          <button type="button" onClick={() => setShowForm(!showForm)} className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[var(--text-primary)] text-white text-sm font-medium hover:bg-[var(--text-primary)] transition-colors">
             <Plus className="w-4 h-4" /> New Campaign
           </button>
         </div>
@@ -194,15 +216,15 @@ export default function CampaignsPage() {
             <label className="block text-xs text-[var(--text-secondary)] mb-1">Channels</label>
             <div className="flex gap-2 flex-wrap">
               {CHANNELS.map(ch => (
-                <button key={ch} onClick={() => toggleChannel(ch)} className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${form.channels.includes(ch) ? "bg-[var(--bg-card)] text-[var(--text-primary)] border border-[var(--border)]/30" : "bg-[var(--bg-secondary)] text-[var(--text-secondary)] border border-[var(--border)] hover:border-[var(--border)]"}`}>
+                <button type="button" key={ch} onClick={() => toggleChannel(ch)} className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${form.channels.includes(ch) ? "bg-[var(--bg-card)] text-[var(--text-primary)] border border-[var(--border)]/30" : "bg-[var(--bg-secondary)] text-[var(--text-secondary)] border border-[var(--border)] hover:border-[var(--border)]"}`}>
                   {ch.replace("_", " ")}
                 </button>
               ))}
             </div>
           </div>
           <div className="flex justify-end gap-2">
-            <button onClick={() => setShowForm(false)} className="px-4 py-2 rounded-lg bg-[var(--bg-secondary)] text-[var(--text-secondary)] text-sm">Cancel</button>
-            <button onClick={submit} disabled={!form.brandPodId || !form.name} className="px-4 py-2 rounded-lg bg-[var(--text-primary)] text-white text-sm font-medium hover:bg-[var(--text-primary)] disabled:opacity-50">Create Campaign</button>
+            <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 rounded-lg bg-[var(--bg-secondary)] text-[var(--text-secondary)] text-sm">Cancel</button>
+            <button type="button" onClick={() => void submit()} disabled={!form.brandPodId || !form.name} className="px-4 py-2 rounded-lg bg-[var(--text-primary)] text-white text-sm font-medium hover:bg-[var(--text-primary)] disabled:opacity-50">Create Campaign</button>
           </div>
         </div>
       )}
@@ -210,6 +232,12 @@ export default function CampaignsPage() {
       {/* Campaign list */}
       {loading ? (
         <div className="space-y-3">{[...Array(5)].map((_, i) => <div key={i} className="h-28 rounded-xl bg-[var(--bg-primary)] animate-pulse" />)}</div>
+      ) : error ? (
+        <div className="text-center py-12">
+          <AlertTriangle className="w-6 h-6 text-yellow-400 mx-auto mb-2" />
+          <p className="text-sm text-[var(--text-muted)]">{error}</p>
+          <button type="button" onClick={() => void load()} className="mt-3 px-3 py-1.5 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] underline">Retry</button>
+        </div>
       ) : campaigns.length === 0 ? (
         <div className="rounded-xl bg-[var(--bg-primary)] border border-[var(--border)] p-12 text-center">
           <Megaphone className="w-12 h-12 text-[var(--text-primary)] mx-auto mb-3" />
@@ -243,12 +271,12 @@ export default function CampaignsPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-1 ml-4">
-                  {c.status === "draft" && <button onClick={() => updateStatus(c.id, "assembling")} className="p-1.5 rounded-lg hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)]" title="Start assembly"><ArrowRight className="w-4 h-4" /></button>}
-                  {c.status === "approved" && <button onClick={() => updateStatus(c.id, "live")} className="p-1.5 rounded-lg hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)]" title="Go live"><Play className="w-4 h-4" /></button>}
-                  {c.status === "live" && <button onClick={() => updateStatus(c.id, "paused")} className="p-1.5 rounded-lg hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)]" title="Pause"><Pause className="w-4 h-4" /></button>}
-                  {c.status === "paused" && <button onClick={() => updateStatus(c.id, "live")} className="p-1.5 rounded-lg hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)]" title="Resume"><Play className="w-4 h-4" /></button>}
-                  {["draft", "paused"].includes(c.status) && <button onClick={() => updateStatus(c.id, "killed")} className="p-1.5 rounded-lg hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)]" title="Kill"><Square className="w-4 h-4" /></button>}
-                  {c.status === "live" && <button onClick={() => updateStatus(c.id, "completed")} className="p-1.5 rounded-lg hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)]" title="Complete"><CheckCircle className="w-4 h-4" /></button>}
+                  {c.status === "draft" && <button type="button" onClick={() => void updateStatus(c.id, "assembling")} className="p-1.5 rounded-lg hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)]" title="Start assembly"><ArrowRight className="w-4 h-4" /></button>}
+                  {c.status === "approved" && <button type="button" onClick={() => void updateStatus(c.id, "live")} className="p-1.5 rounded-lg hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)]" title="Go live"><Play className="w-4 h-4" /></button>}
+                  {c.status === "live" && <button type="button" onClick={() => void updateStatus(c.id, "paused")} className="p-1.5 rounded-lg hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)]" title="Pause"><Pause className="w-4 h-4" /></button>}
+                  {c.status === "paused" && <button type="button" onClick={() => void updateStatus(c.id, "live")} className="p-1.5 rounded-lg hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)]" title="Resume"><Play className="w-4 h-4" /></button>}
+                  {["draft", "paused"].includes(c.status) && <button type="button" onClick={() => void updateStatus(c.id, "killed")} className="p-1.5 rounded-lg hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)]" title="Kill"><Square className="w-4 h-4" /></button>}
+                  {c.status === "live" && <button type="button" onClick={() => void updateStatus(c.id, "completed")} className="p-1.5 rounded-lg hover:bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)]" title="Complete"><CheckCircle className="w-4 h-4" /></button>}
                 </div>
               </div>
             </div>

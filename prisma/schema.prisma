@@ -330,3 +330,71 @@ model ContentAsset {
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
 }
+
+// =====================================================
+// UNIFIED MARKETING PIPELINE (Software-CC style)
+// =====================================================
+model MarketingItem {
+  id              String   @id @default(cuid())
+  title           String
+  brand           String
+  source          String   @default("manual")
+  sourceUrl       String?
+  contentPreview  String?  @db.Text
+  contentType     String   @default("social")
+  currentStage    Int      @default(1)
+  status          String   @default("active")
+  pipelineMode    String   @default("manual")
+  priorityScore   Int      @default(50)
+  emailDraft      Json?    @default("{}")
+  assemblyConfig  Json?    @default("{}")
+  deploymentData  Json?    @default("{}")
+  performanceData Json?    @default("{}")
+  qualityScore    Float?   @default(0)
+  approvedAt      DateTime?
+  approvedBy      String?
+  rejectionReason String?
+  recycledFromId  String?
+  metadata        Json?    @default("{}")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  logs            MarketingPipelineLog[]
+}
+
+model MarketingPipelineLog {
+  id        String   @id @default(cuid())
+  itemId    String
+  item      MarketingItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  stage     Int
+  stageName String
+  action    String
+  details   String?  @db.Text
+  createdAt DateTime @default(now())
+}
+
+model BrandEmailConfig {
+  id                   String  @id @default(cuid())
+  brand                String  @unique
+  sendfoxListId        String?
+  acumbamailListId     String?
+  defaultEmailPlatform String  @default("sendfox")
+  emailTemplateId      String?
+  emailFromName        String?
+  emailReplyTo         String?
+  brandColor           String?
+  ctaUrl               String?
+}
+
+model CollectedContact {
+  id        String   @id @default(cuid())
+  email     String
+  name      String?
+  brand     String?
+  source    String   @default("manual")
+  sourceId  String?
+  synced    Boolean  @default(false)
+  syncedTo  String?
+  createdAt DateTime @default(now())
+
+  @@unique([email, brand])
+}

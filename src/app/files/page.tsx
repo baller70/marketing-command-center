@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { FileText, FolderOpen, Loader2 } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { AlertTriangle, FileText, FolderOpen, Loader2 } from "lucide-react";
 
 export default function FilesPage() {
   const [files, setFiles] = useState<string[]>([]);
@@ -9,31 +9,61 @@ export default function FilesPage() {
   const [activeFile, setActiveFile] = useState<string | null>(null);
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetch("/api/files")
-      .then(r => r.json())
-      .then(d => {
-        setFiles(d.files || []);
-        setDirPath(d.path || "");
-        if (d.files?.includes("operating-manual.md")) {
-          loadFile("operating-manual.md");
-        } else if (d.files?.length > 0) {
-          loadFile(d.files[0]);
-        }
-        setLoading(false);
-      });
-  }, []);
-
-  const loadFile = (name: string) => {
+  const loadFile = useCallback(async (name: string) => {
     setActiveFile(name);
     setContent("Loading...");
-    fetch(`/api/files?file=${encodeURIComponent(name)}`)
-      .then(r => r.json())
-      .then(d => setContent(d.content || d.error || "Empty file"));
-  };
+    try {
+      const res = await fetch(`/api/files?file=${encodeURIComponent(name)}`);
+      if (!res.ok) throw new Error(`API error: ${res.status}`);
+      const d = await res.json();
+      setContent(d.content || d.error || "Empty file");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Unknown error";
+      setContent(`Error: ${msg}`);
+    }
+  }, []);
+
+  const load = useCallback(async () => {
+    setError(null);
+    setLoading(true);
+    try {
+      const res = await fetch("/api/files");
+      if (!res.ok) throw new Error(`API error: ${res.status}`);
+      const d = await res.json();
+      setFiles(d.files || []);
+      setDirPath(d.path || "");
+      if (d.files?.includes("operating-manual.md")) {
+        await loadFile("operating-manual.md");
+      } else if (d.files?.length > 0) {
+        await loadFile(d.files[0]);
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Unknown error";
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
+  }, [loadFile]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   if (loading) return <div className="p-8 flex justify-center"><Loader2 className="animate-spin text-[var(--text-muted)]" /></div>;
+
+  if (error) {
+    return (
+      <div className="p-6">
+        <div className="text-center py-12">
+          <AlertTriangle className="w-6 h-6 text-yellow-400 mx-auto mb-2" />
+          <p className="text-sm text-[var(--text-muted)]">{error}</p>
+          <button type="button" onClick={() => void load()} className="mt-3 px-3 py-1.5 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] underline">Retry</button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6">
@@ -51,8 +81,9 @@ export default function FilesPage() {
           <div className="space-y-0.5">
             {files.map(f => (
               <button
+                type="button"
                 key={f}
-                onClick={() => loadFile(f)}
+                onClick={() => void loadFile(f)}
                 className={`w-full text-left flex items-center gap-2 px-2 py-1.5 rounded-lg text-sm transition-colors ${
                   activeFile === f
                     ? "bg-[var(--bg-card)] text-[var(--text-primary)]"

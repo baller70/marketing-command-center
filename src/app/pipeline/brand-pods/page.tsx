@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useBrand } from "@/context/BrandContext"
-import { Building2, RefreshCw, ChevronDown, ChevronRight, Filter } from "lucide-react"
+import { AlertTriangle, Building2, ChevronDown, ChevronRight, RefreshCw, Filter } from "lucide-react"
 
 interface MessagingLane {
   id: string
@@ -40,18 +40,27 @@ export default function BrandPodsPage() {
   const { activeBrand } = useBrand()
   const [pods, setPods] = useState<BrandPod[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [brandFilter, setBrandFilter] = useState("__all__")
   const [expanded, setExpanded] = useState<Record<string, boolean>>({})
   async function load() {
+    setError(null)
     setLoading(true)
-    const res = await fetch("/api/pipeline/brand-pods")
-    const data = await res.json()
-    setPods(data.pods || [])
-    setLoading(false)
+    try {
+      const res = await fetch("/api/pipeline/brand-pods")
+      if (!res.ok) throw new Error(`API error: ${res.status}`)
+      const data = await res.json()
+      setPods(data.pods || [])
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Unknown error"
+      setError(msg)
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => { setBrandFilter(activeBrand) }, [activeBrand])
-  useEffect(() => { load() }, [])
+  useEffect(() => { void load() }, [])
 
   const filteredPods = brandFilter === "__all__" ? pods : pods.filter(p => p.brand === brandFilter)
 
@@ -68,7 +77,7 @@ export default function BrandPodsPage() {
           <p className="text-sm text-[var(--text-secondary)] mt-1">5 brands, each with dedicated messaging lanes, channel mix, and KPIs</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={load} className="p-2 rounded-lg bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
+          <button type="button" onClick={() => void load()} className="p-2 rounded-lg bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
             <RefreshCw className="w-4 h-4" />
           </button>
         </div>
@@ -85,6 +94,12 @@ export default function BrandPodsPage() {
 
       {loading ? (
         <div className="space-y-4">{[...Array(5)].map((_, i) => <div key={i} className="h-40 rounded-xl bg-[var(--bg-primary)] animate-pulse" />)}</div>
+      ) : error ? (
+        <div className="text-center py-12">
+          <AlertTriangle className="w-6 h-6 text-yellow-400 mx-auto mb-2" />
+          <p className="text-sm text-[var(--text-muted)]">{error}</p>
+          <button type="button" onClick={() => void load()} className="mt-3 px-3 py-1.5 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] underline">Retry</button>
+        </div>
       ) : filteredPods.length === 0 ? (
         <div className="rounded-xl bg-[var(--bg-primary)] border border-[var(--border)] p-12 text-center">
           <Building2 className="w-12 h-12 text-[var(--text-primary)] mx-auto mb-3" />
@@ -95,7 +110,7 @@ export default function BrandPodsPage() {
         <div className="space-y-4">
           {filteredPods.map(pod => (
             <div key={pod.id} className="rounded-xl bg-[var(--bg-primary)] border border-[var(--border)] overflow-hidden hover:border-[var(--border)] transition-colors">
-              <button onClick={() => toggle(pod.id)} className="w-full p-5 flex items-center justify-between text-left">
+              <button type="button" onClick={() => toggle(pod.id)} className="w-full p-5 flex items-center justify-between text-left">
                 <div className="flex items-center gap-4">
                   <div className={`w-12 h-12 rounded-xl ${BRAND_COLORS[pod.brand] || "from-slate-400 to-slate-500"} flex items-center justify-center`}>
                     <span className="text-white text-sm font-bold">{pod.brand.substring(0, 2)}</span>

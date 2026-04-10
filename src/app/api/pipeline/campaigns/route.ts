@@ -1,6 +1,44 @@
 import { prisma } from '@/lib/prisma'
+import { sanitizeJsonBody } from '@/lib/sanitize-pipeline-body'
 import { Prisma } from '@prisma/client'
 import { NextRequest, NextResponse } from 'next/server'
+
+const CAMPAIGN_PATCH_FIELDS = [
+  'name',
+  'messagingLane',
+  'goal',
+  'targetAudience',
+  'offer',
+  'channels',
+  'budget',
+  'horizon',
+  'status',
+  'startDate',
+  'endDate',
+] as const
+
+function pickCampaignPatch(body: Record<string, unknown>) {
+  const data: Record<string, unknown> = {}
+  if (body.brandPodId !== undefined && body.brandPodId !== null) {
+    data.brandPod = { connect: { id: String(body.brandPodId) } }
+  }
+  for (const k of CAMPAIGN_PATCH_FIELDS) {
+    if (!(k in body) || body[k] === undefined) continue
+    if (k === 'startDate' || k === 'endDate') {
+      data[k] =
+        body[k] != null ? new Date(body[k] as string | number | Date) : null
+    } else if (k === 'budget') {
+      data[k] = Number(body[k])
+    } else if (k === 'channels') {
+      data[k] = Array.isArray(body.channels)
+        ? body.channels.map(String)
+        : body.channels
+    } else {
+      data[k] = body[k]
+    }
+  }
+  return data
+}
 
 export async function GET(req: NextRequest) {
   try {
@@ -27,8 +65,9 @@ export async function GET(req: NextRequest) {
       take: 100,
     })
     return NextResponse.json({ campaigns })
-  } catch (error) {
-    console.error('[campaigns] GET error:', error)
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[campaigns] GET error:', msg, err)
     return NextResponse.json({ error: 'Failed to fetch campaigns', campaigns: [] }, { status: 500 })
   }
 }
@@ -60,27 +99,40 @@ export async function POST(req: NextRequest) {
       include: { brandPod: true },
     })
     return NextResponse.json({ campaign }, { status: 201 })
-  } catch (error) {
-    console.error('[campaigns] POST error:', error)
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[campaigns] POST error:', msg, err)
     return NextResponse.json({ error: 'Failed to create campaign' }, { status: 500 })
   }
 }
 
 export async function PATCH(req: NextRequest) {
   try {
-    const body = await req.json()
-    const { id, ...data } = body
-    if (!id) return NextResponse.json({ error: 'id is required' }, { status: 400 })
+    const raw = await req.json()
+    const body = sanitizeJsonBody(raw)
+    if (!body) {
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
+    }
+    const id = body.id
+    if (!id || typeof id !== 'string') {
+      return NextResponse.json({ error: 'id is required' }, { status: 400 })
+    }
+    delete body.id
+    const data = pickCampaignPatch(body)
     const campaign = await prisma.campaign.update({
       where: { id },
-      data,
+      data: data as never,
       include: { brandPod: true },
     })
     return NextResponse.json({ campaign })
-  } catch (error) {
-    console.error('[campaigns] PATCH error:', error)
-    const msg = error instanceof Error && error.message.includes('not found') ? 'Campaign not found' : 'Failed to update campaign'
-    return NextResponse.json({ error: msg }, { status: error instanceof Error && error.message.includes('not found') ? 404 : 500 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[campaigns] PATCH error:', msg, err)
+    const notFound = err instanceof Error && err.message.includes('not found')
+    return NextResponse.json(
+      { error: notFound ? 'Campaign not found' : 'Failed to update campaign' },
+      { status: notFound ? 404 : 500 }
+    )
   }
 }
 
@@ -91,9 +143,13 @@ export async function DELETE(req: NextRequest) {
     if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 })
     await prisma.campaign.delete({ where: { id } })
     return NextResponse.json({ success: true })
-  } catch (error) {
-    console.error('[campaigns] DELETE error:', error)
-    const msg = error instanceof Error && error.message.includes('not found') ? 'Campaign not found' : 'Failed to delete campaign'
-    return NextResponse.json({ error: msg }, { status: error instanceof Error && error.message.includes('not found') ? 404 : 500 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[campaigns] DELETE error:', msg, err)
+    const notFound = err instanceof Error && err.message.includes('not found')
+    return NextResponse.json(
+      { error: notFound ? 'Campaign not found' : 'Failed to delete campaign' },
+      { status: notFound ? 404 : 500 }
+    )
   }
 }

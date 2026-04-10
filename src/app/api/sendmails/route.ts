@@ -8,8 +8,10 @@ function getConfig() {
   try {
     const data = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
     return data.sendmails;
-  } catch (e) {
-    return null;
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[sendmails] getConfig:', msg, err)
+    return null
   }
 }
 
@@ -80,8 +82,10 @@ export async function GET(request: Request) {
     
     return NextResponse.json({ success: false, error: 'Unknown action' }, { status: 400 });
     
-  } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[sendmails] GET:', msg, err)
+    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
   }
 }
 
@@ -136,7 +140,9 @@ export async function POST(request: Request) {
     
     return NextResponse.json({ success: false, error: 'Unknown action' }, { status: 400 });
     
-  } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[sendmails] POST:', msg, err)
+    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
   }
 }

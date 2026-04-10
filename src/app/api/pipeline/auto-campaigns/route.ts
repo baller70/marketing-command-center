@@ -248,9 +248,10 @@ export async function GET() {
         }, {} as Record<string, number>),
       },
     })
-  } catch (error) {
-    console.error('[auto-campaigns] GET error:', error)
-    return NextResponse.json({ error: 'Failed to generate suggestions', details: String(error) }, { status: 500 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[auto-campaigns] GET error:', msg, err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
@@ -315,8 +316,9 @@ export async function POST(req: NextRequest) {
         skipped: skipped.length,
       },
     })
-  } catch (error) {
-    console.error('[auto-campaigns] POST error:', error)
-    return NextResponse.json({ error: 'Auto-campaign creation failed', details: String(error) }, { status: 500 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[auto-campaigns] POST error:', msg, err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

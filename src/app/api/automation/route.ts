@@ -196,8 +196,9 @@ export async function GET() {
       },
       ...report,
     })
-  } catch (error) {
-    console.error('[automation] GET error:', error)
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[automation] GET error:', msg, err)
     return NextResponse.json({ error: 'Failed to get automation status' }, { status: 500 })
   }
 }
@@ -340,9 +341,10 @@ export async function POST(req: NextRequest) {
         const safeStep = async (name: string, fn: () => Promise<unknown>) => {
           try {
             results[name] = await fn()
-          } catch (error) {
-            console.error(`[full-cycle] Step "${name}" failed:`, error)
-            results[name] = { error: String(error), skipped: true }
+          } catch (err: unknown) {
+            const msg = err instanceof Error ? err.message : 'Unknown error'
+            console.error(`[full-cycle] Step "${name}" failed:`, msg, err)
+            results[name] = { error: 'Internal server error', skipped: true }
           }
         }
         const safePost = async (path: string, body: Record<string, unknown> = {}) => {
@@ -400,8 +402,9 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ success: true, ...results })
-  } catch (error) {
-    console.error('[automation] POST error:', error)
-    return NextResponse.json({ error: 'Automation failed', details: String(error) }, { status: 500 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[automation] POST error:', msg, err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

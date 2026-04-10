@@ -21,8 +21,9 @@ export async function GET(req: NextRequest) {
       take: 50,
     })
     return NextResponse.json({ campaigns })
-  } catch (error) {
-    console.error('[campaign] GET error:', error)
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[campaign] GET error:', msg, err)
     return NextResponse.json({ error: 'Failed to fetch campaigns', campaigns: [] }, { status: 500 })
   }
 }
@@ -73,14 +74,16 @@ export async function POST(req: NextRequest) {
             emailType: 'template',
           }),
         })
-      } catch (e) {
-        console.warn('[campaign] Mautic send failed (non-blocking):', e)
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : 'Unknown error'
+        console.warn('[campaign] Mautic send failed (non-blocking):', msg, err)
       }
     }
 
     return NextResponse.json({ campaign, sent: !!sendNow }, { status: 201 })
-  } catch (error) {
-    console.error('[campaign] POST error:', error)
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[campaign] POST error:', msg, err)
     return NextResponse.json({ error: 'Failed to process campaign' }, { status: 500 })
   }
 }

@@ -30,12 +30,14 @@ async function runFullCycle(baseUrl: string) {
       timestamp: new Date().toISOString(),
       cycle: data,
     }
-  } catch (error) {
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[cron/pipeline] runFullCycle:', msg, err)
     return {
       success: false,
       durationMs: Date.now() - start,
       timestamp: new Date().toISOString(),
-      error: String(error),
+      error: 'Internal error',
     }
   }
 }

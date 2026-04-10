@@ -34,8 +34,9 @@ export async function POST(request: Request) {
       error: stderr
     });
     
-  } catch (error: any) {
-    console.error('Wizard error:', error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('Wizard error:', msg, err)
+    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
   }
 }

@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react"
 import { useBrand, ALL_BRANDS } from "@/context/BrandContext"
 import {
-  Package, RefreshCw, Film, Image, FileText, Mail, Megaphone,
-  Video, LayoutGrid, Layers, Clock, CheckCircle, Archive,
+  AlertTriangle, Package, RefreshCw, Film, Mail, Megaphone,
+  LayoutGrid, Layers, Clock, CheckCircle, Archive,
   ArrowRight, Inbox, Timer, Zap, Eye, Grid3X3, List,
   MonitorPlay, Smartphone, Square, PenTool, ImageIcon, Tv
 } from "lucide-react"
@@ -154,6 +154,7 @@ function AssetCard({ asset, onUpdateStatus }: { asset: ContentAsset; onUpdateSta
           {/* Quick actions */}
           {asset.status === "new" && (
             <button
+              type="button"
               onClick={() => onUpdateStatus(asset.id, "assigned_to_campaign")}
               className="text-[10px] font-medium text-[var(--text-primary)] hover:text-[var(--text-primary)] flex items-center gap-0.5"
             >
@@ -162,6 +163,7 @@ function AssetCard({ asset, onUpdateStatus }: { asset: ContentAsset; onUpdateSta
           )}
           {asset.status === "assigned_to_campaign" && (
             <button
+              type="button"
               onClick={() => onUpdateStatus(asset.id, "deployed")}
               className="text-[10px] font-medium text-[var(--text-primary)] hover:text-[var(--text-primary)] flex items-center gap-0.5"
             >
@@ -207,10 +209,10 @@ function AssetRow({ asset, onUpdateStatus }: { asset: ContentAsset; onUpdateStat
       </span>
       <div className="shrink-0 w-16 text-right">
         {asset.status === "new" && (
-          <button onClick={() => onUpdateStatus(asset.id, "assigned_to_campaign")} className="text-[10px] font-medium text-[var(--text-primary)] hover:text-[var(--text-primary)]">Assign</button>
+          <button type="button" onClick={() => onUpdateStatus(asset.id, "assigned_to_campaign")} className="text-[10px] font-medium text-[var(--text-primary)] hover:text-[var(--text-primary)]">Assign</button>
         )}
         {asset.status === "assigned_to_campaign" && (
-          <button onClick={() => onUpdateStatus(asset.id, "deployed")} className="text-[10px] font-medium text-[var(--text-primary)] hover:text-[var(--text-primary)]">Deploy</button>
+          <button type="button" onClick={() => onUpdateStatus(asset.id, "deployed")} className="text-[10px] font-medium text-[var(--text-primary)] hover:text-[var(--text-primary)]">Deploy</button>
         )}
       </div>
     </div>
@@ -221,6 +223,7 @@ export default function ContentAssetsPage() {
   const { activeBrand } = useBrand()
   const [assets, setAssets] = useState<ContentAsset[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [brandFilter, setBrandFilter] = useState("__all__")
   const [formatFilter, setFormatFilter] = useState("__all__")
   const [statusFilter, setStatusFilter] = useState("__all__")
@@ -229,21 +232,35 @@ export default function ContentAssetsPage() {
   useEffect(() => { setBrandFilter(activeBrand) }, [activeBrand])
 
   async function load() {
+    setError(null)
     setLoading(true)
-    const params = new URLSearchParams()
-    if (brandFilter !== "__all__") params.set("brand", brandFilter)
-    if (formatFilter !== "__all__") params.set("format", formatFilter)
-    const res = await fetch(`/api/pipeline/content-assets?${params}`)
-    const data = await res.json()
-    setAssets(data.assets || [])
-    setLoading(false)
+    try {
+      const params = new URLSearchParams()
+      if (brandFilter !== "__all__") params.set("brand", brandFilter)
+      if (formatFilter !== "__all__") params.set("format", formatFilter)
+      const res = await fetch(`/api/pipeline/content-assets?${params}`)
+      if (!res.ok) throw new Error(`API error: ${res.status}`)
+      const data = await res.json()
+      setAssets(data.assets || [])
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Unknown error"
+      setError(msg)
+    } finally {
+      setLoading(false)
+    }
   }
 
-  useEffect(() => { load() }, [brandFilter, formatFilter])
+  useEffect(() => { void load() }, [brandFilter, formatFilter])
 
   async function updateStatus(id: string, status: string) {
-    await fetch("/api/pipeline/content-assets", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, status }) })
-    load()
+    try {
+      const res = await fetch("/api/pipeline/content-assets", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, status }) })
+      if (!res.ok) throw new Error(`API error: ${res.status}`)
+      await load()
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Unknown error"
+      setError(msg)
+    }
   }
 
   const filtered = statusFilter === "__all__" ? assets : assets.filter(a => a.status === statusFilter)
@@ -272,19 +289,21 @@ export default function ContentAssetsPage() {
           <div className="flex items-center gap-2">
             <div className="flex bg-[var(--bg-secondary)] rounded-lg p-0.5">
               <button
+                type="button"
                 onClick={() => setViewMode("grid")}
                 className={`p-1.5 rounded-md transition-all ${viewMode === "grid" ? "bg-[var(--bg-primary)] shadow-sm text-[var(--text-primary)]" : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"}`}
               >
                 <LayoutGrid className="w-3.5 h-3.5" />
               </button>
               <button
+                type="button"
                 onClick={() => setViewMode("list")}
                 className={`p-1.5 rounded-md transition-all ${viewMode === "list" ? "bg-[var(--bg-primary)] shadow-sm text-[var(--text-primary)]" : "text-[var(--text-muted)] hover:text-[var(--text-secondary)]"}`}
               >
                 <List className="w-3.5 h-3.5" />
               </button>
             </div>
-            <button onClick={load} className={`p-2 rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card)] transition-colors`}>
+            <button type="button" onClick={() => void load()} className={`p-2 rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-card)] transition-colors`}>
               <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
             </button>
           </div>
@@ -297,6 +316,7 @@ export default function ContentAssetsPage() {
           {/* Status pipeline tabs */}
           <div className="flex items-center gap-1">
             <button
+              type="button"
               onClick={() => setStatusFilter("__all__")}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                 statusFilter === "__all__" ? "bg-[var(--bg-primary)] shadow-sm text-[var(--text-primary)] border border-[var(--border)]" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]"
@@ -316,6 +336,7 @@ export default function ContentAssetsPage() {
             ] as const).map((s, i, arr) => (
               <div key={s.key} className="flex items-center">
                 <button
+                  type="button"
                   onClick={() => setStatusFilter(statusFilter === s.key ? "__all__" : s.key)}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                     statusFilter === s.key ? `${s.activeColor} border shadow-sm` : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]"
@@ -363,6 +384,7 @@ export default function ContentAssetsPage() {
               const FmtIcon = cfg.icon
               return (
                 <button
+                  type="button"
                   key={fmt}
                   onClick={() => setFormatFilter(formatFilter === fmt ? "__all__" : fmt)}
                   className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] transition-all ${
@@ -386,6 +408,12 @@ export default function ContentAssetsPage() {
         {loading ? (
           <div className="flex items-center justify-center h-64 text-[var(--text-muted)]">
             <RefreshCw className="w-6 h-6 animate-spin mr-2" /> Loading assets...
+          </div>
+        ) : error ? (
+          <div className="text-center py-12">
+            <AlertTriangle className="w-6 h-6 text-yellow-400 mx-auto mb-2" />
+            <p className="text-sm text-[var(--text-muted)]">{error}</p>
+            <button type="button" onClick={() => void load()} className="mt-3 px-3 py-1.5 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] underline">Retry</button>
           </div>
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24">

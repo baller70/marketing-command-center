@@ -182,9 +182,10 @@ export async function POST(req: NextRequest) {
       created,
       deprecated,
     })
-  } catch (error) {
-    console.error('[auto-learning] error:', error)
-    return NextResponse.json({ error: 'Auto-learning failed', details: String(error) }, { status: 500 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[auto-learning] error:', msg, err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 

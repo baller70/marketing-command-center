@@ -45,8 +45,10 @@ async function gatherUmamiAnalytics(): Promise<{
           })
         }
       }
-    } catch (e) {
-      raw[`${brand}_error`] = String(e)
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Unknown error'
+      console.error(`[auto-posthog-analytics] ${brand} stats:`, msg, err)
+      raw[`${brand}_error`] = 'unavailable'
     }
 
     try {
@@ -62,8 +64,10 @@ async function gatherUmamiAnalytics(): Promise<{
           insight: `${brand.toUpperCase()} top pages: ${top5.map((p: any) => `${p.x} (${p.y})`).join(', ')}`,
         })
       }
-    } catch (e) {
-      raw[`${brand}_topPagesError`] = String(e)
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Unknown error'
+      console.error(`[auto-posthog-analytics] ${brand} topPages:`, msg, err)
+      raw[`${brand}_topPagesError`] = 'unavailable'
     }
 
     try {
@@ -79,8 +83,10 @@ async function gatherUmamiAnalytics(): Promise<{
           insight: `${brand.toUpperCase()} traffic sources: ${top5.map((r: any) => `${r.x} (${r.y})`).join(', ')}`,
         })
       }
-    } catch (e) {
-      raw[`${brand}_referrersError`] = String(e)
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Unknown error'
+      console.error(`[auto-posthog-analytics] ${brand} referrers:`, msg, err)
+      raw[`${brand}_referrersError`] = 'unavailable'
     }
   }
 
@@ -98,8 +104,10 @@ export async function GET() {
       insights,
       raw,
     })
-  } catch (error) {
-    return NextResponse.json({ error: 'Umami analytics preview failed', details: String(error) }, { status: 500 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[auto-posthog-analytics] GET:', msg, err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
@@ -143,7 +151,9 @@ export async function POST(req: NextRequest) {
       persisted: { created: created.length, skipped: skipped.length, details: created },
       analyticsRaw: raw,
     })
-  } catch (error) {
-    return NextResponse.json({ error: 'Umami analytics ingestion failed', details: String(error) }, { status: 500 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[auto-posthog-analytics] POST:', msg, err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

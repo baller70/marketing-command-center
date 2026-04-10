@@ -210,23 +210,21 @@ async function runLifecycleCheck() {
 export async function GET() {
   try {
     const insights = await analyzePerformance()
-    const lifecycleActions = await runLifecycleCheck()
 
     return NextResponse.json({
       success: true,
       timestamp: new Date().toISOString(),
       insights,
-      lifecycleActions,
       summary: {
         totalInsights: insights.length,
         highConfidence: insights.filter(i => i.confidence === 'high').length,
         mediumConfidence: insights.filter(i => i.confidence === 'medium').length,
-        campaignsAdvanced: lifecycleActions.length,
       },
     })
-  } catch (error) {
-    console.error('[auto-optimize] GET error:', error)
-    return NextResponse.json({ error: 'Failed to analyze', details: String(error) }, { status: 500 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[auto-optimize] GET error:', msg, err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
@@ -282,8 +280,9 @@ export async function POST(req: NextRequest) {
         campaignsAdvanced: lifecycleActions.length,
       },
     })
-  } catch (error) {
-    console.error('[auto-optimize] POST error:', error)
-    return NextResponse.json({ error: 'Optimization failed', details: String(error) }, { status: 500 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[auto-optimize] POST error:', msg, err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

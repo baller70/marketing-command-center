@@ -216,9 +216,10 @@ export async function GET() {
         blocked: actions.filter(a => a.action === 'BLOCKED').length,
       },
     })
-  } catch (error) {
-    console.error('[auto-assembly] GET error:', error)
-    return NextResponse.json({ error: 'Failed to preview auto-assembly', details: String(error) }, { status: 500 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[auto-assembly] GET error:', msg, err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
@@ -240,8 +241,9 @@ export async function POST(req: NextRequest) {
         advanced: actions.filter(a => a.action.includes('ADVANCED')).length,
       },
     })
-  } catch (error) {
-    console.error('[auto-assembly] POST error:', error)
-    return NextResponse.json({ error: 'Auto-assembly failed', details: String(error) }, { status: 500 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[auto-assembly] POST error:', msg, err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

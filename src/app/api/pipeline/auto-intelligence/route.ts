@@ -261,9 +261,10 @@ export async function GET() {
         }, {} as Record<string, number>),
       },
     })
-  } catch (error) {
-    console.error('[auto-intelligence] GET error:', error)
-    return NextResponse.json({ error: 'Failed to preview intelligence', details: String(error) }, { status: 500 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[auto-intelligence] GET error:', msg, err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
@@ -311,8 +312,9 @@ export async function POST(req: NextRequest) {
         skipped: skipped.length,
       },
     })
-  } catch (error) {
-    console.error('[auto-intelligence] POST error:', error)
-    return NextResponse.json({ error: 'Auto-intelligence failed', details: String(error) }, { status: 500 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[auto-intelligence] POST error:', msg, err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

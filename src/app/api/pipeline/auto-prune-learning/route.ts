@@ -91,8 +91,10 @@ export async function GET() {
       timestamp: new Date().toISOString(),
       ...result,
     })
-  } catch (error) {
-    return NextResponse.json({ error: 'Failed to analyze pruning', details: String(error) }, { status: 500 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[auto-prune-learning] GET:', msg, err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
@@ -140,7 +142,9 @@ export async function POST(req: NextRequest) {
       totalBefore: analysis.totalBefore,
       totalAfter,
     })
-  } catch (error) {
-    return NextResponse.json({ error: 'Pruning failed', details: String(error) }, { status: 500 })
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[auto-prune-learning] POST:', msg, err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
