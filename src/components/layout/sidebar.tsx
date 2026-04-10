@@ -32,7 +32,7 @@ const sections: NavSection[] = [
   {
     title: "Pipeline",
     items: [
-      { label: "All Items", href: "/pipeline", icon: Workflow },
+      { label: "Marketing Machine", href: "/pipeline", icon: Workflow },
       { label: "Brands", href: "/pipeline/brand-pods", icon: Building2 },
     ],
   },
