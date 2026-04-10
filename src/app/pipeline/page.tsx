@@ -87,6 +87,7 @@ export default function PipelinePage() {
   const [stageFilter, setStageFilter] = useState<number | null>(null)
   const [autoAdvancing, setAutoAdvancing] = useState(false)
   const [selectedApprovals, setSelectedApprovals] = useState<Set<string>>(new Set())
+  const [previewHtml, setPreviewHtml] = useState<string | null>(null)
 
   // New item form
   const [newTitle, setNewTitle] = useState("")
@@ -538,16 +539,24 @@ export default function PipelinePage() {
                               <h4 className="text-xs font-medium mb-1" style={{ color: "var(--text-secondary)" }}>Email Preview</h4>
                               <div
                                 className="rounded border overflow-hidden"
-                                style={{ border: "1px solid var(--border)", maxHeight: "400px", overflowY: "auto" }}
+                                style={{ border: "1px solid var(--border)" }}
                               >
                                 <iframe
                                   srcDoc={String((item.emailDraft as Record<string, unknown>).body)}
                                   title="Email preview"
                                   className="w-full"
-                                  style={{ height: "350px", border: "none", background: "#ffffff" }}
+                                  style={{ height: "500px", border: "none", background: "#ffffff" }}
                                   sandbox=""
                                 />
                               </div>
+                              <button
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); setPreviewHtml(String((item.emailDraft as Record<string, unknown>).body)); }}
+                                className="flex items-center gap-1 mt-1 px-2 py-1 rounded text-[10px] font-medium transition-colors"
+                                style={{ color: "var(--text-secondary)" }}
+                              >
+                                <Eye className="w-3 h-3" /> Full View
+                              </button>
                             </div>
                           )}
 
@@ -705,16 +714,24 @@ export default function PipelinePage() {
                               <h4 className="text-xs font-medium mb-1" style={{ color: "var(--text-secondary)" }}>Email Preview</h4>
                               <div
                                 className="rounded border overflow-hidden"
-                                style={{ border: "1px solid var(--border)", maxHeight: "400px", overflowY: "auto" }}
+                                style={{ border: "1px solid var(--border)" }}
                               >
                                 <iframe
                                   srcDoc={String((item.emailDraft as Record<string, unknown>).body)}
                                   title="Email preview"
                                   className="w-full"
-                                  style={{ height: "350px", border: "none", background: "#ffffff" }}
+                                  style={{ height: "500px", border: "none", background: "#ffffff" }}
                                   sandbox=""
                                 />
                               </div>
+                              <button
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); setPreviewHtml(String((item.emailDraft as Record<string, unknown>).body)); }}
+                                className="flex items-center gap-1 mt-1 px-2 py-1 rounded text-[10px] font-medium transition-colors"
+                                style={{ color: "var(--text-secondary)" }}
+                              >
+                                <Eye className="w-3 h-3" /> Full View
+                              </button>
                             </div>
                           )}
 
@@ -732,6 +749,43 @@ export default function PipelinePage() {
                 </div>
               )
             })}
+          </div>
+        </div>
+      )}
+
+      {/* Full Email Preview Modal */}
+      {previewHtml && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70"
+          onClick={() => setPreviewHtml(null)}
+          onKeyDown={e => { if (e.key === "Escape") setPreviewHtml(null); }}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Full Email Preview"
+        >
+          <div
+            className="relative w-full max-w-2xl rounded-2xl overflow-hidden"
+            style={{ background: "#ffffff", maxHeight: "90vh" }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-4 py-3" style={{ background: "var(--bg-card)", borderBottom: "1px solid var(--border)" }}>
+              <h3 className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>Email Preview</h3>
+              <button
+                type="button"
+                onClick={() => setPreviewHtml(null)}
+                className="p-1 rounded hover:bg-[var(--bg-card-hover)] transition-colors"
+                aria-label="Close preview"
+              >
+                <X className="w-4 h-4" style={{ color: "var(--text-muted)" }} />
+              </button>
+            </div>
+            <iframe
+              srcDoc={previewHtml}
+              title="Full email preview"
+              className="w-full"
+              style={{ height: "calc(90vh - 52px)", border: "none", background: "#ffffff" }}
+              sandbox=""
+            />
           </div>
         </div>
       )}
