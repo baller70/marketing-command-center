@@ -2,569 +2,394 @@
 
 import { useCallback, useEffect, useState } from "react"
 import {
-  Brain, Megaphone, CheckSquare, Send, TrendingUp, Lightbulb,
-  Target, Building2, DollarSign, AlertTriangle,
-  Calendar, Tv, Package, Layers, Zap, FileText,
-  ArrowRight, Activity, Clock, CircleCheck, CircleAlert, CircleX,
-  Mail, Share2, BellRing, ClipboardList, BarChart2
+  Zap, RefreshCw, ArrowRight, Clock, CheckCircle,
+  Package, Target, Mail, Eye, Plus, TrendingUp,
+  Loader2, BarChart2, Send, Pause, AlertTriangle
 } from "lucide-react"
 import Link from "next/link"
+import { useBrand, ALL_BRANDS } from "@/context/BrandContext"
+import { MARKETING_STAGES } from "@/lib/pipeline-stages"
 
-interface HealthCheck {
-  name: string
-  status: "green" | "yellow" | "red"
-  message: string
-  details?: Record<string, unknown>
+interface DashboardItem {
+  id: string
+  title: string
+  brand: string
+  currentStage: number
+  status: string
+  pipelineMode: string
+  contentType: string
+  source: string
+  updatedAt: string
+  createdAt: string
 }
 
-interface HealthData {
-  status: "green" | "yellow" | "red"
-  checks: HealthCheck[]
-  summary: { green: number; yellow: number; red: number }
+interface DashboardData {
+  items: DashboardItem[]
+  stageCounts: Record<number, number>
+  brandCounts: Record<string, number>
+  reviewCount: number
+  total: number
 }
 
-interface PhaseData {
-  intelligence: { total: number; recent24h: number }
-  brandPods: { total: number }
-  tvShows: { total: number; airing: number; planned: number }
-  campaigns: { total: number; draft: number; live: number; completed: number }
-  briefs: { total: number; pending: number; delivered: number }
-  contentAssets: { total: number; received: number; assigned: number; deployed: number }
-  assembly: { total: number; completed: number; inProgress: number }
-  qualityGate: { pending: number; approved: number; rejected: number }
-  deployments: { live: number; total: number }
-  performance: { revenue: number; budgetSpent: number; roas: number }
-  learning: { total: number; active: number }
+function timeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime()
+  const mins = Math.floor(diff / 60000)
+  if (mins < 1) return "just now"
+  if (mins < 60) return `${mins}m ago`
+  const hrs = Math.floor(mins / 60)
+  if (hrs < 24) return `${hrs}h ago`
+  return `${Math.floor(hrs / 24)}d ago`
 }
-
-const PHASE_CONFIG = [
-  {
-    phase: "Strategy", color: "purple", icon: Brain, stages: ["Intelligence", "Brand Pods", "TV Shows"],
-    href: "/pipeline/intelligence",
-  },
-  {
-    phase: "Planning", color: "blue", icon: Megaphone, stages: ["Campaigns", "Creative Briefs"],
-    href: "/pipeline/campaigns",
-  },
-  {
-    phase: "Production", color: "cyan", icon: Package, stages: ["Content Delivery", "Assembly Line"],
-    href: "/pipeline/content-assets",
-  },
-  {
-    phase: "Quality", color: "yellow", icon: CheckSquare, stages: ["Quality Gate"],
-    href: "/pipeline/quality-gate",
-  },
-  {
-    phase: "Execution", color: "green", icon: Zap, stages: ["Marketing Apps", "Deployments"],
-    href: "/pipeline/deployments",
-  },
-  {
-    phase: "Optimization", color: "orange", icon: TrendingUp, stages: ["Performance", "Learning Engine"],
-    href: "/pipeline/performance",
-  },
-]
-
-const COLOR_MAP: Record<string, { bg: string; text: string; border: string; light: string; gradient: string }> = {
-  purple: { bg: "bg-[var(--text-primary)]", text: "text-purple-600", border: "border-[var(--border)]", light: "bg-[var(--bg-card)]", gradient: "from-purple-600 to-purple-700" },
-  blue: { bg: "bg-[var(--text-primary)]", text: "text-[var(--text-primary)]", border: "border-[var(--border)]", light: "bg-[var(--bg-card)]", gradient: "from-blue-600 to-blue-700" },
-  cyan: { bg: "bg-[var(--text-primary)]", text: "text-[var(--text-primary)]", border: "border-[var(--border)]", light: "bg-[var(--bg-card)]", gradient: "from-cyan-600 to-cyan-700" },
-  yellow: { bg: "bg-[var(--bg-card)]0", text: "text-yellow-600", border: "border-yellow-200", light: "bg-[var(--bg-card)]", gradient: "from-yellow-600 to-yellow-700" },
-  green: { bg: "bg-[var(--bg-card)]0", text: "text-green-600", border: "border-[var(--border)]", light: "bg-[var(--bg-card)]", gradient: "from-green-600 to-green-700" },
-  orange: { bg: "bg-[var(--text-primary)]", text: "text-[var(--text-primary)]", border: "border-[var(--border)]", light: "bg-[var(--bg-card)]", gradient: "from-orange-600 to-orange-700" },
-}
-
-const STATUS_ICON = { green: CircleCheck, yellow: CircleAlert, red: CircleX }
-const STATUS_COLOR = { green: "text-[var(--text-secondary)]", yellow: "text-yellow-500", red: "text-[var(--text-secondary)]" }
-
-const PIPELINE_STAGES = [
-  { num: 1, name: "Intelligence", href: "/pipeline/intelligence", icon: Brain, color: "purple" },
-  { num: 2, name: "Brand Pods", href: "/pipeline/brand-pods", icon: Building2, color: "purple" },
-  { num: 3, name: "TV Shows", href: "/pipeline/tv-shows", icon: Tv, color: "purple" },
-  { num: 4, name: "Campaigns", href: "/pipeline/campaigns", icon: Megaphone, color: "blue" },
-  { num: 5, name: "Creative Briefs", href: "/pipeline/creative-briefs", icon: FileText, color: "blue" },
-  { num: 6, name: "Content Delivery", href: "/pipeline/content-assets", icon: Package, color: "cyan" },
-  { num: 7, name: "Assembly Line", href: "/pipeline/assembly", icon: Layers, color: "cyan" },
-  { num: 8, name: "Quality Gate", href: "/pipeline/quality-gate", icon: CheckSquare, color: "yellow" },
-  { num: 9, name: "Marketing Apps", href: "/apps/mautic", icon: Zap, color: "green" },
-  { num: 10, name: "Deployments", href: "/pipeline/deployments", icon: Send, color: "green" },
-  { num: 11, name: "Performance", href: "/pipeline/performance", icon: TrendingUp, color: "orange" },
-  { num: 12, name: "Learning Engine", href: "/pipeline/learning", icon: Lightbulb, color: "orange" },
-]
 
 export default function DashboardPage() {
-  const [health, setHealth] = useState<HealthData | null>(null)
-  const [phaseData, setPhaseData] = useState<PhaseData | null>(null)
+  const { activeBrand } = useBrand()
+  const [data, setData] = useState<DashboardData | null>(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
+  const [lastRefresh, setLastRefresh] = useState<Date | null>(null)
 
-  const load = useCallback(async (opts?: { background?: boolean }) => {
-    setError(null)
-    if (!opts?.background) setLoading(true)
+  const load = useCallback(async () => {
     try {
-      async function fetchJson(url: string): Promise<unknown> {
-        const res = await fetch(url)
-        if (!res.ok) throw new Error(`API error: ${res.status}`)
-        return res.json()
+      const params = new URLSearchParams({ limit: "200" })
+      const brand = activeBrand
+      if (brand && brand !== "__all__") params.set("brand", brand)
+      const res = await fetch(`/api/marketing-pipeline?${params}`)
+      if (res.ok) {
+        const json = await res.json()
+        setData(json)
       }
-
-      const [
-        healthRes, intelRes, podsRes, showsRes, campaignsRes,
-        briefsRes, assetsRes, assemblyRes, qgRes, deploysRes,
-        perfRes, learningRes,
-      ] = await Promise.all([
-        fetchJson("/api/pipeline/health").catch(() => null),
-        fetchJson("/api/pipeline/intelligence"),
-        fetchJson("/api/pipeline/brand-pods"),
-        fetchJson("/api/pipeline/tv-shows"),
-        fetchJson("/api/pipeline/campaigns"),
-        fetchJson("/api/pipeline/creative-briefs"),
-        fetchJson("/api/pipeline/content-assets"),
-        fetchJson("/api/pipeline/assembly"),
-        fetchJson("/api/pipeline/quality-gate"),
-        fetchJson("/api/pipeline/deployments"),
-        fetchJson("/api/pipeline/performance"),
-        fetchJson("/api/pipeline/learning"),
-      ])
-
-      const healthData = healthRes as HealthData | null
-      if (healthData?.checks) setHealth(healthData)
-
-      const intelResTyped = intelRes as { entries?: { createdAt: string }[] }
-      const podsResTyped = podsRes as { pods?: unknown[] }
-      const showsResTyped = showsRes as { shows?: { status: string }[] }
-      const campaignsResTyped = campaignsRes as { campaigns?: { status: string }[] }
-      const briefsResTyped = briefsRes as { briefs?: { status: string }[] }
-      const assetsResTyped = assetsRes as { assets?: { status: string }[] }
-      const assemblyResTyped = assemblyRes as { assemblies?: { status: string }[] }
-      const qgResTyped = qgRes as { reviews?: { decision: string }[] }
-      const deploysResTyped = deploysRes as { deployments?: { status: string }[] }
-      const perfResTyped = perfRes as { totals?: Record<string, number> }
-      const learningResTyped = learningRes as { rules?: { status: string }[] }
-
-      const allCampaigns = campaignsResTyped.campaigns || []
-      const allBriefs = briefsResTyped.briefs || []
-      const allAssets = assetsResTyped.assets || []
-      const allAssemblies = assemblyResTyped.assemblies || []
-      const allReviews = qgResTyped.reviews || []
-      const allDeploys = deploysResTyped.deployments || []
-      const allRules = learningResTyped.rules || []
-      const allShows = showsResTyped.shows || []
-      const totals = perfResTyped.totals || {}
-
-      const oneDayAgo = Date.now() - 86400000
-      const recentIntel = (intelResTyped.entries || []).filter((e: { createdAt: string }) =>
-        new Date(e.createdAt).getTime() > oneDayAgo
-      ).length
-
-      setPhaseData({
-        intelligence: { total: intelResTyped.entries?.length || 0, recent24h: recentIntel },
-        brandPods: { total: podsResTyped.pods?.length || 0 },
-        tvShows: {
-          total: allShows.length,
-          airing: allShows.filter((s: { status: string }) => s.status === "airing").length,
-          planned: allShows.filter((s: { status: string }) => s.status === "planned").length,
-        },
-        campaigns: {
-          total: allCampaigns.length,
-          draft: allCampaigns.filter((c: { status: string }) => c.status === "draft").length,
-          live: allCampaigns.filter((c: { status: string }) => c.status === "live").length,
-          completed: allCampaigns.filter((c: { status: string }) => c.status === "completed").length,
-        },
-        briefs: {
-          total: allBriefs.length,
-          pending: allBriefs.filter((b: { status: string }) => b.status === "pending" || b.status === "draft").length,
-          delivered: allBriefs.filter((b: { status: string }) => b.status === "delivered").length,
-        },
-        contentAssets: {
-          total: allAssets.length,
-          received: allAssets.filter((a: { status: string }) => a.status === "received").length,
-          assigned: allAssets.filter((a: { status: string }) => a.status === "assigned").length,
-          deployed: allAssets.filter((a: { status: string }) => a.status === "deployed").length,
-        },
-        assembly: {
-          total: allAssemblies.length,
-          completed: allAssemblies.filter((a: { status: string }) => a.status === "done").length,
-          inProgress: allAssemblies.filter((a: { status: string }) => a.status === "in_progress").length,
-        },
-        qualityGate: {
-          pending: allReviews.filter((r: { decision: string }) => r.decision === "pending").length,
-          approved: allReviews.filter((r: { decision: string }) => r.decision === "approved").length,
-          rejected: allReviews.filter((r: { decision: string }) => r.decision === "rejected").length,
-        },
-        deployments: {
-          live: allDeploys.filter((d: { status: string }) => d.status === "live").length,
-          total: allDeploys.length,
-        },
-        performance: {
-          revenue: totals.revenueGenerated || 0,
-          budgetSpent: totals.budgetSpent || 0,
-          roas: totals.budgetSpent > 0 ? totals.revenueGenerated / totals.budgetSpent : 0,
-        },
-        learning: {
-          total: allRules.length,
-          active: allRules.filter((r: { status: string }) => r.status === "active").length,
-        },
-      })
-
-      setLastUpdated(new Date())
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Unknown error"
-      setError(msg)
-      console.error("Dashboard load error:", err)
+    } catch {
+      // silent
     } finally {
       setLoading(false)
+      setLastRefresh(new Date())
     }
-  }, [])
+  }, [activeBrand])
 
+  useEffect(() => { load() }, [load])
   useEffect(() => {
-    void load()
-    const interval = setInterval(() => void load({ background: true }), 60000)
+    const interval = setInterval(() => load(), 30000)
     return () => clearInterval(interval)
   }, [load])
 
   if (loading) {
     return (
-      <div className="p-6 max-w-[1600px] mx-auto space-y-6">
-        <div className="h-16 rounded-xl bg-[var(--bg-primary)] animate-pulse" />
-        <div className="h-20 rounded-xl bg-[var(--bg-primary)] animate-pulse" />
-        <div className="grid grid-cols-12 gap-3">
-          {[...Array(12)].map((_, i) => <div key={i} className="h-20 rounded-lg bg-[var(--bg-primary)] animate-pulse" />)}
-        </div>
-        <div className="grid grid-cols-3 gap-4">
-          {[...Array(6)].map((_, i) => <div key={i} className="h-52 rounded-xl bg-[var(--bg-primary)] animate-pulse" />)}
-        </div>
+      <div className="p-6 flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="w-8 h-8 animate-spin" style={{ color: "var(--text-muted)" }} />
       </div>
     )
   }
 
-  if (error) {
-    return (
-      <div className="p-6 max-w-[1600px] mx-auto">
-        <div className="text-center py-12">
-          <AlertTriangle className="w-6 h-6 text-yellow-400 mx-auto mb-2" />
-          <p className="text-sm text-[var(--text-muted)]">{error}</p>
-          <button
-            type="button"
-            onClick={() => void load()}
-            className="mt-3 px-3 py-1.5 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] underline"
-          >
-            Retry
-          </button>
-        </div>
-      </div>
-    )
-  }
+  const items = data?.items || []
+  const activeItems = items.filter(i => i.status === "active")
+  const pausedItems = items.filter(i => i.status === "paused")
+  const completedItems = items.filter(i => i.status === "completed")
+  const reviewItems = activeItems.filter(i => i.currentStage === 7 && i.pipelineMode === "manual")
 
-  const d = phaseData
+  const totalActive = activeItems.length
+  const totalCompleted = completedItems.length
+  const totalInPipeline = totalActive + pausedItems.length
+  const stageCounts = data?.stageCounts || {}
+  const brandCounts = data?.brandCounts || {}
 
   return (
-    <div className="p-6 max-w-[1600px] mx-auto space-y-5">
+    <div className="p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--text-primary)]">Marketing Engine</h1>
-          <p className="text-sm text-[var(--text-secondary)] mt-0.5">12-Stage Autonomous Pipeline Dashboard</p>
+          <h1 className="font-russo text-2xl" style={{ color: "var(--text-primary)" }}>Marketing Command Center</h1>
+          <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+            Pipeline overview across {Object.keys(brandCounts).length} brand{Object.keys(brandCounts).length !== 1 ? "s" : ""}
+            {lastRefresh && (
+              <span style={{ color: "var(--text-muted)" }}> · Updated {timeAgo(lastRefresh.toISOString())}</span>
+            )}
+          </p>
         </div>
-        <div className="flex items-center gap-3">
-          {lastUpdated && (
-            <span className="text-[11px] text-[var(--text-muted)] flex items-center gap-1">
-              <Clock className="w-3 h-3" />
-              {lastUpdated.toLocaleTimeString()}
-            </span>
-          )}
-          {health && (
-            <div className={`px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-1.5 ${
-              health.status === "green" ? "bg-[var(--bg-card)] border border-[var(--border)] text-[var(--text-primary)]" :
-              health.status === "yellow" ? "bg-[var(--bg-card)] border border-yellow-200 text-yellow-700" :
-              "bg-[var(--bg-card)] border border-[var(--border)] text-[var(--text-primary)]"
-            }`}>
-              <Activity className="w-3.5 h-3.5" />
-              {health.summary.green}/{health.checks.length} Systems Healthy
-            </div>
-          )}
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={load}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors"
+            style={{ background: "var(--bg-card)", border: "1px solid var(--border)", color: "var(--text-secondary)" }}
+          >
+            <RefreshCw className="w-4 h-4" /> Refresh
+          </button>
+          <Link
+            href="/pipeline"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 transition-colors"
+          >
+            <Zap className="w-4 h-4" /> Open Pipeline
+          </Link>
         </div>
       </div>
 
-      {/* Pipeline Health Strip */}
-      {health && (
-        <div className="rounded-xl bg-[var(--bg-primary)] border border-[var(--border)] p-4">
-          <div className="flex items-center gap-2 mb-3">
-            <Activity className="w-4 h-4 text-[var(--text-muted)]" />
-            <span className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">Pipeline Health</span>
+      {/* Key Metrics */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <MetricCard
+          label="In Pipeline"
+          value={totalInPipeline}
+          sub={`${totalActive} active · ${pausedItems.length} paused`}
+          icon={Package}
+          color="var(--text-primary)"
+        />
+        <MetricCard
+          label="Completed"
+          value={totalCompleted}
+          sub="Campaigns finished"
+          icon={CheckCircle}
+          color="#10B981"
+        />
+        <MetricCard
+          label="Awaiting Review"
+          value={reviewItems.length}
+          sub="Manual items at Stage 7"
+          icon={Eye}
+          color={reviewItems.length > 0 ? "#F59E0B" : "var(--text-muted)"}
+          href={reviewItems.length > 0 ? "/pipeline" : undefined}
+        />
+        <MetricCard
+          label="Brands Active"
+          value={Object.keys(brandCounts).length}
+          sub={Object.keys(brandCounts).join(", ") || "None"}
+          icon={Target}
+          color="#8B5CF6"
+        />
+      </div>
+
+      {/* Review Alert */}
+      {reviewItems.length > 0 && (
+        <Link
+          href="/pipeline"
+          className="flex items-center gap-3 p-4 rounded-xl transition-colors hover:opacity-90"
+          style={{ background: "rgba(245, 158, 11, 0.1)", border: "1px solid rgba(245, 158, 11, 0.2)" }}
+        >
+          <AlertTriangle className="w-5 h-5 text-yellow-500 shrink-0" />
+          <div className="flex-1">
+            <p className="text-sm font-medium text-yellow-400">
+              {reviewItems.length} campaign{reviewItems.length !== 1 ? "s" : ""} awaiting your review
+            </p>
+            <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+              {reviewItems.map(i => i.title).slice(0, 3).join(", ")}{reviewItems.length > 3 ? ` +${reviewItems.length - 3} more` : ""}
+            </p>
           </div>
-          <div className="flex gap-2 flex-wrap">
-            {health.checks.map(check => {
-              const Icon = STATUS_ICON[check.status]
+          <ArrowRight className="w-4 h-4 text-yellow-500 shrink-0" />
+        </Link>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Stage Distribution */}
+        <div
+          className="lg:col-span-2 rounded-xl p-5"
+          style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
+        >
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Stage Distribution</h2>
+            <Link href="/pipeline" className="text-xs text-emerald-400 hover:underline">View all</Link>
+          </div>
+          <div className="space-y-2">
+            {MARKETING_STAGES.map(stage => {
+              const count = stageCounts[stage.num] || 0
+              const maxCount = Math.max(...Object.values(stageCounts), 1)
+              const pct = (count / maxCount) * 100
               return (
-                <div key={check.name} className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border)]">
-                  <Icon className={`w-3.5 h-3.5 ${STATUS_COLOR[check.status]}`} />
-                  <span className="text-[11px] text-[var(--text-secondary)] capitalize">{check.name.replace(/_/g, " ")}</span>
+                <div key={stage.num} className="flex items-center gap-3">
+                  <span className="text-[10px] font-mono w-4 text-right" style={{ color: "var(--text-muted)" }}>{stage.num}</span>
+                  <span className="text-xs w-24 truncate" style={{ color: count > 0 ? "var(--text-primary)" : "var(--text-muted)" }}>
+                    {stage.name}
+                  </span>
+                  <div className="flex-1 h-5 rounded-md overflow-hidden" style={{ background: "var(--bg-secondary)" }}>
+                    {count > 0 && (
+                      <div
+                        className="h-full rounded-md flex items-center px-2 transition-all"
+                        style={{
+                          width: `${Math.max(pct, 8)}%`,
+                          background: stage.num <= 3 ? "rgba(139, 92, 246, 0.3)" :
+                                     stage.num <= 6 ? "rgba(59, 130, 246, 0.3)" :
+                                     stage.num <= 9 ? "rgba(16, 185, 129, 0.3)" :
+                                     "rgba(245, 158, 11, 0.3)",
+                        }}
+                      >
+                        <span className="text-[10px] font-medium" style={{ color: "var(--text-primary)" }}>{count}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )
             })}
           </div>
         </div>
-      )}
 
-      {/* Pipeline Flow - Phase-level overview */}
-      <div className="rounded-xl bg-[var(--bg-primary)] border border-[var(--border)] p-4">
-        <div className="flex items-center gap-2 mb-3">
-          <Target className="w-4 h-4 text-[var(--text-muted)]" />
-          <span className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">Pipeline Flow</span>
-        </div>
-        <div className="grid grid-cols-6 gap-3">
-          {PHASE_CONFIG.map((phase, pi) => {
-            const colors = COLOR_MAP[phase.color]
-            const Icon = phase.icon
-            const stages = PIPELINE_STAGES.filter(s => s.color === phase.color)
-            return (
-              <Link key={phase.phase} href={phase.href} className={`rounded-lg ${colors.light} border ${colors.border} p-3 hover:shadow-md transition-all group relative overflow-hidden`}>
-                <div className={`absolute top-0 left-0 w-full h-1 ${colors.bg}`} />
-                <div className="flex items-center gap-2 mb-2 mt-1">
-                  <div className={`w-6 h-6 rounded-md ${colors.gradient} flex items-center justify-center`}>
-                    <Icon className="w-3.5 h-3.5 text-white" />
-                  </div>
-                  <span className={`text-[11px] font-bold ${colors.text} uppercase tracking-wider`}>{phase.phase}</span>
-                </div>
-                <div className="space-y-1">
-                  {stages.map(s => {
-                    const StageIcon = s.icon
-                    return (
-                      <div key={s.num} className="flex items-center gap-1.5">
-                        <span className={`text-[9px] font-bold ${colors.text} w-3 text-right`}>{s.num}</span>
-                        <StageIcon className="w-3 h-3 text-[var(--text-muted)]" />
-                        <span className="text-[11px] text-[var(--text-secondary)] truncate">{s.name}</span>
-                      </div>
-                    )
-                  })}
-                </div>
-                {pi < PHASE_CONFIG.length - 1 && (
-                  <ArrowRight className={`absolute -right-1.5 top-1/2 -translate-y-1/2 w-3 h-3 ${colors.text} opacity-50 z-10 hidden lg:block`} />
-                )}
-              </Link>
-            )
-          })}
-        </div>
-      </div>
-
-      {/* Phase Panels - 3x2 grid */}
-      {d && (
-        <div className="grid grid-cols-3 gap-4">
-          {/* Strategy Phase */}
-          <PhasePanel phase={PHASE_CONFIG[0]} color="purple">
-            <MetricRow icon={Brain} label="Intelligence" value={d.intelligence.total} sub={`${d.intelligence.recent24h} in last 24h`} href="/pipeline/intelligence" />
-            <MetricRow icon={Building2} label="Brand Pods" value={d.brandPods.total} sub="Active brands" href="/pipeline/brand-pods" />
-            <MetricRow icon={Tv} label="TV Shows" value={d.tvShows.total} sub={`${d.tvShows.airing} airing, ${d.tvShows.planned} planned`} href="/pipeline/tv-shows" />
-          </PhasePanel>
-
-          {/* Planning Phase */}
-          <PhasePanel phase={PHASE_CONFIG[1]} color="blue">
-            <MetricRow icon={Megaphone} label="Campaigns" value={d.campaigns.total} sub={`${d.campaigns.live} live, ${d.campaigns.draft} drafts`} href="/pipeline/campaigns" />
-            <MetricRow icon={FileText} label="Creative Briefs" value={d.briefs.total} sub={`${d.briefs.pending} pending, ${d.briefs.delivered} delivered`} href="/pipeline/creative-briefs" />
-            <div className="mt-2 pt-2 border-t border-[var(--border)]">
-              <div className="flex gap-2">
-                <StatusPill label="Draft" count={d.campaigns.draft} color="bg-slate-200 text-[var(--text-secondary)]" />
-                <StatusPill label="Live" count={d.campaigns.live} color="bg-[var(--bg-card)] text-[var(--text-primary)]" />
-                <StatusPill label="Done" count={d.campaigns.completed} color="bg-[var(--bg-card)] text-[var(--text-primary)]" />
-              </div>
-            </div>
-          </PhasePanel>
-
-          {/* Production Phase */}
-          <PhasePanel phase={PHASE_CONFIG[2]} color="cyan">
-            <MetricRow icon={Package} label="Content Delivery" value={d.contentAssets.total} sub={`${d.contentAssets.received} received, ${d.contentAssets.deployed} deployed`} href="/pipeline/content-assets" />
-            <MetricRow icon={Layers} label="Assembly Line" value={d.assembly.total} sub={`${d.assembly.completed} done, ${d.assembly.inProgress} in progress`} href="/pipeline/assembly" />
-            {d.contentAssets.total > 0 && (
-              <div className="mt-2 pt-2 border-t border-[var(--border)]">
-                <ProgressBar segments={[
-                  { value: d.contentAssets.received, color: "bg-cyan-400", label: "Received" },
-                  { value: d.contentAssets.assigned, color: "bg-[var(--text-primary)]", label: "Assigned" },
-                  { value: d.contentAssets.deployed, color: "bg-cyan-700", label: "Deployed" },
-                ]} total={d.contentAssets.total} />
-              </div>
-            )}
-          </PhasePanel>
-
-          {/* Quality Phase */}
-          <PhasePanel phase={PHASE_CONFIG[3]} color="yellow">
-            <MetricRow icon={CheckSquare} label="Quality Gate" value={d.qualityGate.pending} sub="Pending review" href="/pipeline/quality-gate" />
-            <div className="mt-2 space-y-2">
-              <div className="flex gap-2">
-                <StatusPill label="Pending" count={d.qualityGate.pending} color="bg-yellow-100 text-yellow-700" />
-                <StatusPill label="Approved" count={d.qualityGate.approved} color="bg-[var(--bg-card)] text-[var(--text-primary)]" />
-                <StatusPill label="Rejected" count={d.qualityGate.rejected} color="bg-[var(--bg-card)] text-[var(--text-primary)]" />
-              </div>
-              {(d.qualityGate.approved + d.qualityGate.rejected) > 0 && (
-                <div className="text-[11px] text-[var(--text-muted)]">
-                  Approval rate: <span className="font-semibold text-[var(--text-secondary)]">
-                    {Math.round((d.qualityGate.approved / (d.qualityGate.approved + d.qualityGate.rejected)) * 100)}%
-                  </span>
-                </div>
-              )}
-            </div>
-            {d.qualityGate.pending > 0 && (
-              <Link href="/pipeline/quality-gate" className="mt-3 flex items-center gap-1 text-[11px] text-yellow-600 hover:text-yellow-700 font-medium">
-                <AlertTriangle className="w-3 h-3" />
-                {d.qualityGate.pending} item{d.qualityGate.pending !== 1 ? "s" : ""} awaiting review
-              </Link>
-            )}
-          </PhasePanel>
-
-          {/* Execution Phase */}
-          <PhasePanel phase={PHASE_CONFIG[4]} color="green">
-            <MetricRow icon={Send} label="Deployments" value={d.deployments.live} sub={`${d.deployments.total} total, ${d.deployments.live} live`} href="/pipeline/deployments" />
-            <div className="mt-2 pt-2 border-t border-[var(--border)]">
-              <p className="text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-2">Marketing Apps</p>
-              <div className="grid grid-cols-3 gap-1.5">
-                {[
-                  { label: "Mautic", icon: Mail, href: "/apps/mautic" },
-                  { label: "Postiz", icon: Share2, href: "/apps/postiz" },
-                  { label: "Listmonk", icon: BellRing, href: "/apps/listmonk" },
-                  { label: "Formbricks", icon: ClipboardList, href: "/apps/formbricks" },
-                  { label: "Cal.com", icon: Calendar, href: "/apps/calcom" },
-                  { label: "Umami", icon: BarChart2, href: "/apps/umami" },
-                ].map(app => {
-                  const AppIcon = app.icon
-                  const healthCheck = health?.checks.find(c => c.name === app.label.toLowerCase())
-                  const appStatus = healthCheck?.status || "green"
+        {/* Brand Breakdown */}
+        <div
+          className="rounded-xl p-5"
+          style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
+        >
+          <h2 className="text-sm font-semibold mb-4" style={{ color: "var(--text-primary)" }}>By Brand</h2>
+          {Object.keys(brandCounts).length > 0 ? (
+            <div className="space-y-3">
+              {Object.entries(brandCounts)
+                .sort(([, a], [, b]) => b - a)
+                .map(([brand, count]) => {
+                  const info = ALL_BRANDS.find(b => b.id === brand)
                   return (
-                    <Link key={app.label} href={app.href} className="flex items-center gap-1.5 px-2 py-1.5 rounded-md bg-[var(--bg-card)]/50 border border-green-100 hover:bg-[var(--bg-card)] transition-colors">
-                      <AppIcon className="w-3 h-3 text-green-600" />
-                      <span className="text-[10px] text-[var(--text-secondary)] truncate">{app.label}</span>
-                      <div className={`w-1.5 h-1.5 rounded-full ml-auto shrink-0 ${
-                        appStatus === "green" ? "bg-green-400" : appStatus === "yellow" ? "bg-yellow-400" : "bg-[var(--text-muted)]"
-                      }`} />
-                    </Link>
+                    <div key={brand} className="flex items-center gap-3">
+                      <div
+                        className="w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold text-white shrink-0"
+                        style={{ background: info?.color || "#666" }}
+                      >
+                        {(info?.shortName || brand).substring(0, 3)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate" style={{ color: "var(--text-primary)" }}>
+                          {info?.name || brand}
+                        </p>
+                        <p className="text-[10px]" style={{ color: "var(--text-muted)" }}>
+                          {count} item{count !== 1 ? "s" : ""} in pipeline
+                        </p>
+                      </div>
+                      <span className="text-lg font-bold" style={{ color: info?.color || "var(--text-primary)" }}>
+                        {count}
+                      </span>
+                    </div>
                   )
                 })}
-              </div>
             </div>
-          </PhasePanel>
-
-          {/* Optimization Phase */}
-          <PhasePanel phase={PHASE_CONFIG[5]} color="orange">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <DollarSign className="w-4 h-4 text-[var(--text-primary)]" />
-                  <span className="text-sm font-medium text-[var(--text-primary)]">Revenue</span>
-                </div>
-                <span className="text-lg font-bold text-[var(--text-primary)]">${d.performance.revenue.toLocaleString()}</span>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-lg bg-[var(--bg-card)]/50 border border-orange-100 p-2.5">
-                  <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider">ROAS</p>
-                  <p className={`text-xl font-bold mt-0.5 ${d.performance.roas >= 1 ? "text-green-600" : "text-[var(--text-primary)]"}`}>
-                    {d.performance.roas > 0 ? `${d.performance.roas.toFixed(1)}x` : "---"}
-                  </p>
-                </div>
-                <div className="rounded-lg bg-[var(--bg-card)]/50 border border-orange-100 p-2.5">
-                  <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider">Spent</p>
-                  <p className="text-xl font-bold text-[var(--text-primary)] mt-0.5">${d.performance.budgetSpent.toLocaleString()}</p>
-                </div>
-              </div>
-              <MetricRow icon={Lightbulb} label="Learning Rules" value={d.learning.total} sub={`${d.learning.active} active`} href="/pipeline/learning" />
+          ) : (
+            <div className="text-center py-8">
+              <Package className="w-8 h-8 mx-auto mb-2" style={{ color: "var(--text-muted)" }} />
+              <p className="text-sm" style={{ color: "var(--text-muted)" }}>No items in pipeline</p>
+              <Link
+                href="/pipeline"
+                className="inline-flex items-center gap-1 mt-2 text-xs text-emerald-400 hover:underline"
+              >
+                <Plus className="w-3 h-3" /> Start a campaign
+              </Link>
             </div>
-          </PhasePanel>
+          )}
         </div>
-      )}
+      </div>
 
-      {/* Pipeline Throughput Summary */}
-      {d && (
-        <div className="rounded-xl bg-[var(--bg-primary)] border border-[var(--border)] p-5">
-          <div className="flex items-center gap-2 mb-4">
-            <Activity className="w-4 h-4 text-[var(--text-muted)]" />
-            <span className="text-sm font-semibold text-[var(--text-primary)]">Pipeline Throughput</span>
-          </div>
-          <div className="grid grid-cols-6 gap-3">
-            {[
-              { label: "Intel Signals", value: d.intelligence.total, sub: `+${d.intelligence.recent24h} today`, color: "purple" },
-              { label: "Active Campaigns", value: d.campaigns.live, sub: `of ${d.campaigns.total} total`, color: "blue" },
-              { label: "Assets In Pipeline", value: d.contentAssets.received + d.contentAssets.assigned, sub: `${d.contentAssets.deployed} deployed`, color: "cyan" },
-              { label: "Pending QA", value: d.qualityGate.pending, sub: `${d.qualityGate.approved} approved`, color: "yellow" },
-              { label: "Live Channels", value: d.deployments.live, sub: "Active deployments", color: "green" },
-              { label: "Learning Rules", value: d.learning.active, sub: `of ${d.learning.total} total`, color: "orange" },
-            ].map(item => {
-              const colors = COLOR_MAP[item.color]
+      {/* Recent Activity */}
+      <div
+        className="rounded-xl p-5"
+        style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
+      >
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Recent Pipeline Activity</h2>
+          <Link href="/pipeline" className="text-xs text-emerald-400 hover:underline">View pipeline</Link>
+        </div>
+        {items.length > 0 ? (
+          <div className="space-y-2">
+            {items.slice(0, 8).map(item => {
+              const stageName = MARKETING_STAGES.find(s => s.num === item.currentStage)?.name || `Stage ${item.currentStage}`
+              const brandInfo = ALL_BRANDS.find(b => b.id === item.brand)
               return (
-                <div key={item.label} className={`rounded-lg ${colors.light} border ${colors.border} p-3`}>
-                  <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider">{item.label}</p>
-                  <p className={`text-2xl font-bold ${colors.text} mt-1`}>{item.value}</p>
-                  <p className="text-[11px] text-[var(--text-muted)] mt-0.5">{item.sub}</p>
-                </div>
+                <Link
+                  key={item.id}
+                  href="/pipeline"
+                  className="flex items-center gap-3 p-3 rounded-lg transition-colors hover:bg-[var(--bg-card-hover)]"
+                >
+                  {item.status === "completed" ? (
+                    <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+                  ) : item.status === "paused" ? (
+                    <Pause className="w-4 h-4 text-yellow-400 shrink-0" />
+                  ) : item.currentStage === 7 && item.pipelineMode === "manual" ? (
+                    <Eye className="w-4 h-4 text-yellow-400 shrink-0" />
+                  ) : (
+                    <ArrowRight className="w-4 h-4 text-emerald-400 shrink-0" />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm truncate" style={{ color: "var(--text-primary)" }}>{item.title}</span>
+                      <span
+                        className="text-[10px] font-bold px-1.5 py-0.5 rounded shrink-0"
+                        style={{ background: (brandInfo?.color || "#666") + "22", color: brandInfo?.color || "#999" }}
+                      >
+                        {brandInfo?.shortName || item.brand}
+                      </span>
+                    </div>
+                    <p className="text-[10px]" style={{ color: "var(--text-muted)" }}>
+                      {item.status === "completed" ? "Completed" : `Stage ${item.currentStage}: ${stageName}`}
+                      {" · "}{item.pipelineMode === "automatic" ? "Auto" : "Manual"}
+                      {" · "}{timeAgo(item.updatedAt)}
+                    </p>
+                  </div>
+                  {/* Stage dots */}
+                  <div className="hidden md:flex items-center gap-0.5 shrink-0">
+                    {MARKETING_STAGES.map(s => (
+                      <div
+                        key={s.num}
+                        className="w-2 h-2 rounded-full"
+                        style={{
+                          background: s.num < item.currentStage || item.status === "completed"
+                            ? "#10B981"
+                            : s.num === item.currentStage && item.status !== "completed"
+                            ? "#3B82F6"
+                            : "var(--bg-secondary)",
+                        }}
+                      />
+                    ))}
+                  </div>
+                </Link>
               )
             })}
           </div>
-        </div>
-      )}
-    </div>
-  )
-}
-
-function PhasePanel({ phase, color, children }: { phase: typeof PHASE_CONFIG[0]; color: string; children: React.ReactNode }) {
-  const colors = COLOR_MAP[color]
-  const Icon = phase.icon
-  return (
-    <div className="rounded-xl bg-[var(--bg-primary)] border border-[var(--border)] overflow-hidden">
-      <div className={`flex items-center gap-2 px-4 py-2.5 ${colors.light} border-b ${colors.border}`}>
-        <div className={`w-6 h-6 rounded-md ${colors.gradient} flex items-center justify-center`}>
-          <Icon className="w-3.5 h-3.5 text-white" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <span className={`text-xs font-bold ${colors.text} uppercase tracking-wider`}>{phase.phase}</span>
-          <p className="text-[10px] text-[var(--text-muted)] truncate">{phase.stages.join(" / ")}</p>
-        </div>
-        <Link href={phase.href} className={`text-[10px] ${colors.text} hover:underline font-medium`}>View</Link>
-      </div>
-      <div className="p-4">
-        {children}
-      </div>
-    </div>
-  )
-}
-
-function MetricRow({ icon: Icon, label, value, sub, href }: { icon: typeof Brain; label: string; value: number; sub: string; href: string }) {
-  return (
-    <Link href={href} className="flex items-center gap-3 py-1.5 group">
-      <Icon className="w-4 h-4 text-slate-300 group-hover:text-[var(--text-secondary)] transition-colors shrink-0" />
-      <div className="flex-1 min-w-0">
-        <span className="text-sm text-[var(--text-primary)] group-hover:text-[var(--text-primary)] font-medium">{label}</span>
-        <p className="text-[11px] text-[var(--text-muted)] truncate">{sub}</p>
-      </div>
-      <span className="text-lg font-bold text-[var(--text-primary)]">{value}</span>
-    </Link>
-  )
-}
-
-function StatusPill({ label, count, color }: { label: string; count: number; color: string }) {
-  return (
-    <div className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-medium ${color}`}>
-      <span>{count}</span>
-      <span>{label}</span>
-    </div>
-  )
-}
-
-function ProgressBar({ segments, total }: { segments: { value: number; color: string; label: string }[]; total: number }) {
-  if (total === 0) return null
-  return (
-    <div>
-      <div className="flex h-2 rounded-full overflow-hidden bg-[var(--bg-secondary)]">
-        {segments.map(seg => (
-          seg.value > 0 ? (
-            <div key={seg.label} className={`${seg.color} transition-all`} style={{ width: `${(seg.value / total) * 100}%` }} />
-          ) : null
-        ))}
-      </div>
-      <div className="flex gap-3 mt-1.5">
-        {segments.map(seg => (
-          <div key={seg.label} className="flex items-center gap-1">
-            <div className={`w-2 h-2 rounded-full ${seg.color}`} />
-            <span className="text-[10px] text-[var(--text-muted)]">{seg.label} ({seg.value})</span>
+        ) : (
+          <div className="text-center py-10">
+            <Zap className="w-10 h-10 mx-auto mb-3" style={{ color: "var(--text-muted)" }} />
+            <p className="text-sm font-medium" style={{ color: "var(--text-secondary)" }}>No campaigns yet</p>
+            <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>Start your first campaign in the Marketing Machine</p>
+            <Link
+              href="/pipeline"
+              className="inline-flex items-center gap-2 mt-4 px-4 py-2 rounded-lg text-sm font-medium bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 transition-colors"
+            >
+              <Plus className="w-4 h-4" /> Start Campaign
+            </Link>
           </div>
+        )}
+      </div>
+
+      {/* Quick Links */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {[
+          { label: "Marketing Machine", href: "/pipeline", icon: Zap, desc: "12-stage pipeline" },
+          { label: "Brands", href: "/pipeline/brand-pods", icon: Target, desc: "Brand management" },
+          { label: "Email Config", href: "/pipeline/email-config", icon: Mail, desc: "Lists & templates" },
+          { label: "Performance", href: "/pipeline/performance", icon: TrendingUp, desc: "Analytics & ROAS" },
+        ].map(link => (
+          <Link
+            key={link.label}
+            href={link.href}
+            className="flex items-center gap-3 p-4 rounded-xl transition-colors hover:bg-[var(--bg-card-hover)]"
+            style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
+          >
+            <link.icon className="w-5 h-5 shrink-0" style={{ color: "var(--text-muted)" }} />
+            <div>
+              <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>{link.label}</p>
+              <p className="text-[10px]" style={{ color: "var(--text-muted)" }}>{link.desc}</p>
+            </div>
+          </Link>
         ))}
       </div>
     </div>
   )
+}
+
+function MetricCard({ label, value, sub, icon: Icon, color, href }: {
+  label: string; value: number; sub: string; icon: typeof Package; color: string; href?: string
+}) {
+  const inner = (
+    <div
+      className="rounded-xl p-4 transition-colors"
+      style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
+    >
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-xs uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>{label}</span>
+        <Icon className="w-4 h-4" style={{ color }} />
+      </div>
+      <p className="text-3xl font-bold" style={{ color }}>{value}</p>
+      <p className="text-[11px] mt-1 truncate" style={{ color: "var(--text-muted)" }}>{sub}</p>
+    </div>
+  )
+  if (href) return <Link href={href} className="hover:opacity-90">{inner}</Link>
+  return inner
 }
