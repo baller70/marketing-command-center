@@ -44,6 +44,12 @@ const sections: NavSection[] = [
     ],
   },
   {
+    title: "Schedule",
+    items: [
+      { label: "TV Guide", href: "/pipeline/tv-shows", icon: Tv },
+    ],
+  },
+  {
     title: "Apps",
     defaultCollapsed: true,
     items: [
@@ -68,8 +74,6 @@ const sections: NavSection[] = [
       { label: "Content Assets", href: "/pipeline/content-assets", icon: Package },
       { label: "Performance", href: "/pipeline/performance", icon: TrendingUp },
       { label: "Learning Engine", href: "/pipeline/learning", icon: Lightbulb },
-      { label: "TV Shows", href: "/pipeline/tv-shows", icon: Tv },
-      { label: "Seasonal", href: "/pipeline/seasonal", icon: Calendar },
       { label: "Division Files", href: "/files", icon: FileText },
       { label: "Tools", href: "/tools", icon: Wrench },
     ],
