@@ -210,12 +210,12 @@ function CollapsibleSection({ section, pathname }: { section: NavSection; pathna
 export default function Sidebar() {
   const pathname = usePathname()
   const { theme, toggleTheme } = useTheme()
-  const [kevinClawHref, setKevinClawHref] = useState("http://localhost:3100")
+  const [kevinClawHref, setKevinClawHref] = useState("http://localhost:3120")
 
   useEffect(() => {
     setKevinClawHref(
       typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
-        ? "http://localhost:3100"
+        ? "http://localhost:3120"
         : "https://kevinclaw.89-167-33-236.sslip.io"
     )
   }, [])

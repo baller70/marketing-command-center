@@ -49,3 +49,5 @@ next-env.d.ts
 .pipeline-logs/
 ._*
 *.bak-*
+.branch-lock
+*.db.bak*
