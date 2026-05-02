@@ -8,11 +8,30 @@ import {
   Calendar, ChevronDown, ChevronRight,
   Target, LayoutDashboard, Wrench,
   Mail, Share2, BarChart2, ClipboardList, BellRing, Globe,
-  Sun, Moon, Users, Workflow
+  Sun, Moon, Users, Workflow, Terminal, Cpu
 } from "lucide-react"
 import { useState, useRef, useEffect, useCallback } from "react"
 import { useBrand, ALL_BRANDS } from "@/context/BrandContext"
 import { useTheme } from "@/components/ThemeProvider"
+import { DivisionBrandSelector } from "@/components/shared/DivisionBrandSelector"
+
+/** App URLs — same pattern as Content Hub's Graphics Editor and Blog & Newsletter */
+const POSTIZ_APP =
+  process.env.NEXT_PUBLIC_POSTIZ_URL?.replace(/\/$/, "") ||
+  "https://postiz.89-167-33-236.sslip.io/auto-login"
+const MAUTIC_APP =
+  process.env.NEXT_PUBLIC_MAUTIC_URL?.replace(/\/$/, "") ||
+  "https://mautic.89-167-33-236.sslip.io/auto-login"
+const FORMBRICKS_APP =
+  process.env.NEXT_PUBLIC_FORMBRICKS_URL?.replace(/\/$/, "") ||
+  "https://formbricks.89-167-33-236.sslip.io/auto-login"
+const NOVU_APP =
+  process.env.NEXT_PUBLIC_NOVU_URL?.replace(/\/$/, "") ||
+  "https://novu.89-167-33-236.sslip.io/clear-and-login"
+
+const UMAMI_APP =
+  process.env.NEXT_PUBLIC_UMAMI_URL?.replace(/\/$/, "") ||
+  "https://umami-dash.89-167-33-236.sslip.io"
 
 type NavItem = { label: string; href: string; icon: typeof Brain }
 
@@ -33,7 +52,8 @@ const sections: NavSection[] = [
     title: "Pipeline",
     items: [
       { label: "Marketing Machine", href: "/pipeline", icon: Workflow },
-      { label: "Brands", href: "/pipeline/brand-pods", icon: Building2 },
+      { label: "OpenCLI", href: "/opencli", icon: Terminal },
+      { label: "Agent Command Center", href: "/admin/opencli", icon: Cpu },
     ],
   },
   {
@@ -41,6 +61,8 @@ const sections: NavSection[] = [
     items: [
       { label: "Leads & Contacts", href: "/leads", icon: Users },
       { label: "Email Lists", href: "/pipeline/email-config", icon: Mail },
+      { label: "Content Distribution", href: "/pipeline/content-distribution", icon: Package },
+      { label: "Email Analytics", href: "/pipeline/email-analytics", icon: BarChart2 },
     ],
   },
   {
@@ -51,14 +73,12 @@ const sections: NavSection[] = [
   },
   {
     title: "Apps",
-    defaultCollapsed: true,
     items: [
-      { label: "Mautic", href: "/apps/mautic", icon: Mail },
-      { label: "Postiz", href: "/apps/postiz", icon: Share2 },
-      { label: "Listmonk", href: "/apps/listmonk", icon: BellRing },
-      { label: "Formbricks", href: "/apps/formbricks", icon: ClipboardList },
-      { label: "Cal.com", href: "/apps/calcom", icon: Calendar },
-      { label: "Umami", href: "/apps/umami", icon: BarChart2 },
+      { label: "Postiz", href: POSTIZ_APP, icon: Share2 },
+      { label: "Mautic", href: MAUTIC_APP, icon: Mail },
+      { label: "Formbricks", href: FORMBRICKS_APP, icon: ClipboardList },
+      { label: "Umami Analytics", href: UMAMI_APP, icon: BarChart2 },
+      { label: "Novu", href: NOVU_APP, icon: BellRing },
     ],
   },
   {
@@ -159,6 +179,7 @@ function BrandSwitcher() {
 }
 
 function isRouteActive(pathname: string, href: string): boolean {
+  if (href.startsWith("http")) return false
   if (href === "/") return pathname === "/"
   if (href === "/pipeline") return pathname === "/pipeline"
   return pathname === href || pathname.startsWith(href + "/")
@@ -183,22 +204,18 @@ function CollapsibleSection({ section, pathname }: { section: NavSection; pathna
           {section.items.map(item => {
             const Icon = item.icon
             const active = isRouteActive(pathname, item.href)
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all ${
-                  active ? "font-medium" : "hover:bg-theme-secondary"
-                }`}
-                style={
-                  active
-                    ? { background: "var(--sidebar-active-bg)", color: "var(--sidebar-active-text)" }
-                    : { color: "var(--text-secondary)" }
-                }
-              >
-                <Icon className="w-4 h-4 shrink-0 opacity-90" />
-                <span>{item.label}</span>
-              </Link>
+            const isExt = item.href.startsWith("http")
+            const cls = `flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all ${
+              active ? "font-medium" : "hover:bg-theme-secondary"
+            }`
+            const style = active
+              ? { background: "var(--sidebar-active-bg)", color: "var(--sidebar-active-text)" }
+              : { color: "var(--text-secondary)" }
+            const inner = <><Icon className="w-4 h-4 shrink-0 opacity-90" /><span>{item.label}</span></>
+            return isExt ? (
+              <a key={item.href} href={item.href} className={cls} style={style}>{inner}</a>
+            ) : (
+              <Link key={item.href} href={item.href} className={cls} style={style}>{inner}</Link>
             )
           })}
         </div>
@@ -225,7 +242,7 @@ export default function Sidebar() {
       className="w-64 min-h-screen flex flex-col"
       style={{ background: "var(--sidebar-bg)", borderRight: "1px solid var(--border)" }}
     >
-<a
+      <a
         href={kevinClawHref}
         className="flex items-center gap-1 px-4 py-2 text-xs transition-colors hover:text-[var(--text-primary)]"
         style={{ color: "var(--text-muted)", borderBottom: "1px solid var(--border)" }}
@@ -252,7 +269,7 @@ export default function Sidebar() {
       </div>
 
       <nav className="flex-1 overflow-y-auto py-2">
-        <BrandSwitcher />
+        <DivisionBrandSelector divisionId="marketing" />
         {sections.map(section => (
           <CollapsibleSection key={section.title} section={section} pathname={pathname} />
         ))}

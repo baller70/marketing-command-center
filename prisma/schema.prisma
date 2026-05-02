@@ -398,3 +398,126 @@ model CollectedContact {
 
   @@unique([email, brand])
 }
+
+model Setting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt @default(now())
+}
+
+// =====================================================
+// CONTENT DISTRIBUTION PIPELINE (Content Hub → Marketing)
+// =====================================================
+model ContentBuffer {
+  id            String        @id @default(cuid())
+  contentType   String        // repurposed, graphic, blog, newsletter, workflow, game_result
+  title         String
+  brand         String
+  sourceId      String        @unique
+  sourceUrl     String?
+  thumbnail     String?
+  contentBody   String?       @db.Text
+  metadata      Json?         @default("{}")
+  status        String        @default("buffered") // buffered, batched, sent
+  batchId       String?
+  batch         ContentBatch? @relation(fields: [batchId], references: [id])
+  createdAt     DateTime      @default(now())
+}
+
+model ContentBatch {
+  id            String          @id @default(cuid())
+  contentType   String
+  brand         String
+  batchSize     Int             @default(0)
+  targetSize    Int             @default(4)
+  status        String          @default("filling") // filling, ready, approved, scheduled, sent, failed
+  templateHtml  String?         @db.Text
+  mauticEmailId Int?
+  scheduledFor  DateTime?
+  approvedAt    DateTime?
+  approvedBy    String?
+  sentAt        DateTime?
+  createdAt     DateTime        @default(now())
+  items         ContentBuffer[]
+}
+
+// =====================================================
+// SUBSCRIBER INTELLIGENCE
+// =====================================================
+model Subscriber {
+  id              String    @id @default(cuid())
+  email           String
+  firstName       String?
+  lastName        String?
+  brand           String
+  source          String?   // mautic, sendfox, acumbamail, manual, formbricks
+  externalId      String?
+  engagementTier  String    @default("new") // hot, warm, cold, inactive, new
+  engagementScore Int       @default(50)
+  totalOpens      Int       @default(0)
+  totalClicks     Int       @default(0)
+  totalBounces    Int       @default(0)
+  totalSent       Int       @default(0)
+  lastOpenedAt    DateTime?
+  lastClickedAt   DateTime?
+  subscribedAt    DateTime  @default(now())
+  suppressedAt    DateTime?
+  suppressReason  String?
+  tags            String[]  @default([])
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  events          SubscriberEvent[]
+
+  @@unique([email, brand])
+}
+
+model SubscriberEvent {
+  id            String     @id @default(cuid())
+  subscriberId  String
+  subscriber    Subscriber @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+  eventType     String     // open, click, bounce, unsubscribe, send
+  emailSubject  String?
+  batchId       String?
+  metadata      Json?      @default("{}")
+  createdAt     DateTime   @default(now())
+}
+
+model EmailAnalytics {
+  id            String    @id @default(cuid())
+  batchId       String?
+  mauticEmailId Int?
+  brand         String
+  contentType   String
+  subject       String
+  totalSent     Int       @default(0)
+  totalOpens    Int       @default(0)
+  uniqueOpens   Int       @default(0)
+  totalClicks   Int       @default(0)
+  uniqueClicks  Int       @default(0)
+  bounces       Int       @default(0)
+  unsubscribes  Int       @default(0)
+  openRate      Float?
+  clickRate     Float?
+  sentAt        DateTime?
+  lastSyncedAt  DateTime?
+  createdAt     DateTime  @default(now())
+}
+
+// =====================================================
+// SUBSCRIBER GROWTH SNAPSHOTS (for charting over time)
+// =====================================================
+model SubscriberSnapshot {
+  id          String   @id @default(cuid())
+  brand       String
+  totalCount  Int      @default(0)
+  hotCount    Int      @default(0)
+  warmCount   Int      @default(0)
+  coldCount   Int      @default(0)
+  inactiveCount Int    @default(0)
+  newCount    Int      @default(0)
+  suppressedCount Int  @default(0)
+  snapshotDate DateTime @default(now())
+  createdAt   DateTime @default(now())
+
+  @@unique([brand, snapshotDate])
+}

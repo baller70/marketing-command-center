@@ -4,6 +4,7 @@ import "./globals.css";
 import Sidebar from "@/components/layout/sidebar";
 import Providers from "@/components/Providers";
 import ThemeProvider from "@/components/ThemeProvider";
+import CmdKPalette from "@/components/CmdKPalette";
 
 const saira = Saira({
   subsets: ["latin"],
@@ -38,6 +39,7 @@ export default function RootLayout({
                 {children}
               </main>
             </div>
+            <CmdKPalette />
           </Providers>
         </ThemeProvider>
       </body>

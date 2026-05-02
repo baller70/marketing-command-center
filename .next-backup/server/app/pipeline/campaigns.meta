@@ -1,0 +1,16 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/pipeline/layout,_N_T_/pipeline/campaigns/layout,_N_T_/pipeline/campaigns/page,_N_T_/pipeline/campaigns"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/pipeline/campaigns/__PAGE__",
+    "/pipeline/campaigns",
+    "/pipeline",
+    "/_index",
+    "/_head"
+  ]
+}

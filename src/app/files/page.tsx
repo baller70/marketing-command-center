@@ -2,8 +2,10 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { AlertTriangle, FileText, FolderOpen, Loader2 } from "lucide-react";
+import { useBrand } from "@/context/BrandContext"
 
 export default function FilesPage() {
+  const { activeBrand, brandInfo } = useBrand()
   const [files, setFiles] = useState<string[]>([]);
   const [dirPath, setDirPath] = useState("");
   const [activeFile, setActiveFile] = useState<string | null>(null);

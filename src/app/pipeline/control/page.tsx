@@ -6,6 +6,7 @@ import {
   AlertTriangle, Zap, Database, Globe, Cpu, Shield,
   ChevronDown, ChevronRight, Loader2
 } from "lucide-react"
+import { useBrand } from "@/context/BrandContext"
 
 interface StageDetail {
   name: string
@@ -73,6 +74,7 @@ const DATA_SOURCE_COLORS: Record<string, string> = {
 }
 
 export default function PipelineControlPage() {
+  const { activeBrand, brandInfo } = useBrand()
   const [autonomy, setAutonomy] = useState<AutonomyData | null>(null)
   const [health, setHealth] = useState<HealthData | null>(null)
   const [loading, setLoading] = useState(true)

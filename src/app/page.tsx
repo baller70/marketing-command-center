@@ -9,6 +9,7 @@ import {
 import Link from "next/link"
 import { useBrand, ALL_BRANDS } from "@/context/BrandContext"
 import { MARKETING_STAGES } from "@/lib/pipeline-stages"
+import AutomationToggle from "@/components/automation/AutomationToggle"
 
 interface DashboardItem {
   id: string
@@ -154,6 +155,8 @@ export default function DashboardPage() {
           color="#8B5CF6"
         />
       </div>
+
+      <AutomationToggle />
 
       {/* Review Alert */}
       {reviewItems.length > 0 && (
@@ -352,7 +355,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
           { label: "Marketing Machine", href: "/pipeline", icon: Zap, desc: "12-stage pipeline" },
-          { label: "Brands", href: "/pipeline/brand-pods", icon: Target, desc: "Brand management" },
+
           { label: "Email Config", href: "/pipeline/email-config", icon: Mail, desc: "Lists & templates" },
           { label: "Performance", href: "/pipeline/performance", icon: TrendingUp, desc: "Analytics & ROAS" },
         ].map(link => (

@@ -1,0 +1,16 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/pipeline/layout,_N_T_/pipeline/tv-shows/layout,_N_T_/pipeline/tv-shows/page,_N_T_/pipeline/tv-shows"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/pipeline/tv-shows/__PAGE__",
+    "/pipeline/tv-shows",
+    "/pipeline",
+    "/_index",
+    "/_head"
+  ]
+}

@@ -5,6 +5,7 @@ import {
   Users, RefreshCw, Search, Mail,
   CheckCircle, XCircle, AlertTriangle, List, BarChart3
 } from "lucide-react"
+import { useBrand } from "@/context/BrandContext"
 
 type Tab = "contacts" | "lists" | "funnels"
 
@@ -65,6 +66,7 @@ const TAB_CONFIG: { id: Tab; label: string; icon: typeof Users }[] = [
 ]
 
 export default function LeadsPage() {
+  const { activeBrand, brandInfo } = useBrand()
   const [tab, setTab] = useState<Tab>("contacts")
 
   return (
@@ -103,6 +105,7 @@ export default function LeadsPage() {
 }
 
 function ContactsTab() {
+  const { activeBrand } = useBrand()
   const [contacts, setContacts] = useState<Contact[]>([])
   const [stats, setStats] = useState<ContactStats | null>(null)
   const [loading, setLoading] = useState(true)
@@ -114,7 +117,7 @@ function ContactsTab() {
     setLoading(true)
     setError(null)
     try {
-      const params = new URLSearchParams({ filter: filterMode, limit: "200" })
+      const params = new URLSearchParams({ filter: filterMode, limit: "200", brand: activeBrand })
       if (search) params.set("search", search)
       const res = await fetch(`/api/contacts?${params}`)
       if (!res.ok) { setError(`API returned ${res.status}`); return }

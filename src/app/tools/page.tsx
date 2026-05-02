@@ -1,6 +1,7 @@
 "use client"
 
 import { ExternalLink, Mail, Share2, BarChart3, Mic, Zap, Megaphone, CheckCircle, AlertTriangle, Lock } from "lucide-react"
+import { useBrand } from "@/context/BrandContext"
 
 interface Tool {
   id: string
@@ -61,6 +62,7 @@ const statusConfig: Record<string, { label: string; icon: typeof CheckCircle; bg
 }
 
 export default function ToolsPage() {
+  const { activeBrand, brandInfo } = useBrand()
   const activeCount = tools.filter(t => t.status === "active").length
   const setupCount = tools.filter(t => t.status !== "active").length
 

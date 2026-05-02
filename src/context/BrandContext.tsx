@@ -18,6 +18,30 @@ export const ALL_BRANDS: Brand[] = [
   { id: "Bookmark", name: "BookmarkAI Hub", shortName: "Bookmark", color: "#0EA5E9" },
 ]
 
+const SLUG_TO_BRAND_ID: Record<string, string> = {
+  "tbf": "TBF",
+  "the-basketball-factory": "TBF",
+  "ra1": "RA1",
+  "rise-as-one": "RA1",
+  "thos": "HoS",
+  "house-of-sports": "HoS",
+  "shotiq": "ShotIQ",
+  "kevin-houston": "Kevin",
+  "bookmark-ai-hub": "Bookmark",
+}
+
+function resolveGlobalBrand(globalBrand: any): string {
+  if (!globalBrand) return "__all__"
+  if (globalBrand.slug && SLUG_TO_BRAND_ID[globalBrand.slug]) {
+    return SLUG_TO_BRAND_ID[globalBrand.slug]
+  }
+  const nameMatch = ALL_BRANDS.find(
+    (b) => globalBrand.name && b.name.toLowerCase().includes(globalBrand.name.toLowerCase())
+  )
+  if (nameMatch) return nameMatch.id
+  return "__all__"
+}
+
 interface BrandContextValue {
   activeBrand: string
   setActiveBrand: (id: string) => void
@@ -36,6 +60,17 @@ export function BrandProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const saved = localStorage.getItem("marketing-active-brand")
     if (saved) setActiveBrandState(saved)
+  }, [])
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail
+      const resolved = resolveGlobalBrand(detail?.brand)
+      setActiveBrandState(resolved)
+      localStorage.setItem("marketing-active-brand", resolved)
+    }
+    window.addEventListener("kevinclaw:brand-change", handler)
+    return () => window.removeEventListener("kevinclaw:brand-change", handler)
   }, [])
 
   const setActiveBrand = (id: string) => {

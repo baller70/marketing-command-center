@@ -1,0 +1,16 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/pipeline/layout,_N_T_/pipeline/creative-briefs/layout,_N_T_/pipeline/creative-briefs/page,_N_T_/pipeline/creative-briefs"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/pipeline/creative-briefs/__PAGE__",
+    "/pipeline/creative-briefs",
+    "/pipeline",
+    "/_index",
+    "/_head"
+  ]
+}

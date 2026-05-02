@@ -1,0 +1,16 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/pipeline/layout,_N_T_/pipeline/email-config/layout,_N_T_/pipeline/email-config/page,_N_T_/pipeline/email-config"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/pipeline/email-config/__PAGE__",
+    "/pipeline/email-config",
+    "/pipeline",
+    "/_index",
+    "/_head"
+  ]
+}

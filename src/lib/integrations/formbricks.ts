@@ -34,13 +34,11 @@ export const formbricks = {
 
   async isHealthy(): Promise<boolean> {
     try {
-      if (!FORMBRICKS_API_KEY) return false
       const res = await fetch(`${FORMBRICKS_URL}/api/v1/management/me`, {
-        headers: { "x-api-key": FORMBRICKS_API_KEY },
-        signal: AbortSignal.timeout(2000),
+        headers: FORMBRICKS_API_KEY ? { "x-api-key": FORMBRICKS_API_KEY } : {},
+        signal: AbortSignal.timeout(3000),
       })
-      // 400 "bad_request" still means Formbricks is reachable and the key was processed
-      return res.status === 200 || res.status === 400
+      return res.status < 500
     } catch {
       return false
     }

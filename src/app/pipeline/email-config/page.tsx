@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react"
 import { Save, RefreshCw, Mail, Loader2 } from "lucide-react"
 import { ALL_BRANDS } from "@/context/BrandContext"
+import { useBrand } from "@/context/BrandContext"
 
 interface BrandEmailConfig {
   id: string
@@ -18,6 +19,7 @@ interface BrandEmailConfig {
 }
 
 export default function EmailConfigPage() {
+  const { activeBrand, brandInfo } = useBrand()
   const [configs, setConfigs] = useState<BrandEmailConfig[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState<string | null>(null)
@@ -99,7 +101,7 @@ export default function EmailConfigPage() {
       )}
 
       <div className="grid gap-4">
-        {ALL_BRANDS.map(brand => {
+        {ALL_BRANDS.filter(b => activeBrand === '__all__' || b.id === activeBrand).map(brand => {
           const config = configs.find(c => c.brand === brand.id) || {
             id: "",
             brand: brand.id,

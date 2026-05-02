@@ -1,0 +1,704 @@
+{
+  "version": 3,
+  "pages404": true,
+  "appType": "app",
+  "caseSensitive": false,
+  "basePath": "",
+  "redirects": [
+    {
+      "source": "/:path+/",
+      "destination": "/:path+",
+      "internal": true,
+      "priority": true,
+      "statusCode": 308,
+      "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))/$"
+    }
+  ],
+  "headers": [],
+  "rewrites": {
+    "beforeFiles": [],
+    "afterFiles": [],
+    "fallback": []
+  },
+  "dynamicRoutes": [],
+  "staticRoutes": [
+    {
+      "page": "/",
+      "regex": "^/(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/(?:/)?$"
+    },
+    {
+      "page": "/_global-error",
+      "regex": "^/_global\\-error(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_global\\-error(?:/)?$"
+    },
+    {
+      "page": "/_not-found",
+      "regex": "^/_not\\-found(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_not\\-found(?:/)?$"
+    },
+    {
+      "page": "/api/analytics",
+      "regex": "^/api/analytics(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/analytics(?:/)?$"
+    },
+    {
+      "page": "/api/app-health",
+      "regex": "^/api/app\\-health(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/app\\-health(?:/)?$"
+    },
+    {
+      "page": "/api/apps/formbricks",
+      "regex": "^/api/apps/formbricks(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/apps/formbricks(?:/)?$"
+    },
+    {
+      "page": "/api/apps/mautic",
+      "regex": "^/api/apps/mautic(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/apps/mautic(?:/)?$"
+    },
+    {
+      "page": "/api/apps/postiz",
+      "regex": "^/api/apps/postiz(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/apps/postiz(?:/)?$"
+    },
+    {
+      "page": "/api/apps/umami",
+      "regex": "^/api/apps/umami(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/apps/umami(?:/)?$"
+    },
+    {
+      "page": "/api/automation",
+      "regex": "^/api/automation(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/automation(?:/)?$"
+    },
+    {
+      "page": "/api/automation/toggle",
+      "regex": "^/api/automation/toggle(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/automation/toggle(?:/)?$"
+    },
+    {
+      "page": "/api/brand-email-config",
+      "regex": "^/api/brand\\-email\\-config(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/brand\\-email\\-config(?:/)?$"
+    },
+    {
+      "page": "/api/campaign",
+      "regex": "^/api/campaign(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/campaign(?:/)?$"
+    },
+    {
+      "page": "/api/contacts",
+      "regex": "^/api/contacts(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/contacts(?:/)?$"
+    },
+    {
+      "page": "/api/content-distribution/approve",
+      "regex": "^/api/content\\-distribution/approve(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/content\\-distribution/approve(?:/)?$"
+    },
+    {
+      "page": "/api/content-distribution/config",
+      "regex": "^/api/content\\-distribution/config(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/content\\-distribution/config(?:/)?$"
+    },
+    {
+      "page": "/api/content-distribution/send",
+      "regex": "^/api/content\\-distribution/send(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/content\\-distribution/send(?:/)?$"
+    },
+    {
+      "page": "/api/content-intake",
+      "regex": "^/api/content\\-intake(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/content\\-intake(?:/)?$"
+    },
+    {
+      "page": "/api/cron/marketing-pipeline",
+      "regex": "^/api/cron/marketing\\-pipeline(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/cron/marketing\\-pipeline(?:/)?$"
+    },
+    {
+      "page": "/api/cron/pipeline",
+      "regex": "^/api/cron/pipeline(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/cron/pipeline(?:/)?$"
+    },
+    {
+      "page": "/api/dashboard",
+      "regex": "^/api/dashboard(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/dashboard(?:/)?$"
+    },
+    {
+      "page": "/api/email/lists",
+      "regex": "^/api/email/lists(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/email/lists(?:/)?$"
+    },
+    {
+      "page": "/api/email/sync",
+      "regex": "^/api/email/sync(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/email/sync(?:/)?$"
+    },
+    {
+      "page": "/api/email-analytics",
+      "regex": "^/api/email\\-analytics(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/email\\-analytics(?:/)?$"
+    },
+    {
+      "page": "/api/email-collector/gmail-scan",
+      "regex": "^/api/email\\-collector/gmail\\-scan(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/email\\-collector/gmail\\-scan(?:/)?$"
+    },
+    {
+      "page": "/api/email-collector/webhook",
+      "regex": "^/api/email\\-collector/webhook(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/email\\-collector/webhook(?:/)?$"
+    },
+    {
+      "page": "/api/email-filter",
+      "regex": "^/api/email\\-filter(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/email\\-filter(?:/)?$"
+    },
+    {
+      "page": "/api/files",
+      "regex": "^/api/files(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/files(?:/)?$"
+    },
+    {
+      "page": "/api/funnel",
+      "regex": "^/api/funnel(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/funnel(?:/)?$"
+    },
+    {
+      "page": "/api/gmail",
+      "regex": "^/api/gmail(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/gmail(?:/)?$"
+    },
+    {
+      "page": "/api/health",
+      "regex": "^/api/health(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/health(?:/)?$"
+    },
+    {
+      "page": "/api/inboxes",
+      "regex": "^/api/inboxes(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/inboxes(?:/)?$"
+    },
+    {
+      "page": "/api/leads/ingest",
+      "regex": "^/api/leads/ingest(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/leads/ingest(?:/)?$"
+    },
+    {
+      "page": "/api/marketing-pipeline",
+      "regex": "^/api/marketing\\-pipeline(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/marketing\\-pipeline(?:/)?$"
+    },
+    {
+      "page": "/api/marketing-pipeline/auto-advance",
+      "regex": "^/api/marketing\\-pipeline/auto\\-advance(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/marketing\\-pipeline/auto\\-advance(?:/)?$"
+    },
+    {
+      "page": "/api/marketing-pipeline/intake",
+      "regex": "^/api/marketing\\-pipeline/intake(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/marketing\\-pipeline/intake(?:/)?$"
+    },
+    {
+      "page": "/api/opencli/analytics",
+      "regex": "^/api/opencli/analytics(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/opencli/analytics(?:/)?$"
+    },
+    {
+      "page": "/api/opencli/audit-log",
+      "regex": "^/api/opencli/audit\\-log(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/opencli/audit\\-log(?:/)?$"
+    },
+    {
+      "page": "/api/opencli/email",
+      "regex": "^/api/opencli/email(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/opencli/email(?:/)?$"
+    },
+    {
+      "page": "/api/opencli/exec",
+      "regex": "^/api/opencli/exec(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/opencli/exec(?:/)?$"
+    },
+    {
+      "page": "/api/opencli/health",
+      "regex": "^/api/opencli/health(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/opencli/health(?:/)?$"
+    },
+    {
+      "page": "/api/opencli/integrations",
+      "regex": "^/api/opencli/integrations(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/opencli/integrations(?:/)?$"
+    },
+    {
+      "page": "/api/opencli/marketing-ops",
+      "regex": "^/api/opencli/marketing\\-ops(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/opencli/marketing\\-ops(?:/)?$"
+    },
+    {
+      "page": "/api/opencli/notifications",
+      "regex": "^/api/opencli/notifications(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/opencli/notifications(?:/)?$"
+    },
+    {
+      "page": "/api/opencli/retry-queue",
+      "regex": "^/api/opencli/retry\\-queue(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/opencli/retry\\-queue(?:/)?$"
+    },
+    {
+      "page": "/api/opencli/unified-post",
+      "regex": "^/api/opencli/unified\\-post(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/opencli/unified\\-post(?:/)?$"
+    },
+    {
+      "page": "/api/pipeline/assembly",
+      "regex": "^/api/pipeline/assembly(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/pipeline/assembly(?:/)?$"
+    },
+    {
+      "page": "/api/pipeline/auto-assembly",
+      "regex": "^/api/pipeline/auto\\-assembly(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/pipeline/auto\\-assembly(?:/)?$"
+    },
+    {
+      "page": "/api/pipeline/auto-brief-advance",
+      "regex": "^/api/pipeline/auto\\-brief\\-advance(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/pipeline/auto\\-brief\\-advance(?:/)?$"
+    },
+    {
+      "page": "/api/pipeline/auto-campaigns",
+      "regex": "^/api/pipeline/auto\\-campaigns(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/pipeline/auto\\-campaigns(?:/)?$"
+    },
+    {
+      "page": "/api/pipeline/auto-content-assets",
+      "regex": "^/api/pipeline/auto\\-content\\-assets(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/pipeline/auto\\-content\\-assets(?:/)?$"
+    },
+    {
+      "page": "/api/pipeline/auto-deploy",
+      "regex": "^/api/pipeline/auto\\-deploy(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/pipeline/auto\\-deploy(?:/)?$"
+    },
+    {
+      "page": "/api/pipeline/auto-full-cycle",
+      "regex": "^/api/pipeline/auto\\-full\\-cycle(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/pipeline/auto\\-full\\-cycle(?:/)?$"
+    },
+    {
+      "page": "/api/pipeline/auto-intelligence",
+      "regex": "^/api/pipeline/auto\\-intelligence(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/pipeline/auto\\-intelligence(?:/)?$"
+    },
+    {
+      "page": "/api/pipeline/auto-learning",
+      "regex": "^/api/pipeline/auto\\-learning(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/pipeline/auto\\-learning(?:/)?$"
+    },
+    {
+      "page": "/api/pipeline/auto-lifecycle",
+      "regex": "^/api/pipeline/auto\\-lifecycle(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/pipeline/auto\\-lifecycle(?:/)?$"
+    },
+    {
+      "page": "/api/pipeline/auto-optimize",
+      "regex": "^/api/pipeline/auto\\-optimize(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/pipeline/auto\\-optimize(?:/)?$"
+    },
+    {
+      "page": "/api/pipeline/auto-posthog-analytics",
+      "regex": "^/api/pipeline/auto\\-posthog\\-analytics(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/pipeline/auto\\-posthog\\-analytics(?:/)?$"
+    },
+    {
+      "page": "/api/pipeline/auto-prune-intel",
+      "regex": "^/api/pipeline/auto\\-prune\\-intel(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/pipeline/auto\\-prune\\-intel(?:/)?$"
+    },
+    {
+      "page": "/api/pipeline/auto-prune-learning",
+      "regex": "^/api/pipeline/auto\\-prune\\-learning(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/pipeline/auto\\-prune\\-learning(?:/)?$"
+    },
+    {
+      "page": "/api/pipeline/auto-quality-gate",
+      "regex": "^/api/pipeline/auto\\-quality\\-gate(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/pipeline/auto\\-quality\\-gate(?:/)?$"
+    },
+    {
+      "page": "/api/pipeline/auto-report-committee",
+      "regex": "^/api/pipeline/auto\\-report\\-committee(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/pipeline/auto\\-report\\-committee(?:/)?$"
+    },
+    {
+      "page": "/api/pipeline/auto-rss-intel",
+      "regex": "^/api/pipeline/auto\\-rss\\-intel(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/pipeline/auto\\-rss\\-intel(?:/)?$"
+    },
+    {
+      "page": "/api/pipeline/auto-seasonal",
+      "regex": "^/api/pipeline/auto\\-seasonal(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/pipeline/auto\\-seasonal(?:/)?$"
+    },
+    {
+      "page": "/api/pipeline/autonomy-score",
+      "regex": "^/api/pipeline/autonomy\\-score(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/pipeline/autonomy\\-score(?:/)?$"
+    },
+    {
+      "page": "/api/pipeline/brand-pods",
+      "regex": "^/api/pipeline/brand\\-pods(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/pipeline/brand\\-pods(?:/)?$"
+    },
+    {
+      "page": "/api/pipeline/campaigns",
+      "regex": "^/api/pipeline/campaigns(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/pipeline/campaigns(?:/)?$"
+    },
+    {
+      "page": "/api/pipeline/content-assets",
+      "regex": "^/api/pipeline/content\\-assets(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/pipeline/content\\-assets(?:/)?$"
+    },
+    {
+      "page": "/api/pipeline/creative-briefs",
+      "regex": "^/api/pipeline/creative\\-briefs(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/pipeline/creative\\-briefs(?:/)?$"
+    },
+    {
+      "page": "/api/pipeline/deployments",
+      "regex": "^/api/pipeline/deployments(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/pipeline/deployments(?:/)?$"
+    },
+    {
+      "page": "/api/pipeline/health",
+      "regex": "^/api/pipeline/health(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/pipeline/health(?:/)?$"
+    },
+    {
+      "page": "/api/pipeline/intelligence",
+      "regex": "^/api/pipeline/intelligence(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/pipeline/intelligence(?:/)?$"
+    },
+    {
+      "page": "/api/pipeline/learning",
+      "regex": "^/api/pipeline/learning(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/pipeline/learning(?:/)?$"
+    },
+    {
+      "page": "/api/pipeline/performance",
+      "regex": "^/api/pipeline/performance(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/pipeline/performance(?:/)?$"
+    },
+    {
+      "page": "/api/pipeline/quality-gate",
+      "regex": "^/api/pipeline/quality\\-gate(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/pipeline/quality\\-gate(?:/)?$"
+    },
+    {
+      "page": "/api/pipeline/seasonal",
+      "regex": "^/api/pipeline/seasonal(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/pipeline/seasonal(?:/)?$"
+    },
+    {
+      "page": "/api/pipeline/tv-shows",
+      "regex": "^/api/pipeline/tv\\-shows(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/pipeline/tv\\-shows(?:/)?$"
+    },
+    {
+      "page": "/api/sendmails",
+      "regex": "^/api/sendmails(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/sendmails(?:/)?$"
+    },
+    {
+      "page": "/api/social-post",
+      "regex": "^/api/social\\-post(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/social\\-post(?:/)?$"
+    },
+    {
+      "page": "/api/social-post/content-teaser",
+      "regex": "^/api/social\\-post/content\\-teaser(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/social\\-post/content\\-teaser(?:/)?$"
+    },
+    {
+      "page": "/api/subscribers",
+      "regex": "^/api/subscribers(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/subscribers(?:/)?$"
+    },
+    {
+      "page": "/api/subscribers/sync",
+      "regex": "^/api/subscribers/sync(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/subscribers/sync(?:/)?$"
+    },
+    {
+      "page": "/api/wizard",
+      "regex": "^/api/wizard(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/wizard(?:/)?$"
+    },
+    {
+      "page": "/apps/formbricks",
+      "regex": "^/apps/formbricks(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/apps/formbricks(?:/)?$"
+    },
+    {
+      "page": "/apps/listmonk",
+      "regex": "^/apps/listmonk(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/apps/listmonk(?:/)?$"
+    },
+    {
+      "page": "/apps/mautic",
+      "regex": "^/apps/mautic(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/apps/mautic(?:/)?$"
+    },
+    {
+      "page": "/apps/postiz",
+      "regex": "^/apps/postiz(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/apps/postiz(?:/)?$"
+    },
+    {
+      "page": "/apps/umami",
+      "regex": "^/apps/umami(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/apps/umami(?:/)?$"
+    },
+    {
+      "page": "/favicon.ico",
+      "regex": "^/favicon\\.ico(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/favicon\\.ico(?:/)?$"
+    },
+    {
+      "page": "/files",
+      "regex": "^/files(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/files(?:/)?$"
+    },
+    {
+      "page": "/leads",
+      "regex": "^/leads(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/leads(?:/)?$"
+    },
+    {
+      "page": "/opencli",
+      "regex": "^/opencli(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/opencli(?:/)?$"
+    },
+    {
+      "page": "/pipeline",
+      "regex": "^/pipeline(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/pipeline(?:/)?$"
+    },
+    {
+      "page": "/pipeline/assembly",
+      "regex": "^/pipeline/assembly(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/pipeline/assembly(?:/)?$"
+    },
+    {
+      "page": "/pipeline/brand-pods",
+      "regex": "^/pipeline/brand\\-pods(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/pipeline/brand\\-pods(?:/)?$"
+    },
+    {
+      "page": "/pipeline/campaigns",
+      "regex": "^/pipeline/campaigns(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/pipeline/campaigns(?:/)?$"
+    },
+    {
+      "page": "/pipeline/content-assets",
+      "regex": "^/pipeline/content\\-assets(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/pipeline/content\\-assets(?:/)?$"
+    },
+    {
+      "page": "/pipeline/content-distribution",
+      "regex": "^/pipeline/content\\-distribution(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/pipeline/content\\-distribution(?:/)?$"
+    },
+    {
+      "page": "/pipeline/control",
+      "regex": "^/pipeline/control(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/pipeline/control(?:/)?$"
+    },
+    {
+      "page": "/pipeline/creative-briefs",
+      "regex": "^/pipeline/creative\\-briefs(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/pipeline/creative\\-briefs(?:/)?$"
+    },
+    {
+      "page": "/pipeline/deployments",
+      "regex": "^/pipeline/deployments(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/pipeline/deployments(?:/)?$"
+    },
+    {
+      "page": "/pipeline/email-analytics",
+      "regex": "^/pipeline/email\\-analytics(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/pipeline/email\\-analytics(?:/)?$"
+    },
+    {
+      "page": "/pipeline/email-config",
+      "regex": "^/pipeline/email\\-config(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/pipeline/email\\-config(?:/)?$"
+    },
+    {
+      "page": "/pipeline/intelligence",
+      "regex": "^/pipeline/intelligence(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/pipeline/intelligence(?:/)?$"
+    },
+    {
+      "page": "/pipeline/learning",
+      "regex": "^/pipeline/learning(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/pipeline/learning(?:/)?$"
+    },
+    {
+      "page": "/pipeline/performance",
+      "regex": "^/pipeline/performance(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/pipeline/performance(?:/)?$"
+    },
+    {
+      "page": "/pipeline/quality-gate",
+      "regex": "^/pipeline/quality\\-gate(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/pipeline/quality\\-gate(?:/)?$"
+    },
+    {
+      "page": "/pipeline/seasonal",
+      "regex": "^/pipeline/seasonal(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/pipeline/seasonal(?:/)?$"
+    },
+    {
+      "page": "/pipeline/tv-shows",
+      "regex": "^/pipeline/tv\\-shows(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/pipeline/tv\\-shows(?:/)?$"
+    },
+    {
+      "page": "/tools",
+      "regex": "^/tools(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/tools(?:/)?$"
+    }
+  ],
+  "dataRoutes": [],
+  "rsc": {
+    "header": "rsc",
+    "varyHeader": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+    "prefetchHeader": "next-router-prefetch",
+    "didPostponeHeader": "x-nextjs-postponed",
+    "contentTypeHeader": "text/x-component",
+    "suffix": ".rsc",
+    "prefetchSegmentHeader": "next-router-segment-prefetch",
+    "prefetchSegmentSuffix": ".segment.rsc",
+    "prefetchSegmentDirSuffix": ".segments",
+    "clientParamParsing": false,
+    "dynamicRSCPrerender": false
+  },
+  "rewriteHeaders": {
+    "pathHeader": "x-nextjs-rewritten-path",
+    "queryHeader": "x-nextjs-rewritten-query"
+  }
+}
