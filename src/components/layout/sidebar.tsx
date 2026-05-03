@@ -8,7 +8,8 @@ import {
   Calendar, ChevronDown, ChevronRight,
   Target, LayoutDashboard, Wrench,
   Mail, Share2, BarChart2, ClipboardList, BellRing, Globe,
-  Sun, Moon, Users, Workflow, Terminal, Cpu
+  Sun, Moon, Users, Workflow, Terminal, Cpu,
+  MapPin, Swords, Trophy, Plane, Church, School, UserPlus, Heart, Search, Rss
 } from "lucide-react"
 import { useState, useRef, useEffect, useCallback } from "react"
 import { useBrand, ALL_BRANDS } from "@/context/BrandContext"
@@ -57,9 +58,29 @@ const sections: NavSection[] = [
     ],
   },
   {
+    title: "Market Research",
+    items: [
+      { label: "Territory Map", href: "/market-research/territory", icon: MapPin },
+      { label: "Competitors", href: "/market-research/competitors", icon: Swords },
+      { label: "Lead Sources", href: "/market-research/lead-sources", icon: Globe },
+    ],
+  },
+  {
+    title: "Acquisition Channels",
+    items: [
+      { label: "Rec Leagues", href: "/channels/rec-leagues", icon: Trophy },
+      { label: "Travel Programs", href: "/channels/travel", icon: Plane },
+      { label: "CYO Programs", href: "/channels/cyo", icon: Church },
+      { label: "Schools", href: "/channels/schools", icon: School },
+      { label: "Referrals", href: "/channels/referrals", icon: UserPlus },
+      { label: "Community Events", href: "/channels/community", icon: Heart },
+    ],
+  },
+  {
     title: "Contacts",
     items: [
       { label: "Leads & Contacts", href: "/leads", icon: Users },
+      { label: "Nurture Sequences", href: "/pipeline/nurture", icon: Mail },
       { label: "Email Lists", href: "/pipeline/email-config", icon: Mail },
       { label: "Content Distribution", href: "/pipeline/content-distribution", icon: Package },
       { label: "Email Analytics", href: "/pipeline/email-analytics", icon: BarChart2 },
@@ -76,6 +97,9 @@ const sections: NavSection[] = [
     items: [
       { label: "Postiz", href: POSTIZ_APP, icon: Share2 },
       { label: "Mautic", href: MAUTIC_APP, icon: Mail },
+      { label: "ListMonk", href: "/apps/listmonk", icon: Rss },
+      { label: "FireCrawl", href: "/apps/firecrawl", icon: Search },
+      { label: "SEO Engine", href: "/apps/seo-engine", icon: TrendingUp },
       { label: "Formbricks", href: FORMBRICKS_APP, icon: ClipboardList },
       { label: "Umami Analytics", href: UMAMI_APP, icon: BarChart2 },
       { label: "Novu", href: NOVU_APP, icon: BellRing },

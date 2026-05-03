@@ -521,3 +521,167 @@ model SubscriberSnapshot {
 
   @@unique([brand, snapshotDate])
 }
+
+// =====================================================
+// MARKET RESEARCH & ACQUISITION CHANNELS
+// =====================================================
+
+model TerritoryZone {
+  id                String   @id @default(cuid())
+  name              String
+  zone              Int      @default(1)
+  towns             String[] @default([])
+  population        Int      @default(0)
+  driveTime         String   @default("0 min")
+  priority          String   @default("MEDIUM")
+  brand             String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model Competitor {
+  id                String    @id @default(cuid())
+  name              String
+  type              String    @default("regional_facility")
+  location          String?
+  distanceMiles     Float?
+  website           String?
+  strengths         String?
+  weaknesses        String?
+  recentChanges     String?
+  lastScrapedAt     DateTime?
+  brand             String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+}
+
+model LeadSource {
+  id                  String    @id @default(cuid())
+  name                String
+  category            String    @default("inbound")
+  type                String    @default("organic")
+  brand               String    @default("TBF")
+  config              Json?
+  schedule            String?
+  totalLeads          Int       @default(0)
+  qualifiedRate       Float     @default(0)
+  enrollmentRate      Float     @default(0)
+  costPerLead         Float     @default(0)
+  costPerEnrollment   Float     @default(0)
+  verdict             String    @default("maintain")
+  status              String    @default("active")
+  lastRunAt           DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+}
+
+model RecLeagueScout {
+  id               String   @id @default(cuid())
+  leagueName       String
+  scoutName        String?
+  town             String?
+  zone             Int      @default(1)
+  contactName      String?
+  contactEmail     String?
+  partnershipType  String   @default("skills_night")
+  sponsorshipCost  Float    @default(0)
+  seasonsPartnered Int      @default(0)
+  leadsPerSeason   Int      @default(0)
+  enrollments      Int      @default(0)
+  status           String   @default("prospect")
+  notes            String?
+  brand            String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model TravelProgram {
+  id               String   @id @default(cuid())
+  name             String
+  organization     String?
+  town             String?
+  zone             Int?
+  ageGroups        String?
+  contactName      String?
+  contactEmail     String?
+  partnershipType  String?  @default("scouting")
+  status           String?  @default("prospect")
+  brand            String?
+  leadsGenerated   Int?     @default(0)
+  enrollments      Int?     @default(0)
+  notes            String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model CYOProgram {
+  id               String   @id @default(cuid())
+  name             String
+  parish           String?
+  town             String?
+  zone             Int?
+  ageGroups        String?
+  contactName      String?
+  contactEmail     String?
+  contactPhone     String?
+  partnershipType  String?
+  status           String?  @default("prospect")
+  brand            String?
+  leadsGenerated   Int?     @default(0)
+  enrollments      Int?     @default(0)
+  seasonSchedule   String?
+  notes            String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model SchoolPartnership {
+  id             String   @id @default(cuid())
+  schoolName     String
+  contactName    String?
+  town           String?
+  zone           Int?
+  brand          String?
+  status         String?  @default("prospect")
+  leadsGenerated Int?     @default(0)
+  enrollments    Int?     @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model ReferralEngine {
+  id            String   @id @default(cuid())
+  referrerName  String
+  referredName  String
+  status        String   @default("pending")
+  brand         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model CommunityEvent {
+  id          String   @id @default(cuid())
+  name        String
+  date        DateTime
+  location    String
+  brand       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model NurtureSequence {
+  id        String   @id @default(cuid())
+  name      String
+  brand     String   @default("TBF")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SeasonalCalendar {
+  id          String   @id @default(cuid())
+  eventName   String
+  startDate   DateTime
+  endDate     DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

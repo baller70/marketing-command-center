@@ -73,7 +73,6 @@ export const APP_PORTS = {
   "financial": 3014,
   "content": 3007,
   "marketing": 3012,
-  "acquisition": 3031,
   "support": 3024,
   "parent-comm": 3028,
   "tbf": 3018,
